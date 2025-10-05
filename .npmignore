@@ -5,6 +5,7 @@
 .eslintignore
 node_modules
 npm-debug.log
+renovate.json
 yarn.lock
 tsconfig.tsbuildinfo
 eslint.config.*
