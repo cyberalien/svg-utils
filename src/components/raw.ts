@@ -29,7 +29,12 @@ export function createRawComponent(
 	const codeLines: string[] = [];
 
 	// Add CSS
-	generateCSSFilesForComponent(data.icon, imports, assets, options);
+	const style = generateCSSFilesForComponent(
+		data.icon,
+		imports,
+		assets,
+		options
+	);
 
 	// Get props
 	const props: Record<string, string> = {
@@ -69,5 +74,6 @@ export function createRawComponent(
 	return {
 		assets,
 		content: codeLines.join('\n'),
+		style,
 	};
 }

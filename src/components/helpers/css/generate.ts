@@ -38,9 +38,14 @@ export function generateCSSFilesForComponent(
 	}
 
 	// Merge CSS animations into CSS files for classes that use those animations
-	const isModule = options.cssMode === 'module';
-	const styleInComponent = (!isModule && options.styleInComponent) ?? false;
-	const mergeCSS = (styleInComponent || options.mergeCSS) ?? false;
+	const { cssMode } = options;
+	const isModule = cssMode === 'module';
+	const isFile = cssMode === 'file';
+
+	const styleInComponent = isFile
+		? 'file'
+		: (!isModule && options.styleInComponent) ?? false;
+	const mergeCSS = (isFile || styleInComponent || options.mergeCSS) ?? false;
 	const embedAnimations = isModule && !mergeCSS;
 
 	const classNamePrefix = styleInComponent === 'svelte' ? ':global ' : '';
@@ -144,7 +149,7 @@ export function generateCSSFilesForComponent(
 			// Add import
 			if (isModule) {
 				imports.modules[mergeCSS.import] = 'css';
-			} else {
+			} else if (!isFile) {
 				imports.css.add(mergeCSS.import);
 			}
 		}

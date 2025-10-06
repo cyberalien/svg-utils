@@ -45,6 +45,7 @@ export interface ComponentFactoryRenderingOptions {
 	cssMode: CSSExportMode;
 
 	// Merge all CSS into single file, value is filename
+	// Should not be used with cssMode='file'
 	mergeCSS?: GeneratedAssetPath;
 
 	// Hardcoded width attribute

@@ -28,6 +28,14 @@ export function mergeExportedComponentFiles(
 
 		// Add component
 		add(item);
+
+		// Add style
+		if (item.css && item.style) {
+			add({
+				filename: item.css,
+				content: item.style,
+			});
+		}
 	}
 
 	return files;

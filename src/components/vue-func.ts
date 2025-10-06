@@ -42,7 +42,12 @@ export function createVueFunctionalComponent(
 	imports.named['vue'] = vueNamedImports;
 
 	// Add CSS
-	generateCSSFilesForComponent(data.icon, imports, assets, options);
+	const style = generateCSSFilesForComponent(
+		data.icon,
+		imports,
+		assets,
+		options
+	);
 
 	// Check if size is fixed and if viewBox is computed
 	let hasFixedSize = !!options.width && !!options.height;
@@ -191,6 +196,7 @@ export function createVueFunctionalComponent(
 	return {
 		assets,
 		content,
+		style,
 		types,
 	};
 }

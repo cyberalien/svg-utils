@@ -75,4 +75,38 @@ describe('Generating CSS for component factory', () => {
 			'../../css/t/test1.module.css': 'cssTest1',
 		});
 	});
+
+	it('File', () => {
+		const assets: GeneratedAssetFile[] = [];
+		const imports = createFactoryImports();
+		const baseOptions = componentFactoryFileSystemOptions({
+			doubleDirsForComponents: false,
+			prefixDirsForComponents: true,
+			doubleDirsForCSS: false,
+		});
+
+		const result = generateCSSFilesForComponent(
+			{
+				content: '<path class="test1" />',
+				classes: {
+					test1: {
+						fill: 'red',
+						d: 'path("M10 10H20V20H10Z")',
+					},
+				},
+			},
+			imports,
+			assets,
+			{
+				...baseOptions,
+				cssMode: 'file',
+			}
+		);
+		expect(assets).toHaveLength(0);
+		expect(result).toBe(
+			'.test1 {\n  fill: red;\n  d: path("M10 10H20V20H10Z");\n}\n'
+		);
+		expect(imports.css).toEqual(new Set());
+		expect(imports.modules).toEqual(Object.create(null));
+	});
 });

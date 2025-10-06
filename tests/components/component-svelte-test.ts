@@ -41,6 +41,7 @@ const content = \`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`;
 		expect(result.assets).toHaveLength(2);
 		expect(result.assets[0].filename).toBe('helpers/size.js');
 		expect(result.assets[1].filename).toBe('i/icon.d.ts');
+		expect(result.style).toBeUndefined();
 
 		// Check types
 		expect(result.assets[1].content)
@@ -93,6 +94,7 @@ const content = \`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`;
 		);
 		expect(result.assets).toHaveLength(1);
 		expect(result.assets[0].filename).toBe('i/icon.d.ts');
+		expect(result.style).toBeUndefined();
 
 		// Check types
 		expect(result.assets[0].content)
@@ -164,6 +166,7 @@ const content = \`<path class="${testClassName}" />\`;
 		expect(result.assets).toHaveLength(2);
 		expect(result.assets[0].filename).toBe(`css/${testClassName}.css`);
 		expect(result.assets[1].filename).toBe('line-icon.d.ts');
+		expect(result.style).toBeUndefined();
 
 		// Check types
 		expect(result.assets[1].content)
@@ -247,9 +250,93 @@ const content = \`<path class="\${${testImportName}['${testClassName}']}" />\`;
 		);
 		expect(result.assets[1].filename).toBe('helpers/size.js');
 		expect(result.assets[2].filename).toBe('line-icon.d.ts');
+		expect(result.style).toBeUndefined();
 
 		// Check types
 		expect(result.assets[2].content)
+			.toBe(`import { SvelteComponent } from "svelte";
+import { SvelteHTMLElements } from "svelte/elements";
+
+interface IconProps {
+	width?: string;
+	height?: string;
+}
+
+declare class Component extends SvelteComponent<Omit<SvelteHTMLElements['svg'], 'viewBox' | 'width' | 'height' | 'xmlns'> & IconProps & Record<\`data-\${string}\`, string>> {}
+
+export { type IconProps };
+export default Component;
+`);
+	});
+
+	it('Icon with CSS, using separate file', () => {
+		const options = componentFactoryFileSystemOptions({
+			doubleDirsForCSS: false, // Ignored
+			doubleDirsForComponents: true, // Used for CSS
+			prefixDirsForComponents: true, // Used for CSS
+		});
+
+		// Convert IconifyIcon and test it
+		const prefix = 'test-prefix';
+		const name = 'line-icon';
+		const data = convertIconifyIconToFactoryContent(
+			{
+				body: '<path d="M0 0l16 16" fill="currentColor" />',
+			},
+			prefix,
+			name,
+			{
+				fallback: false,
+			}
+		);
+		expect(data.prefix).toBe(prefix);
+		expect(data.name).toBe(name);
+		expect(data.viewBox).toEqual({
+			left: 0,
+			top: 0,
+			width: 16,
+			height: 16,
+		});
+		expect(data.fallback).toBeUndefined();
+
+		// Get class name
+		const classNames = Object.keys(data.icon.classes ?? {});
+		expect(classNames).toHaveLength(1);
+		const testClassName = classNames[0];
+
+		// Generate component
+		const result = createSvelteComponent(data, {
+			...options,
+			cssMode: 'file',
+		});
+
+		// console.log(result.content);
+		expect(result.content).toBe(
+			`<script>
+import { getSizeProps } from '../../helpers/size.js';
+
+let {width, height, ...props} = $props();
+
+const viewBox = '0 0 16 16';
+let size = $derived(getSizeProps(width, height, 1));
+const content = \`<path class="${testClassName}" />\`;
+</script>
+<svg xmlns="http://www.w3.org/2000/svg" {...size} viewBox={viewBox} {...props}>{@html content}</svg>
+`
+		);
+		expect(result.assets).toHaveLength(2);
+		expect(result.assets[0].filename).toBe('helpers/size.js');
+		expect(result.assets[1].filename).toBe(
+			`${prefix}/${name.slice(0, 1)}/${name}.d.ts`
+		);
+
+		// Check CSS
+		expect(result.style).toBe(
+			`.${testClassName} {\n  d: path("M0 0l16 16");\n  fill: currentColor;\n}\n`
+		);
+
+		// Check types
+		expect(result.assets[1].content)
 			.toBe(`import { SvelteComponent } from "svelte";
 import { SvelteHTMLElements } from "svelte/elements";
 
@@ -304,6 +391,7 @@ const content = \`<path d="M0 0l20 24" stroke="currentColor" fill="none" />\`;
 		expect(result.assets).toHaveLength(2);
 		expect(result.assets[0].filename).toBe('helpers/size.js');
 		expect(result.assets[1].filename).toBe('i/icon.d.ts');
+		expect(result.style).toBeUndefined();
 
 		// Check types
 		expect(result.assets[1].content)
@@ -360,6 +448,7 @@ const content = \`<path d="M0 0l20 24" stroke="currentColor" fill="none" />\`;
 		);
 		expect(result.assets).toHaveLength(1);
 		expect(result.assets[0].filename).toBe('i/icon.d.ts');
+		expect(result.style).toBeUndefined();
 
 		// Check types
 		expect(result.assets[0].content)
@@ -414,6 +503,7 @@ const content = \`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`;
 		);
 		expect(result.assets).toHaveLength(1);
 		expect(result.assets[0].filename).toBe('i/icon.d.ts');
+		expect(result.style).toBeUndefined();
 
 		// Check types
 		expect(result.assets[0].content)
@@ -467,6 +557,7 @@ const content = \`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`;
 		expect(result.assets).toHaveLength(2);
 		expect(result.assets[0].filename).toBe('helpers/size.js');
 		expect(result.assets[1].filename).toBe('i/icon.d.ts');
+		expect(result.style).toBeUndefined();
 
 		// Check types
 		expect(result.assets[1].content)
@@ -606,5 +697,7 @@ const content = \`<path class="${testClassName}" /><path class="${testClassName2
 		);
 		expect(result.assets).toHaveLength(1);
 		expect(result.assets[0].filename).toBe('line-icon.d.ts');
+		expect(result.style).toBeUndefined();
+		expect(result.style).toBeUndefined();
 	});
 });

@@ -213,7 +213,11 @@ ${template}
 `;
 
 	// Add styles
-	if (styleContent) {
+	const style =
+		!styleInComponent && options.cssMode === 'file'
+			? styleContent
+			: undefined;
+	if (styleContent && !style) {
 		content += `<style>\n${styleContent}\n</style>\n`;
 	}
 
@@ -224,6 +228,7 @@ ${template}
 	return {
 		assets,
 		content,
+		style,
 		types,
 	};
 }

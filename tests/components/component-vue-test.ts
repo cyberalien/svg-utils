@@ -4,6 +4,7 @@ import { generateCSSDefaultImportName } from '../../src/components/helpers/css/n
 import { componentFactoryFileSystemOptions } from '../../src/components/prepare/options.js';
 import type { FactoryIconData } from '../../src/components/types/data.js';
 import { getGeneratedAssetFilename } from '../../src/components/helpers/filenames/asset.js';
+import { getGeneratedComponentFilename } from '../../src/components/export/filename.js';
 
 describe('Creating Vue components', () => {
 	it('Simple icon', () => {
@@ -42,6 +43,7 @@ const content = \`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`;
 		expect(result.assets).toHaveLength(2);
 		expect(result.assets[0].filename).toBe('helpers/size.js');
 		expect(result.assets[1].filename).toBe('i/icon.d.ts');
+		expect(result.style).toBeUndefined();
 
 		// Check types
 		expect(result.assets[1].content)
@@ -110,6 +112,7 @@ const content = \`<path class="${testClassName}" />\`;
 		expect(result.assets).toHaveLength(2);
 		expect(result.assets[0].filename).toBe(`css/${testClassName}.css`);
 		expect(result.assets[1].filename).toBe('line-icon.d.ts');
+		expect(result.style).toBeUndefined();
 
 		// Check types
 		expect(result.assets[1].content)
@@ -191,9 +194,100 @@ const content = \`<path class="\${${testImportName}['${testClassName}']}" />\`;
 		);
 		expect(result.assets[1].filename).toBe('helpers/size.js');
 		expect(result.assets[2].filename).toBe('line-icon.d.ts');
+		expect(result.style).toBeUndefined();
 
 		// Check types
 		expect(result.assets[2].content)
+			.toBe(`import { DefineSetupFnComponent, PublicProps } from 'vue';
+
+interface IconProps {
+	width?: string;
+	height?: string;
+}
+
+declare const Component: DefineSetupFnComponent<IconProps, {}, {}, IconProps & {}, PublicProps>;
+
+export { type IconProps };
+export default Component;
+`);
+	});
+
+	it('Icon with CSS, using separate file', () => {
+		const options = componentFactoryFileSystemOptions({
+			doubleDirsForCSS: true, // Ignored
+			doubleDirsForComponents: false,
+		});
+
+		// Convert IconifyIcon and test it
+		const prefix = 'test-prefix';
+		const name = 'line-icon';
+		const data = convertIconifyIconToFactoryContent(
+			{
+				body: '<path d="M0 0l16 16" fill="currentColor" />',
+			},
+			prefix,
+			name,
+			{
+				fallback: false,
+			}
+		);
+		expect(data.prefix).toBe(prefix);
+		expect(data.name).toBe(name);
+		expect(data.viewBox).toEqual({
+			left: 0,
+			top: 0,
+			width: 16,
+			height: 16,
+		});
+		expect(data.fallback).toBeUndefined();
+
+		// Get class name
+		const classNames = Object.keys(data.icon.classes ?? {});
+		expect(classNames).toHaveLength(1);
+		const testClassName = classNames[0];
+
+		// Generate component
+		const cssFilename = getGeneratedComponentFilename(
+			{ prefix, name },
+			'.css',
+			options
+		);
+		const result = createVueComponent(data, {
+			...options,
+			cssMode: 'file',
+			// Should be ignored
+			mergeCSS: {
+				filename: cssFilename,
+				import: `./${cssFilename}`,
+			},
+		});
+
+		// console.log(result.content);
+		expect(result.content).toBe(
+			`<script setup>
+import { computed } from 'vue';
+import { getSizeProps } from './helpers/size.js';
+
+const props = defineProps(["width","height"]);
+
+const viewBox = '0 0 16 16';
+const size = computed(() => getSizeProps(props.width, props.height, 1));
+const content = \`<path class="${testClassName}" />\`;
+</script>
+<template><svg xmlns="http://www.w3.org/2000/svg" v-bind="size" :viewBox="viewBox" v-html="content" /></template>
+`
+		);
+		expect(result.assets).toHaveLength(2);
+		expect(result.assets[0].filename).toBe('helpers/size.js');
+		expect(result.assets[1].filename).toBe('line-icon.d.ts');
+
+		// Check CSS
+		expect(result.style).toBe(
+			`.${testClassName} {\n  d: path("M0 0l16 16");\n  fill: currentColor;\n}\n`
+		);
+
+		// Check types
+		expect(result.assets[1].content)
 			.toBe(`import { DefineSetupFnComponent, PublicProps } from 'vue';
 
 interface IconProps {
@@ -248,6 +342,7 @@ const content = \`<path d="M0 0l20 24" stroke="currentColor" fill="none" />\`;
 		expect(result.assets).toHaveLength(2);
 		expect(result.assets[0].filename).toBe('helpers/size.js');
 		expect(result.assets[1].filename).toBe('i/icon.d.ts');
+		expect(result.style).toBeUndefined();
 
 		// Check types
 		expect(result.assets[1].content)
@@ -301,6 +396,7 @@ const content = \`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`;
 		);
 		expect(result.assets).toHaveLength(1);
 		expect(result.assets[0].filename).toBe('i/icon.d.ts');
+		expect(result.style).toBeUndefined();
 
 		// Check types
 		expect(result.assets[0].content)
@@ -354,6 +450,7 @@ const content = \`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`;
 		expect(result.assets).toHaveLength(2);
 		expect(result.assets[0].filename).toBe('helpers/size.js');
 		expect(result.assets[1].filename).toBe('i/icon.d.ts');
+		expect(result.style).toBeUndefined();
 
 		// Check types
 		expect(result.assets[1].content)
@@ -424,6 +521,7 @@ const content = \`<path class="\${css['${testClassName}']}" /><path class="\${cs
 		expect(result.assets).toHaveLength(2);
 		expect(result.assets[0].filename).toBe(`icon.css`);
 		expect(result.assets[1].filename).toBe('line-icon.d.ts');
+		expect(result.style).toBeUndefined();
 	});
 
 	it('CSS in component', () => {
@@ -489,5 +587,6 @@ const content = \`<path class="${testClassName}" /><path class="${testClassName2
 		);
 		expect(result.assets).toHaveLength(1);
 		expect(result.assets[0].filename).toBe('line-icon.d.ts');
+		expect(result.style).toBeUndefined();
 	});
 });

@@ -9,7 +9,6 @@ import {
 	getIconifyIconsetMetadataAsset,
 } from '../../src/components/prepare/iconify.js';
 import { convertGeneratedComponentToFile } from '../../src/components/export/file.js';
-import { getGeneratedComponentFilename } from '../../src/components/export/filename.js';
 import { mergeExportedComponentFiles } from '../../src/components/export/merge.js';
 import { createExportsForMainFiles } from '../../src/components/export/exports.js';
 import { saveExportedFilesToFS } from '../../src/components/export/fs.js';
@@ -98,14 +97,12 @@ describe.skip('Creating components package with fallback', () => {
 
 					// Create file data
 					const file = convertGeneratedComponentToFile(
-						// `${prefix}/${name}`,
-						name,
-						getGeneratedComponentFilename(
-							iconData,
-							`.${testMode}`,
-							options
-						),
-						result
+						iconData,
+						result,
+						{
+							...options,
+							extension: `.${testMode}`,
+						}
 					);
 
 					components.push(file);

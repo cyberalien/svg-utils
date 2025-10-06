@@ -13,9 +13,6 @@ export function stringifyFactoryIconContent(
 
 	let content = '`' + icon.content.replace(/`/g, '\\`') + '`';
 	switch (cssMode) {
-		case 'import':
-			return content;
-
 		case 'module': {
 			// Replace all class names
 			for (const className in icon.classes) {
@@ -31,5 +28,8 @@ export function stringifyFactoryIconContent(
 			}
 			return content;
 		}
+
+		default:
+			return content;
 	}
 }

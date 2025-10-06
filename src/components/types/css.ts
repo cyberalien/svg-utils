@@ -1,4 +1,4 @@
 /**
  * Method of importing CSS in generated components
  */
-export type CSSExportMode = 'import' | 'module';
+export type CSSExportMode = 'import' | 'module' | 'file';

@@ -25,13 +25,16 @@ export function createExportsForMainFiles(
 	const ext = options.ext || '';
 	const defaultProp = options.defaultProp || 'default';
 
-	for (const { icon, filename, types } of data) {
+	for (const { icon, filename, css, types } of data) {
 		result[`./${icon}${ext}`] = types
 			? {
 					types: `./${types}`,
 					[defaultProp]: `./${filename}`,
 			  }
 			: `./${filename}`;
+		if (css) {
+			result[`./${icon}.css`] = `./${css}`;
+		}
 	}
 	return result;
 }

@@ -27,6 +27,9 @@ export interface FactoryGeneratedComponent {
 	// Main file content
 	content: string;
 
+	// CSS file content (if any. set if styles are not in component or assets)
+	style?: string;
+
 	// Types filename (if any)
 	types?: string;
 }
@@ -41,4 +44,7 @@ export interface FactoryComponent
 
 	// Component file name
 	filename: string;
+
+	// CSS filename (if any)
+	css?: string;
 }
