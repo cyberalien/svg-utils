@@ -16,7 +16,7 @@ interface Options
 	> {
 	// Style in component mode: merge CSS, do not add assets, merge content
 	// Cannot be used with CSS modules
-	styleInComponent?: boolean;
+	styleInComponent?: boolean | 'svelte';
 }
 
 /**
@@ -43,6 +43,9 @@ export function generateCSSFilesForComponent(
 	const mergeCSS = (styleInComponent || options.mergeCSS) ?? false;
 	const embedAnimations = isModule && !mergeCSS;
 
+	const classNamePrefix = styleInComponent === 'svelte' ? ':global ' : '';
+	const keyframesPrefix = styleInComponent === 'svelte' ? '-global-' : '';
+
 	// All content
 	const mergedContent: string[] = [];
 
@@ -50,7 +53,7 @@ export function generateCSSFilesForComponent(
 	for (const className in classes) {
 		// Generate content
 		const baseContent = stringifyCSSSelector(
-			`.${className}`,
+			`${classNamePrefix}.${className}`,
 			classes[className]
 		);
 		let content = baseContent;
@@ -64,7 +67,10 @@ export function generateCSSFilesForComponent(
 						'\n' +
 						(typeof value === 'string'
 							? value
-							: stringifyCSSKeyframes(animationName, value));
+							: stringifyCSSKeyframes(
+									keyframesPrefix + animationName,
+									value
+							  ));
 				}
 			}
 		}
@@ -97,7 +103,10 @@ export function generateCSSFilesForComponent(
 			const content =
 				typeof value === 'string'
 					? value
-					: stringifyCSSKeyframes(animationName, value);
+					: stringifyCSSKeyframes(
+							keyframesPrefix + animationName,
+							value
+					  );
 
 			if (mergeCSS) {
 				mergedContent.push(content);

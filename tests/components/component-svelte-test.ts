@@ -591,18 +591,16 @@ const content = \`<path class="${testClassName}" /><path class="${testClassName2
 </script>
 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox={viewBox} {...props}>{@html content}</svg>
 <style>
-:global {
-.${testClassName} {
+:global .${testClassName} {
   d: path("M0 0l16 16");
   fill: currentColor;
 }
 
-.${testClassName2} {
+:global .${testClassName2} {
   d: path("M16 0l-16 16");
   fill: currentColor;
 }
 
-}
 </style>
 `
 		);

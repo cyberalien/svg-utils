@@ -40,7 +40,8 @@ export function createSvelteComponent(
 ): FactoryGeneratedComponent {
 	// Check options
 	const useTS = options.ts ?? false;
-	const styleInComponent = options.styles ?? false;
+	const styleInComponent: boolean | 'svelte' =
+		options.styles === true ? 'svelte' : false;
 
 	// Init data
 	const assets: GeneratedAssetFile[] = [];
@@ -213,7 +214,7 @@ ${template}
 
 	// Add styles
 	if (styleContent) {
-		content += `<style>\n:global {\n${styleContent}\n}\n</style>\n`;
+		content += `<style>\n${styleContent}\n</style>\n`;
 	}
 
 	// Add types file

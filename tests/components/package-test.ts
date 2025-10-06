@@ -21,6 +21,13 @@ describe.skip('Creating components package with fallback', () => {
 	const baseDir = `temp/test-{mode}-package`;
 	let iconSet: IconifyJSON;
 
+	const names = new Set([
+		'bluesky-line',
+		'github-line',
+		'twitter-x-line',
+		'linkedin-box-line',
+	]);
+
 	beforeAll(async () => {
 		// Clean up
 		for (const testMode of testModes) {
@@ -49,7 +56,7 @@ describe.skip('Creating components package with fallback', () => {
 				testMode === 'vue' ? createVueComponent : createSvelteComponent;
 			const defaultProp = testMode === 'svelte' ? testMode : undefined;
 			const dir = baseDir.replace('{mode}', testMode);
-			const styles = testMode === 'svelte' ? true : undefined;
+			const styles = true; //testMode === 'svelte' ? true : undefined;
 			const useFallback = true;
 			const height: string | undefined = undefined;
 
@@ -57,14 +64,14 @@ describe.skip('Creating components package with fallback', () => {
 			const options = componentFactoryFileSystemOptions({
 				prefixDirsForComponents: 'components',
 				doubleDirsForCSS: false,
-				doubleDirsForComponents: true,
+				doubleDirsForComponents: false,
 			});
 
 			// Export all icons
 			const components: FactoryComponent[] = [];
 
 			parseIconifyIconSet(iconSet, (name, data) => {
-				if (data) {
+				if (data && names.has(name)) {
 					// Convert icon
 					const iconData = convertIconifyIconToFactoryContent(
 						data,
@@ -74,6 +81,7 @@ describe.skip('Creating components package with fallback', () => {
 							hashOptions: {
 								throwOnCollision: true,
 							},
+							classNamePrefix: 'test',
 						}
 					);
 					if (!useFallback) {
@@ -128,9 +136,9 @@ describe.skip('Creating components package with fallback', () => {
 				defaultProp,
 			});
 			const packageJSON = {
-				name: `@iconify-${testMode}/${prefix}`,
+				name: `@iconify/${prefix}-${testMode}-test`,
 				type: 'module',
-				version: '0.0.1',
+				version: '1.0.0',
 				exports: {
 					...exports,
 					'./*': './*',
