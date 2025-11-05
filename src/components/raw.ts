@@ -35,6 +35,7 @@ export function createRawComponent(
 		assets,
 		options
 	);
+	const isEmbeddedCSS = options.cssMode === 'embed';
 
 	// Get props
 	const props: Record<string, string> = {
@@ -47,8 +48,8 @@ export function createRawComponent(
 	const icon = {
 		...data.icon,
 		content: `<svg ${stringifyFactoryProps(props, factoryPropTemplate)}>${
-			data.icon.content
-		}</svg>`,
+			isEmbeddedCSS && style ? `<style>${style}</style>` : ''
+		}${data.icon.content}</svg>`,
 	};
 
 	// Convert to string, export icon
@@ -74,6 +75,6 @@ export function createRawComponent(
 	return {
 		assets,
 		content: codeLines.join('\n'),
-		style,
+		style: isEmbeddedCSS ? undefined : style,
 	};
 }

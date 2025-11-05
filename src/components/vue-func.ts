@@ -48,6 +48,7 @@ export function createVueFunctionalComponent(
 		assets,
 		options
 	);
+	const isEmbeddedCSS = options.cssMode === 'embed';
 
 	// Check if size is fixed and if viewBox is computed
 	let hasFixedSize = !!options.width && !!options.height;
@@ -159,7 +160,11 @@ export function createVueFunctionalComponent(
 
 	// Add content
 	props[hasFallback ? 'content' : 'innerHTML'] = {
-		value: stringifyFactoryIconContent(data.icon, options),
+		value: stringifyFactoryIconContent(
+			data.icon,
+			options,
+			isEmbeddedCSS ? style : undefined
+		),
 	};
 	if (data.fallback) {
 		props.fallback = data.fallback;
@@ -196,7 +201,7 @@ export function createVueFunctionalComponent(
 	return {
 		assets,
 		content,
-		style,
+		style: isEmbeddedCSS ? undefined : style,
 		types,
 	};
 }

@@ -26,9 +26,6 @@ import { getViewBoxRatio } from './helpers/content/ratio.js';
 interface VueOptions extends ComponentFactoryOptions {
 	// Use TypeScript
 	ts?: boolean;
-
-	// Include styles in component, overrides mergeCSS
-	styles?: boolean;
 }
 
 /**
@@ -40,7 +37,6 @@ export function createVueComponent(
 ): FactoryGeneratedComponent {
 	// Check options
 	const useTS = options.ts ?? false;
-	const styleInComponent = options.styles ?? false;
 
 	// Init data
 	const assets: GeneratedAssetFile[] = [];
@@ -61,10 +57,7 @@ export function createVueComponent(
 		data.icon,
 		imports,
 		assets,
-		{
-			...options,
-			styleInComponent,
-		}
+		options
 	);
 
 	// Check if size is fixed and if viewBox is computed
@@ -215,10 +208,7 @@ ${template}
 `;
 
 	// Add styles
-	const style =
-		!styleInComponent && options.cssMode === 'prop'
-			? styleContent
-			: undefined;
+	const style = options.cssMode === 'prop' ? styleContent : undefined;
 
 	if (styleContent && !style) {
 		content += `<style>\n${styleContent}\n</style>\n`;

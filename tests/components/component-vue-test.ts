@@ -557,10 +557,9 @@ const content = \`<path class="\${css['${testClassName}']}" /><path class="\${cs
 		// Generate component
 		const result = createVueComponent(data, {
 			...options,
-			cssMode: 'import',
+			cssMode: 'embed',
 			width: '1em',
 			height: '1em',
-			styles: true,
 		});
 
 		// console.log(result.content);

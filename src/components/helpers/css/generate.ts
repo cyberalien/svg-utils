@@ -15,8 +15,7 @@ interface Options
 		'cssMode' | 'cssPath' | 'doubleDirsForCSS' | 'mergeCSS'
 	> {
 	// Style in component mode: merge CSS, do not add assets, merge content
-	// Cannot be used with CSS modules
-	styleInComponent?: boolean | 'svelte';
+	componentType?: 'svelte';
 }
 
 /**
@@ -37,19 +36,21 @@ export function generateCSSFilesForComponent(
 		return;
 	}
 
-	// Merge CSS animations into CSS files for classes that use those animations
-	const { cssMode } = options;
+	// Check CSS mode
+	const { cssMode, componentType } = options;
+	const isComponent = cssMode === 'embed';
+	const returnCSS = isComponent || cssMode === 'prop';
 	const isModule = cssMode === 'module';
-	const isFile = cssMode === 'prop';
 
-	const styleInComponent = isFile
-		? 'file'
-		: (!isModule && options.styleInComponent) ?? false;
-	const mergeCSS = (isFile || styleInComponent || options.mergeCSS) ?? false;
+	// Check if CSS should be merged
+	const mergeCSS = (returnCSS || options.mergeCSS) ?? false;
 	const embedAnimations = isModule && !mergeCSS;
 
-	const classNamePrefix = styleInComponent === 'svelte' ? ':global ' : '';
-	const keyframesPrefix = styleInComponent === 'svelte' ? '-global-' : '';
+	// Get class name/keyframe name prefixes for components
+	const classNamePrefix =
+		isComponent && componentType === 'svelte' ? ':global ' : '';
+	const keyframesPrefix =
+		isComponent && componentType === 'svelte' ? '-global-' : '';
 
 	// All content
 	const mergedContent: string[] = [];
@@ -149,13 +150,13 @@ export function generateCSSFilesForComponent(
 			// Add import
 			if (isModule) {
 				imports.modules[mergeCSS.import] = 'css';
-			} else if (!isFile) {
+			} else if (!returnCSS) {
 				imports.css.add(mergeCSS.import);
 			}
 		}
 
 		// Return merged content
-		return styleInComponent ? content : undefined;
+		return returnCSS ? content : undefined;
 	}
 
 	return;

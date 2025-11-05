@@ -7,11 +7,16 @@ import type { ComponentFactorySource } from '../../types/source.js';
  */
 export function stringifyFactoryIconContent(
 	icon: ComponentFactorySource,
-	options: Pick<ComponentFactoryRenderingOptions, 'cssMode' | 'mergeCSS'>
+	options: Pick<ComponentFactoryRenderingOptions, 'cssMode' | 'mergeCSS'>,
+	embedCSS?: string
 ): string {
 	const { cssMode, mergeCSS } = options;
 
-	let content = '`' + icon.content.replace(/`/g, '\\`') + '`';
+	const fullContent = embedCSS
+		? `<style>${embedCSS}</style>${icon.content}`
+		: icon.content;
+	let content = '`' + fullContent.replace(/`/g, '\\`') + '`';
+
 	switch (cssMode) {
 		case 'module': {
 			// Replace all class names

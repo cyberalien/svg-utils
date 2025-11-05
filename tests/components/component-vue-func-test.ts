@@ -324,7 +324,92 @@ export default Component;
 `);
 	});
 
-	it('Square property, CSS modules', () => {
+	it('Icon with CSS, embedded', () => {
+		const options = componentFactoryFileSystemOptions({
+			doubleDirsForCSS: false,
+			doubleDirsForComponents: false,
+		});
+
+		// Convert IconifyIcon and test it
+		const data = convertIconifyIconToFactoryContent(
+			{
+				body: '<path d="M0 0l16 16" fill="currentColor" />',
+			},
+			'test-prefix',
+			'line-icon',
+			{
+				fallback: false,
+			}
+		);
+		expect(data.prefix).toBe('test-prefix');
+		expect(data.name).toBe('line-icon');
+		expect(data.viewBox).toEqual({
+			left: 0,
+			top: 0,
+			width: 16,
+			height: 16,
+		});
+		expect(data.fallback).toBeUndefined();
+
+		// Get class name
+		const classNames = Object.keys(data.icon.classes ?? {});
+		expect(classNames).toHaveLength(1);
+		const testClassName = classNames[0];
+
+		// Generate component
+		const result = createVueFunctionalComponent(data, {
+			...options,
+			cssMode: 'embed',
+		});
+
+		// console.log(result.content);
+		expect(result.content).toBe(
+			`import { computed, defineComponent, h } from 'vue';
+import { getSizeProps } from './helpers/size.js';
+
+const Component = defineComponent(
+	(props) => {
+		const viewBox = '0 0 16 16';
+		const size = computed(() => getSizeProps(props.width, props.height, 1));
+		return () => h('svg', { 
+			"xmlns": "http://www.w3.org/2000/svg",
+			...size.value,
+			viewBox,
+			"innerHTML": \`<style>.${testClassName} {\n  d: path("M0 0l16 16");\n  fill: currentColor;\n}\n</style><path class="${testClassName}" />\`,
+		});
+	},
+	{
+		props: ["width","height"]
+	}
+);
+
+export default Component;
+`
+		);
+		expect(result.assets).toHaveLength(2);
+		expect(result.assets[0].filename).toBe('helpers/size.js');
+		expect(result.assets[1].filename).toBe('line-icon.d.ts');
+
+		// Check CSS
+		expect(result.style).toBeUndefined();
+
+		// Check types
+		expect(result.assets[1].content)
+			.toBe(`import { DefineSetupFnComponent, PublicProps } from 'vue';
+
+interface IconProps {
+	width?: string;
+	height?: string;
+}
+
+declare const Component: DefineSetupFnComponent<IconProps, {}, {}, IconProps & {}, PublicProps>;
+
+export { type IconProps };
+export default Component;
+`);
+	});
+
+	it('Square property', () => {
 		const options = componentFactoryFileSystemOptions({});
 		const data: FactoryIconData = {
 			prefix: 'test',

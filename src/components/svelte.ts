@@ -26,9 +26,6 @@ import { getViewBoxRatio } from './helpers/content/ratio.js';
 interface SvelteOptions extends ComponentFactoryOptions {
 	// Use TypeScript
 	ts?: boolean;
-
-	// Include styles in component, overrides mergeCSS
-	styles?: boolean;
 }
 
 /**
@@ -40,8 +37,6 @@ export function createSvelteComponent(
 ): FactoryGeneratedComponent {
 	// Check options
 	const useTS = options.ts ?? false;
-	const styleInComponent: boolean | 'svelte' =
-		options.styles === true ? 'svelte' : false;
 
 	// Init data
 	const assets: GeneratedAssetFile[] = [];
@@ -60,7 +55,7 @@ export function createSvelteComponent(
 		assets,
 		{
 			...options,
-			styleInComponent,
+			componentType: 'svelte',
 		}
 	);
 
@@ -213,10 +208,7 @@ ${template}
 `;
 
 	// Add styles
-	const style =
-		!styleInComponent && options.cssMode === 'prop'
-			? styleContent
-			: undefined;
+	const style = options.cssMode === 'prop' ? styleContent : undefined;
 	if (styleContent && !style) {
 		content += `<style>\n${styleContent}\n</style>\n`;
 	}
