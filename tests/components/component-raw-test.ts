@@ -2,6 +2,7 @@ import { convertIconifyIconToFactoryContent } from '../../src/components/prepare
 import { createRawComponent } from '../../src/components/raw.js';
 import { componentFactoryFileSystemOptions } from '../../src/components/prepare/options.js';
 import type { FactoryIconData } from '../../src/components/types/data.js';
+import { generateCSSDefaultImportName } from '../../src/components/helpers/css/name.js';
 
 describe('Creating raw components', () => {
 	it('Simple icon', () => {
@@ -75,6 +76,58 @@ describe('Creating raw components', () => {
 		);
 		expect(result.assets).toHaveLength(2);
 		expect(result.assets[0].filename).toBe(`css/${testClassName}.css`);
+		expect(result.assets[1].filename).toBe('line-icon.d.ts');
+		expect(result.style).toBeUndefined();
+	});
+
+	it('Icon with CSS, using modules', () => {
+		const options = componentFactoryFileSystemOptions({
+			doubleDirsForCSS: false,
+			doubleDirsForComponents: false,
+		});
+
+		// Convert IconifyIcon and test it
+		const data = convertIconifyIconToFactoryContent(
+			{
+				body: '<path d="M0 0l16 16" fill="currentColor" />',
+			},
+			'test-prefix',
+			'line-icon'
+		);
+		expect(data.prefix).toBe('test-prefix');
+		expect(data.name).toBe('line-icon');
+		expect(data.viewBox).toEqual({
+			left: 0,
+			top: 0,
+			width: 16,
+			height: 16,
+		});
+
+		// Fallback should be set, but will be ignored
+		expect(data.fallback).toEqual('test-prefix:line-icon');
+
+		// Get class name
+		const classNames = Object.keys(data.icon.classes ?? {});
+		expect(classNames).toHaveLength(1);
+		const testClassName = classNames[0];
+		const testImportName = generateCSSDefaultImportName(testClassName);
+
+		// Generate component
+		const result = createRawComponent(data, {
+			...options,
+			cssMode: 'module',
+			height: '1em',
+		});
+		expect(result.content).toBe(
+			`import ${testImportName} from './css/${testClassName}.module.css';\n\n` +
+				'const icon = `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16"><path class="${' +
+				`${testImportName}['${testClassName}']` +
+				'}" /></svg>`;\n\nexport default icon;\n'
+		);
+		expect(result.assets).toHaveLength(2);
+		expect(result.assets[0].filename).toBe(
+			`css/${testClassName}.module.css`
+		);
 		expect(result.assets[1].filename).toBe('line-icon.d.ts');
 		expect(result.style).toBeUndefined();
 	});
