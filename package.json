@@ -13,7 +13,7 @@
 		"url": "https://github.com/cyberalien/svg-utils.git"
 	},
 	"scripts": {
-		"lint": "eslint --fix src/**/*.ts",
+		"lint": "eslint --fix src/**/*.ts && tsc --noemit",
 		"prebuild": "pnpm run lint",
 		"build": "tsdown",
 		"test": "vitest"

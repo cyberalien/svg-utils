@@ -307,7 +307,7 @@ export default Component;
 		// Generate component
 		const result = createSvelteComponent(data, {
 			...options,
-			cssMode: 'file',
+			cssMode: 'prop',
 		});
 
 		// console.log(result.content);

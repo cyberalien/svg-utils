@@ -272,7 +272,7 @@ export default Component;
 		// Generate component
 		const result = createVueFunctionalComponent(data, {
 			...options,
-			cssMode: 'file',
+			cssMode: 'prop',
 		});
 
 		// console.log(result.content);

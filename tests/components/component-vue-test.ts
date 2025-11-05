@@ -254,7 +254,7 @@ export default Component;
 		);
 		const result = createVueComponent(data, {
 			...options,
-			cssMode: 'file',
+			cssMode: 'prop',
 			// Should be ignored
 			mergeCSS: {
 				filename: cssFilename,

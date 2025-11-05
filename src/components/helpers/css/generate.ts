@@ -40,7 +40,7 @@ export function generateCSSFilesForComponent(
 	// Merge CSS animations into CSS files for classes that use those animations
 	const { cssMode } = options;
 	const isModule = cssMode === 'module';
-	const isFile = cssMode === 'file';
+	const isFile = cssMode === 'prop';
 
 	const styleInComponent = isFile
 		? 'file'

@@ -214,7 +214,7 @@ ${template}
 
 	// Add styles
 	const style =
-		!styleInComponent && options.cssMode === 'file'
+		!styleInComponent && options.cssMode === 'prop'
 			? styleContent
 			: undefined;
 	if (styleContent && !style) {

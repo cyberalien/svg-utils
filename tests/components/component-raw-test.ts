@@ -113,7 +113,7 @@ describe('Creating raw components', () => {
 		// Generate component
 		const result = createRawComponent(data, {
 			...options,
-			cssMode: 'file',
+			cssMode: 'prop',
 		});
 		expect(result.content).toBe(
 			'const icon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path class="' +

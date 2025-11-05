@@ -99,7 +99,7 @@ describe('Generating CSS for component factory', () => {
 			assets,
 			{
 				...baseOptions,
-				cssMode: 'file',
+				cssMode: 'prop',
 			}
 		);
 		expect(assets).toHaveLength(0);
