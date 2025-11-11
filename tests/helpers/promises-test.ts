@@ -122,4 +122,11 @@ describe('Testing unique promises', () => {
 		});
 		expect(data).toEqual(200);
 	});
+
+	it('Void result', async () => {
+		const data = await uniquePromise('sync-loader-void', () => {
+			return;
+		});
+		expect(data).toBeUndefined();
+	});
 });

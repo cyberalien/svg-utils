@@ -44,14 +44,14 @@ export function uniquePromise<T>(
 		(cache as Cache<T>).push(newItem);
 
 		// Resolve/reject all promises
-		function done(data?: T, err?: unknown) {
+		function done(success: boolean, result?: T | Error) {
 			cache = cache.filter((item) => item !== newItem);
 			newItem.callbacks.forEach((item) => {
 				try {
-					if (data === undefined) {
-						item.reject(err);
+					if (success) {
+						item.resolve(result as T);
 					} else {
-						item.resolve(data);
+						item.reject(result as Error);
 					}
 					// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				} catch (err2) {
@@ -65,19 +65,19 @@ export function uniquePromise<T>(
 		try {
 			cb = callback();
 		} catch (err) {
-			done(undefined, err);
+			done(false, err as Error);
 			return;
 		}
 
 		// Run it
 		if (cb instanceof Promise) {
 			cb.then((data) => {
-				done(data);
+				done(true, data);
 			}).catch((err) => {
-				done(undefined, err);
+				done(false, err);
 			});
 		} else {
-			done(cb);
+			done(true, cb);
 		}
 	});
 }
