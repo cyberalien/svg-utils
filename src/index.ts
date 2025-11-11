@@ -1,6 +1,7 @@
 export * from './helpers/misc/clone.js';
 export * from './helpers/misc/compare.js';
 export * from './helpers/misc/sort-object.js';
+export * from './helpers/misc/keys.js';
 export * from './helpers/misc/promises.js';
 
 export * from './helpers/hash/types.js';
