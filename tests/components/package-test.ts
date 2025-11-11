@@ -55,7 +55,7 @@ describe.skip('Creating components package with fallback', () => {
 				testMode === 'vue' ? createVueComponent : createSvelteComponent;
 			const defaultProp = testMode === 'svelte' ? testMode : undefined;
 			const dir = baseDir.replace('{mode}', testMode);
-			const styles = true; //testMode === 'svelte' ? true : undefined;
+			const cssMode = 'embed'; //testMode === 'svelte' ? 'embed' : 'import';
 			const useFallback = true;
 			const height: string | undefined = undefined;
 
@@ -90,8 +90,7 @@ describe.skip('Creating components package with fallback', () => {
 					// Create component
 					const result = testFunction(iconData, {
 						...options,
-						cssMode: 'import',
-						styles,
+						cssMode,
 						height,
 					});
 

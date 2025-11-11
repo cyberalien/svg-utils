@@ -1,0 +1,109 @@
+import { sortObject } from './sort-object.js';
+
+type ComparisonKey = string | number | symbol | object;
+
+interface PromiseInstance<T> {
+	resolve: (data: T) => void;
+	reject: (reason?: unknown) => void;
+}
+
+interface CacheItem<T> {
+	key: ComparisonKey;
+	callbacks: PromiseInstance<T>[];
+}
+type Cache<T> = CacheItem<T>[];
+
+let cache: Cache<unknown> = [];
+
+/**
+ * Compare keys, return true on match
+ */
+function compareKeys(key1: ComparisonKey, key2: ComparisonKey): boolean {
+	if (key1 === key2) {
+		// Match
+		return true;
+	}
+	if (
+		typeof key1 !== 'object' ||
+		typeof key2 !== 'object' ||
+		!key1 ||
+		!key2
+	) {
+		// Not objects or one is null
+		return false;
+	}
+
+	// Compare object keys
+	const str1 = JSON.stringify(sortObject(key1));
+	const str2 = JSON.stringify(sortObject(key2));
+	return str1 === str2;
+}
+
+/**
+ * Make sure multiple instances of Promise or callback are not ran at the same time
+ */
+export function uniquePromise<T>(
+	key: ComparisonKey,
+	callback: () => T | Promise<T>
+): Promise<T> {
+	return new Promise((resolve, reject) => {
+		const cachedItem = cache.find((item) => compareKeys(key, item.key));
+		if (cachedItem) {
+			// Add to queue
+			(cachedItem as CacheItem<T>).callbacks.push({
+				resolve,
+				reject,
+			});
+			return;
+		}
+
+		// Not running yet: add to queue
+		const newItem: CacheItem<T> = {
+			key,
+			callbacks: [
+				{
+					resolve,
+					reject,
+				},
+			],
+		};
+		(cache as Cache<T>).push(newItem);
+
+		// Resolve/reject all promises
+		function done(data?: T, err?: unknown) {
+			cache = cache.filter((item) => item !== newItem);
+			newItem.callbacks.forEach((item) => {
+				try {
+					if (data === undefined) {
+						item.reject(err);
+					} else {
+						item.resolve(data);
+					}
+					// eslint-disable-next-line @typescript-eslint/no-unused-vars
+				} catch (err2) {
+					//
+				}
+			});
+		}
+
+		// Get Promise or callback
+		let cb: T | Promise<T>;
+		try {
+			cb = callback();
+		} catch (err) {
+			done(undefined, err);
+			return;
+		}
+
+		// Run it
+		if (cb instanceof Promise) {
+			cb.then((data) => {
+				done(data);
+			}).catch((err) => {
+				done(undefined, err);
+			});
+		} else {
+			done(cb);
+		}
+	});
+}
