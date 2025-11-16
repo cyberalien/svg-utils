@@ -186,9 +186,9 @@ export function createVueComponent(
 			? `<{\n${stringifyFactoryPropTypes(props)}\n}>`
 			: '';
 		componentCode.unshift(
-			`const props = defineProps${tsCode}(${JSON.stringify(
-				usedProps
-			)});\n`
+			`const props = defineProps${tsCode}(${
+				tsCode ? '' : JSON.stringify(usedProps)
+			});\n`
 		);
 	}
 

@@ -1,4 +1,7 @@
-import { getGeneratedAssetFilename } from '../filenames/asset.js';
+import {
+	defaultHelpersDirectory,
+	getGeneratedAssetFilename,
+} from '../filenames/asset.js';
 import type { ComponentFactoryOptions } from '../../types/options.js';
 import type { FactoryComponentImports } from '../imports/types.js';
 import type { GeneratedAssetFile } from '../../types/component.js';
@@ -14,7 +17,7 @@ const precision = 100;
 
 function calculateSize(size, ratio) {
     if (ratio === 1) {
-        return value;
+        return size;
     }
 
     const oldParts = size.split(unitsSplit);
@@ -75,10 +78,10 @@ export { ${functionName} };
 export function addSizeFunctionAsset(
 	imports: FactoryComponentImports,
 	assets: GeneratedAssetFile[],
-	options: Pick<ComponentFactoryOptions, 'rootPath'>
+	options: Pick<ComponentFactoryOptions, 'rootPath' | 'helpersDirectory'>
 ) {
 	const filename = getGeneratedAssetFilename(
-		'helpers/size.js',
+		`${options.helpersDirectory ?? defaultHelpersDirectory}/size.js`,
 		options.rootPath
 	);
 

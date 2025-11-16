@@ -179,7 +179,7 @@ import ${testImportName} from './css/${testClassName}.module.css';
 const props = defineProps<{
 \twidth?: string;
 \theight?: string;
-}>(["width","height"]);
+}>();
 
 const viewBox = '0 0 16 16';
 const size = computed(() => getSizeProps(props.width, props.height, 1));

@@ -1,5 +1,7 @@
 import type { GeneratedAssetPath } from '../../types/options.js';
 
+export const defaultHelpersDirectory = 'helpers';
+
 /**
  * Generate asset filename based on options
  *

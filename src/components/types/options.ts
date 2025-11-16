@@ -30,6 +30,9 @@ export interface ComponentFactoryFileSystemOptions {
 	// Path to generated CSS files
 	cssPath: GeneratedAssetPath;
 
+	// Path for helper files
+	helpersDirectory?: string;
+
 	// Shared type files
 	sharedTypes?: boolean;
 }
