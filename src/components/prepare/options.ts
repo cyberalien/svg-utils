@@ -6,7 +6,8 @@ import { getGeneratedAssetFilename } from '../helpers/filenames/asset.js';
  * Generate file system options
  */
 export function componentFactoryFileSystemOptions(
-	base: Partial<ComponentFactoryFileSystemOptions>
+	base: Partial<ComponentFactoryFileSystemOptions>,
+	pathPrefix?: string
 ): ComponentFactoryFileSystemOptions {
 	const doubleDirsForCSS = base.doubleDirsForCSS ?? true;
 	const prefixDirsForComponents = base.prefixDirsForComponents ?? false;
@@ -14,10 +15,13 @@ export function componentFactoryFileSystemOptions(
 
 	const rootPath =
 		base.rootPath ??
-		getFactoryRelativeRootPath({
-			doubleDirsForComponents,
-			prefixDirsForComponents,
-		});
+		getFactoryRelativeRootPath(
+			{
+				doubleDirsForComponents,
+				prefixDirsForComponents,
+			},
+			pathPrefix
+		);
 
 	const cssPath = base.cssPath ?? getGeneratedAssetFilename('css', rootPath);
 

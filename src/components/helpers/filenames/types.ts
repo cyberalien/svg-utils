@@ -33,8 +33,9 @@ export function getGeneratedComponentTypesFilename(
 	}
 
 	const filename = getGeneratedComponentFilename(icon, '.d.ts', options);
+	const rootPath = options.rootPath.filename;
 	return {
-		filename,
+		filename: `${rootPath ? rootPath + '/' : ''}${filename}`,
 		import: `./${filename.split('/').pop()!}`,
 	};
 }

@@ -123,6 +123,23 @@ describe('Generating filenames for component factory', () => {
 			import: '../../viewbox/0-0-24-24.js',
 			filename: 'viewbox/0-0-24-24.js',
 		});
+
+		// Custom prefix for path
+		expect(
+			getGeneratedAssetFilename(
+				'assets/viewbox/0-0-24-24.js',
+				getFactoryRelativeRootPath(
+					{
+						doubleDirsForComponents: false,
+						prefixDirsForComponents: false,
+					},
+					'package-root'
+				)
+			)
+		).toEqual({
+			import: './assets/viewbox/0-0-24-24.js',
+			filename: 'package-root/assets/viewbox/0-0-24-24.js',
+		});
 	});
 
 	it('CSS filename', () => {
@@ -183,6 +200,24 @@ describe('Generating filenames for component factory', () => {
 		).toEqual({
 			import: '../../../css/test1.module.css',
 			filename: 'css/test1.module.css',
+		});
+
+		// Custom prefix for path
+		expect(
+			getGeneratedCSSFilename('test1', {
+				...componentFactoryFileSystemOptions(
+					{
+						doubleDirsForComponents: false,
+						prefixDirsForComponents: false,
+					},
+					'package-test'
+				),
+				cssMode: 'import',
+				doubleDirsForCSS: false,
+			})
+		).toEqual({
+			import: './css/test1.css',
+			filename: 'package-test/css/test1.css',
 		});
 	});
 
@@ -258,6 +293,27 @@ describe('Generating filenames for component factory', () => {
 		).toEqual({
 			import: './icon-name.d.ts',
 			filename: 'foo/bar/i/icon-name.d.ts',
+		});
+
+		// Custom path prefix
+		expect(
+			getGeneratedComponentTypesFilename(
+				{
+					prefix: 'prefix',
+					name: 'icon-name',
+				},
+				'test',
+				componentFactoryFileSystemOptions(
+					{
+						doubleDirsForComponents: false,
+						prefixDirsForComponents: false,
+					},
+					'package-root'
+				)
+			)
+		).toEqual({
+			import: './icon-name.d.ts',
+			filename: 'package-root/icon-name.d.ts',
 		});
 	});
 });

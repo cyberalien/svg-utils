@@ -13,7 +13,8 @@ export function getFactoryRelativeRootPath(
 	options: Pick<
 		ComponentFactoryFileSystemOptions,
 		'doubleDirsForComponents' | 'prefixDirsForComponents'
-	>
+	>,
+	pathPrefix?: string
 ): GeneratedAssetPath {
 	const { prefixDirsForComponents } = options;
 	const prefixDir = prefixDirsForComponents
@@ -27,6 +28,6 @@ export function getFactoryRelativeRootPath(
 
 	return {
 		import: parentCount ? '../'.repeat(parentCount - 1) + '..' : '.',
-		filename: '',
+		filename: pathPrefix ?? '',
 	};
 }
