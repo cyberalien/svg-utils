@@ -11,29 +11,35 @@ import type {
 } from './types/component.js';
 import type { FactoryComponentProps } from './helpers/props/types.js';
 import { addSizeFunctionAsset } from './helpers/functions/size.js';
+import { stringifyFactoryPropsAsJSON } from './helpers/props/object.js';
 import { stringifyFactoryImports } from './helpers/imports/stringify.js';
 import { makeSquareViewBox } from '../svg/viewbox/square.js';
 import type { IconViewBox } from '../svg/viewbox/types.js';
-import { stringifyFactoryProps } from './helpers/props/stringify.js';
 import {
 	getUsedFactoryProps,
 	stringifyFactoryPropTypes,
 } from './helpers/props/ts.js';
-import { addSvelteComponentTypes } from './helpers/ts/svelte.js';
 import { minifyViewBox } from '../svg/viewbox/minify.js';
 import { getViewBoxRatio } from './helpers/content/ratio.js';
+import { addReactComponentTypes } from './helpers/ts/react.js';
 
-interface SvelteOptions extends ComponentFactoryOptions {
+interface Options extends ComponentFactoryOptions {
+	// JSX mode
+	jsx: 'react';
+
+	// Supported fallback package
+	fallbackPackage?: string;
+
 	// Use TypeScript
 	ts?: boolean;
 }
 
 /**
- * Create Svelte component code
+ * Create functional Vue component code
  */
-export function createSvelteComponent(
+export function createJSXComponent(
 	data: FactoryIconData,
-	options: SvelteOptions
+	options: Options
 ): FactoryGeneratedComponent {
 	// Check options
 	const useTS = options.ts ?? false;
@@ -43,23 +49,30 @@ export function createSvelteComponent(
 	const imports = createFactoryImports();
 	const dependencies = new Set<string>();
 
+	// Modes
+	const importPackage = 'react';
+	const createElement = 'createElement';
+
 	// Check if fallback is used
-	const hasFallback = !!data.fallback;
+	const fallbackPackage = options.fallbackPackage || null;
+	const hasFallback = !!(fallbackPackage && data.fallback);
 	if (hasFallback) {
-		imports.default['@iconify/css-svelte'] = 'Icon';
-		dependencies.add('@iconify/css-svelte');
+		imports.named[fallbackPackage] = new Set(['Icon']);
+		dependencies.add(fallbackPackage);
 	}
 
+	// Add React imports
+	const reactNamedImports = new Set([createElement]);
+	imports.named[importPackage] = reactNamedImports;
+
 	// Add CSS
-	const styleContent = generateCSSFilesForComponent(
+	const style = generateCSSFilesForComponent(
 		data.icon,
 		imports,
 		assets,
-		{
-			...options,
-			componentType: 'svelte',
-		}
+		options
 	);
+	const isEmbeddedCSS = options.cssMode === 'embed';
 
 	// Check if size is fixed and if viewBox is computed
 	let hasFixedSize = !!options.width && !!options.height;
@@ -76,36 +89,42 @@ export function createSvelteComponent(
 	}
 
 	// Get props
-	const componentCode: string[] = [];
+	const componentExternalCode: string[] = [];
+	const componentInternalCode: string[] = [];
 	const props: FactoryComponentProps = {};
 	if (!hasFallback) {
 		props.xmlns = 'http://www.w3.org/2000/svg';
 	}
+	props.props = {
+		value: 'props',
+		template: '...props,',
+	};
 
 	// Compute viewBox
-	const viewBoxPropValue = `viewBox${hasComputedViewbox ? 'Computed' : ''}`;
 	const getViewBox = (viewBox: IconViewBox) =>
 		isStringViewBox
 			? `'${stringifyIconViewBox(viewBox)}'`
 			: JSON.stringify(minifyViewBox(viewBox));
 	if (hasComputedViewbox) {
 		// Computed viewBox, based on square prop
-		componentCode.push(
+		componentExternalCode.push(
 			`const baseViewBox = ${getViewBox(viewBox)};`,
-			`const squareViewBox = ${getViewBox(makeSquareViewBox(viewBox))};`,
-			`let ${viewBoxPropValue} = $derived(square ? squareViewBox : baseViewBox);`
+			`const squareViewBox = ${getViewBox(makeSquareViewBox(viewBox))};`
+		);
+		componentInternalCode.push(
+			`const viewBox = useMemo(() => square ? squareViewBox : baseViewBox, [square]);`
 		);
 	} else {
 		// Hardcoded viewBox
-		componentCode.push(
-			`const ${viewBoxPropValue} = ${getViewBox(viewBox)};`
-		);
+		componentExternalCode.push(`const viewBox = ${getViewBox(viewBox)};`);
 	}
 
 	// Compute width/height ratio
 	const ratioValue = getViewBoxRatio(viewBox);
 	if (hasComputedRatio) {
-		componentCode.push(`let ratio = $derived(square ? 1 : ${ratioValue});`);
+		componentInternalCode.push(
+			`const ratio = useMemo(() => square ? 1 : ${ratioValue}, [square]);`
+		);
 	}
 
 	// Set size
@@ -124,28 +143,29 @@ export function createSvelteComponent(
 			props.width = {
 				type: 'string',
 				value: 'width',
-				template: 'width={width}',
+				template: 'width,',
 			};
 			props.height = {
 				type: 'string',
 				value: 'height',
-				template: 'height={height}',
+				template: 'height,',
 			};
 		} else {
 			// Add computed size and getSizeProps() function
 			const getSizeProps = addSizeFunctionAsset(imports, assets, options);
-			componentCode.push(
-				`let size = $derived(${getSizeProps}(width, height, ${
+			componentInternalCode.push(
+				`const size = useMemo(() => ${getSizeProps}(width, height, ${
 					hasComputedRatio ? 'ratio' : ratioValue
-				}));`
+				}), [width, height${hasComputedRatio ? ', ratio' : ''}]);`
 			);
+			reactNamedImports.add('useMemo');
 
 			// Add width and height props
 			props.width = {
 				type: 'string',
 				value: 'width',
 				// Spread computed size
-				template: '{...size}',
+				template: '...size,',
 			};
 			props.height = {
 				type: 'string',
@@ -166,65 +186,60 @@ export function createSvelteComponent(
 	// Add viewBox prop
 	props.viewBox = {
 		value: 'viewBox',
-		template: `viewBox={${viewBoxPropValue}}`,
+		template: 'viewBox,',
 	};
 
 	// Add content
-	componentCode.push(
-		`const content = ${stringifyFactoryIconContent(data.icon, options)};`
-	);
-	const innerHTML = hasFallback ? '' : '{@html content}';
 	props.content = {
-		value: 'content',
+		value: stringifyFactoryIconContent(
+			data.icon,
+			options,
+			isEmbeddedCSS ? style : undefined
+		),
 		template: hasFallback
-			? `content={content} fallback="${data.fallback}"`
-			: '',
+			? undefined
+			: 'dangerouslySetInnerHTML: {__html: {value}},',
 	};
+	if (hasFallback && data.fallback) {
+		props.fallback = data.fallback;
+	}
 
-	// Add props
+	// Add return value to component code
+	componentInternalCode.push(
+		`return ${createElement}(${hasFallback ? 'Icon' : "'svg'"}, {
+\t\t${stringifyFactoryPropsAsJSON(props, '\n\t\t')}
+\t});`
+	);
+
+	// Generate code before function
+	const beforeFunction = componentExternalCode.length
+		? componentExternalCode.join('\n') + '\n\n'
+		: '';
+
+	// Generate component function
 	const usedProps = getUsedFactoryProps(props);
-
 	const propsDestricturing = usedProps.length
 		? `{${[...usedProps, '...props'].join(', ')}}`
 		: 'props';
-	componentCode.unshift(
-		`let ${propsDestricturing}${useTS ? ': Props' : ''} = $props();\n`
-	);
-	if (useTS) {
-		componentCode.unshift(
-			`interface Props {\n${stringifyFactoryPropTypes(props)}\n};\n`
-		);
-	}
-
-	// Create template
-	const tag = hasFallback ? 'Icon' : 'svg';
-	const template = `<${tag} ${stringifyFactoryProps(
-		props,
-		'{prop}={{value}}'
-	)} {...props}>${innerHTML}</${tag}>`;
-
-	// Generate content
-	let content = `<script${useTS ? ' lang="ts"' : ''}>
-${stringifyFactoryImports(imports)}
-${componentCode.join('\n')}
-</script>
-${template}
+	const tsCode = useTS ? `<{\n${stringifyFactoryPropTypes(props)}\n}>` : '';
+	const componentFunction = `function Component${tsCode}(${propsDestricturing}) {
+\t${componentInternalCode.join('\n\t')}
+}
 `;
 
-	// Add styles
-	const style = options.cssMode === 'prop' ? styleContent : undefined;
-	if (styleContent && !style) {
-		content += `<style>\n${styleContent}\n</style>\n`;
-	}
+	// Generate content
+	const content = `${stringifyFactoryImports(
+		imports
+	)}\n${beforeFunction}${componentFunction}\nexport default Component;\n`;
 
 	// Add types file
-	const types = addSvelteComponentTypes(data, options, assets, props);
+	const types = addReactComponentTypes(data, options, assets, props);
 
 	// Return data
 	return {
 		assets,
 		content,
-		style,
+		style: isEmbeddedCSS ? undefined : style,
 		types,
 		dependencies: dependencies.size ? dependencies : undefined,
 	};

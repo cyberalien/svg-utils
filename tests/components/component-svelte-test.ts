@@ -155,7 +155,7 @@ export default Component;
 			`<script>
 import './css/${testClassName}.css';
 
-let {...props} = $props();
+let props = $props();
 
 const viewBox = '0 0 16 16';
 const content = \`<path class="${testClassName}" />\`;
@@ -620,7 +620,7 @@ export default Component;
 			`<script>
 import css from './icon.css';
 
-let {...props} = $props();
+let props = $props();
 
 const viewBox = '0 0 16 16';
 const content = \`<path class="\${css['${testClassName}']}" /><path class="\${css['${testClassName2}']}" />\`;
@@ -674,7 +674,7 @@ const content = \`<path class="\${css['${testClassName}']}" /><path class="\${cs
 		expect(result.content).toBe(
 			`<script>
 
-let {...props} = $props();
+let props = $props();
 
 const viewBox = '0 0 16 16';
 const content = \`<path class="${testClassName}" /><path class="${testClassName2}" />\`;
