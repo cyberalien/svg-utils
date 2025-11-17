@@ -41,11 +41,13 @@ export function createVueComponent(
 	// Init data
 	const assets: GeneratedAssetFile[] = [];
 	const imports = createFactoryImports();
+	const dependencies = new Set<string>();
 
 	// Check if fallback is used
 	const hasFallback = !!data.fallback;
 	if (hasFallback) {
 		imports.named['@iconify/css-vue'] = new Set(['Icon']);
+		dependencies.add('@iconify/css-vue');
 	}
 
 	// Add Vue imports
@@ -223,5 +225,6 @@ ${template}
 		content,
 		style,
 		types,
+		dependencies: dependencies.size ? dependencies : undefined,
 	};
 }

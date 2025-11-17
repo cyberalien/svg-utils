@@ -32,6 +32,9 @@ export interface FactoryGeneratedComponent {
 
 	// Types filename (if any)
 	types?: string;
+
+	// Dependencies
+	dependencies?: Set<string>;
 }
 
 /**

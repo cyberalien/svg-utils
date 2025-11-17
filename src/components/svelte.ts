@@ -41,11 +41,13 @@ export function createSvelteComponent(
 	// Init data
 	const assets: GeneratedAssetFile[] = [];
 	const imports = createFactoryImports();
+	const dependencies = new Set<string>();
 
 	// Check if fallback is used
 	const hasFallback = !!data.fallback;
 	if (hasFallback) {
 		imports.default['@iconify/css-svelte'] = 'Icon';
+		dependencies.add('@iconify/css-svelte');
 	}
 
 	// Add CSS
@@ -222,5 +224,6 @@ ${template}
 		content,
 		style,
 		types,
+		dependencies: dependencies.size ? dependencies : undefined,
 	};
 }
