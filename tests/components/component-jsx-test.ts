@@ -4,7 +4,7 @@ import { generateCSSDefaultImportName } from '../../src/components/helpers/css/n
 import { componentFactoryFileSystemOptions } from '../../src/components/prepare/options.js';
 import type { FactoryIconData } from '../../src/components/types/data.js';
 
-describe('Creating React components', () => {
+describe('Creating React/Preact components', () => {
 	it('Simple icon', () => {
 		const options = componentFactoryFileSystemOptions({});
 		const data: FactoryIconData = {
@@ -481,7 +481,7 @@ export default Component;
 `);
 	});
 
-	it('Square property with hardcoded size', () => {
+	it('Square property with hardcoded size, Preact', () => {
 		const options = componentFactoryFileSystemOptions({});
 		const data: FactoryIconData = {
 			prefix: 'test',
@@ -497,7 +497,7 @@ export default Component;
 		};
 		const result = createJSXComponent(data, {
 			...options,
-			jsx: 'react',
+			jsx: 'preact',
 			cssMode: 'import',
 			square: true,
 			width: '1em',
@@ -505,12 +505,12 @@ export default Component;
 		});
 		// console.log(result.content);
 		expect(result.content).toBe(
-			`import { createElement } from 'react';
+			`import { h } from 'preact';
 
 const viewBox = '0 0 24 24';
 
 function Component({square, ...props}) {
-	return createElement('svg', {
+	return h('svg', {
 		"xmlns": "http://www.w3.org/2000/svg",
 		...props,
 		"width": "1em",
@@ -529,15 +529,13 @@ export default Component;
 
 		// Check types
 		expect(result.assets[0].content)
-			.toBe(`import type { ForwardRefExoticComponent, SVGProps } from 'react';
+			.toBe(`import type { JSX } from 'preact';
 
 interface IconProps {
 	square?: boolean;
 }
 
-const Component: ForwardRefExoticComponent<
-    Omit<SVGProps<SVGSVGElement>, 'viewBox' | 'width' | 'height' | 'xmlns'> & IconProps
->;
+const Component: (props: Omit<JSX.SVGAttributes<SVGSVGElement>, 'viewBox' | 'width' | 'height' | 'xmlns'> & IconProps) => JSX.Element;
 
 export { type IconProps };
 export default Component;

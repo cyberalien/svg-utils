@@ -21,11 +21,12 @@ import {
 } from './helpers/props/ts.js';
 import { minifyViewBox } from '../svg/viewbox/minify.js';
 import { getViewBoxRatio } from './helpers/content/ratio.js';
-import { addReactComponentTypes } from './helpers/ts/react.js';
+import { addJSXComponentTypes } from './helpers/ts/jsx.js';
+import type { JSXMode } from './types/jsx.js';
 
 interface Options extends ComponentFactoryOptions {
 	// JSX mode
-	jsx: 'react';
+	jsx: JSXMode;
 
 	// Supported fallback package
 	fallbackPackage?: string;
@@ -50,8 +51,15 @@ export function createJSXComponent(
 	const dependencies = new Set<string>();
 
 	// Modes
-	const importPackage = 'react';
-	const createElement = 'createElement';
+	let importPackage = 'react';
+	let createElement = 'createElement';
+
+	switch (options.jsx) {
+		case 'preact':
+			importPackage = 'preact';
+			createElement = 'h';
+			break;
+	}
 
 	// Check if fallback is used
 	const fallbackPackage = options.fallbackPackage || null;
@@ -233,7 +241,7 @@ export function createJSXComponent(
 	)}\n${beforeFunction}${componentFunction}\nexport default Component;\n`;
 
 	// Add types file
-	const types = addReactComponentTypes(data, options, assets, props);
+	const types = addJSXComponentTypes(data, options, assets, props);
 
 	// Return data
 	return {
