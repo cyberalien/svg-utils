@@ -3,7 +3,8 @@ import type { ParsedXMLTagElement } from '../xml/types.js';
 import { createCSSClassName } from '../css/hash.js';
 import { toggleClassName } from '../classname/toggle.js';
 import { extractSVGTagPropertiesForCSS } from './props/props.js';
-import type { CSSHashOptions, CSSRules } from '../css/types.js';
+import type { CSSRules } from '../css/types.js';
+import type { BaseConvertSVGContentOptions } from './types.js';
 
 /**
  * Convert SVG tags tree to SVG+CSS
@@ -12,14 +13,15 @@ import type { CSSHashOptions, CSSRules } from '../css/types.js';
  */
 export function convertSVGRootToCSS(
 	root: ParsedXMLTagElement[],
-	classNamePrefix = '',
-	hashOptions?: CSSHashOptions
+	options: BaseConvertSVGContentOptions = {}
 ): Record<string, CSSRules> {
 	const rules = Object.create(null) as Record<string, CSSRules>;
+	const hashOptions = options.hashOptions || {};
+	const classNamePrefix = options.classNamePrefix || '';
 
 	iterateXMLContent(root, (node) => {
 		if (node.type === 'tag') {
-			const props = extractSVGTagPropertiesForCSS(node);
+			const props = extractSVGTagPropertiesForCSS(node, options.legacy);
 			if (props) {
 				const className = createCSSClassName(
 					props.rules,

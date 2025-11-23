@@ -16,11 +16,7 @@ export function convertSVGContentToCSSRules(
 		return { content };
 	}
 
-	const classes = convertSVGRootToCSS(
-		root,
-		options?.classNamePrefix,
-		options?.hashOptions
-	);
+	const classes = convertSVGRootToCSS(root, options);
 	if (classes) {
 		const newContent = stringifyXMLContent(root, options);
 		if (newContent) {

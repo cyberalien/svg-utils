@@ -13,7 +13,8 @@ import {
  * Returns CSS rules, does not add a class to tag, but does remove properties from tag
  */
 export function extractSVGTagPropertiesForCSS(
-	tag: ParsedXMLTagElement
+	tag: ParsedXMLTagElement,
+	supportLegacyBrowsers = false
 ): SVGConvertedToCSSProperties | undefined {
 	const result: SVGConvertedToCSSProperties = {
 		props: [],
@@ -40,7 +41,12 @@ export function extractSVGTagPropertiesForCSS(
 	for (const prop in tag.attribs) {
 		if (!animatedProps.has(prop)) {
 			const value = tag.attribs[prop];
-			const converted = convertSVGPropertyToCSS(tag.tag, prop, value);
+			const converted = convertSVGPropertyToCSS(
+				tag.tag,
+				prop,
+				value,
+				supportLegacyBrowsers
+			);
 			if (converted) {
 				const [propName, propValue] = converted;
 				result.props.push(propName);

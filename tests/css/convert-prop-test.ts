@@ -6,6 +6,11 @@ describe('Converting SVG tag props to CSS', () => {
 			'd',
 			'path("M0 0h10")',
 		]);
+
+		// Legacy browsers support
+		expect(
+			convertSVGPropertyToCSS('path', 'd', 'M0 0h10', true)
+		).toBeUndefined();
 	});
 
 	it('Numbers', () => {

@@ -85,11 +85,12 @@ function getSVGPropertyType(
 export function convertSVGPropertyToCSS(
 	tag: string,
 	prop: string,
-	value: string | number
+	value: string | number,
+	supportLegacyBrowsers = false
 ): [string, string] | undefined {
 	switch (getSVGPropertyType(tag, prop)) {
 		case 'path':
-			if (typeof value !== 'string') {
+			if (supportLegacyBrowsers || typeof value !== 'string') {
 				return;
 			}
 			return [prop, `path("${value.replace(/\s+/g, ' ')}")`];

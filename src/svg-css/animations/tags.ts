@@ -1,7 +1,26 @@
 /**
+ * Tag used to set attribute value without animation duration
+ */
+export const svgSetTag = 'set';
+
+/**
+ * Tag to discard animation
+ */
+export const svgDiscardTag = 'discard';
+
+/**
+ * Attribute animation tag
+ */
+export const svgAnimationTag = 'animate';
+
+/**
  * Tags for animating one attribute in SVG
  */
-export const svgSimpleAnimationTags = ['animate', 'set', 'discard'];
+export const svgSimpleAnimationTags = [
+	svgSetTag,
+	svgDiscardTag,
+	svgAnimationTag,
+];
 
 /**
  * Tag for animating transformations in SVG
