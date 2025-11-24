@@ -4,23 +4,9 @@
 export const svgSetTag = 'set';
 
 /**
- * Tag to discard animation
- */
-export const svgDiscardTag = 'discard';
-
-/**
  * Attribute animation tag
  */
 export const svgAnimationTag = 'animate';
-
-/**
- * Tags for animating one attribute in SVG
- */
-export const svgSimpleAnimationTags = [
-	svgSetTag,
-	svgDiscardTag,
-	svgAnimationTag,
-];
 
 /**
  * Tag for animating transformations in SVG
@@ -36,7 +22,8 @@ export const svgAnimateMotionTag = 'animateMotion';
  * All tags for animating SVG
  */
 export const svgAnimationTags = [
-	...svgSimpleAnimationTags,
+	svgSetTag,
+	svgAnimationTag,
 	svgAnimateTransformTag,
 	svgAnimateMotionTag,
 ];

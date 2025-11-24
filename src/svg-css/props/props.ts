@@ -4,7 +4,8 @@ import type { SVGConvertedToCSSProperties } from './types.js';
 import { convertSVGPropertyToCSS } from './prop.js';
 import {
 	svgAnimateTransformTag,
-	svgSimpleAnimationTags,
+	svgAnimationTag,
+	svgSetTag,
 } from '../animations/tags.js';
 
 /**
@@ -25,14 +26,21 @@ export function extractSVGTagPropertiesForCSS(
 	const animatedProps = new Set<string>();
 	iterateXMLContent(tag.children, (node) => {
 		if (node.type === 'tag') {
-			if (svgSimpleAnimationTags.includes(node.tag)) {
-				const prop = node.attribs.attributeName;
-				if (typeof prop === 'string') {
-					animatedProps.add(prop);
+			switch (node.tag) {
+				case svgSetTag:
+				case svgAnimationTag: {
+					// Animate attribute
+					const prop = node.attribs.attributeName;
+					if (typeof prop === 'string') {
+						animatedProps.add(prop);
+					}
+					break;
 				}
-			}
-			if (node.tag === svgAnimateTransformTag) {
-				animatedProps.add('transform');
+
+				case svgAnimateTransformTag:
+					// Animate transformation
+					animatedProps.add('transform');
+					break;
 			}
 		}
 	});
