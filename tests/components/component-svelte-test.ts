@@ -71,7 +71,7 @@ export default Component;
 			},
 			icon: {
 				content:
-					'<path d="M0 0l24 24" stroke="currentColor" fill="none" />',
+					'<path d="M0 0l24 24" stroke="currentColor" fill="none"/>',
 			},
 			fallback: 'test:icon',
 		};
@@ -87,7 +87,7 @@ import Icon from '@iconify/css-svelte';
 let {width, height, ...props} = $props();
 
 const viewBox = {"width":24,"height":24};
-const content = \`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`;
+const content = \`<path d="M0 0l24 24" stroke="currentColor" fill="none"/>\`;
 </script>
 <Icon width={width} height={height} viewBox={viewBox} content={content} fallback="test:icon" {...props}></Icon>
 `
@@ -158,7 +158,7 @@ import './css/${testClassName}.css';
 let props = $props();
 
 const viewBox = '0 0 16 16';
-const content = \`<path class="${testClassName}" />\`;
+const content = \`<path class="${testClassName}"/>\`;
 </script>
 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox={viewBox} {...props}>{@html content}</svg>
 `
@@ -239,7 +239,7 @@ let {width, height, ...props}: Props = $props();
 
 const viewBox = '0 0 16 16';
 let size = $derived(getSizeProps(width, height, 1));
-const content = \`<path class="\${${testImportName}['${testClassName}']}" />\`;
+const content = \`<path class="\${${testImportName}['${testClassName}']}"/>\`;
 </script>
 <svg xmlns="http://www.w3.org/2000/svg" {...size} viewBox={viewBox} {...props}>{@html content}</svg>
 `
@@ -319,7 +319,7 @@ let {width, height, ...props} = $props();
 
 const viewBox = '0 0 16 16';
 let size = $derived(getSizeProps(width, height, 1));
-const content = \`<path class="${testClassName}" />\`;
+const content = \`<path class="${testClassName}"/>\`;
 </script>
 <svg xmlns="http://www.w3.org/2000/svg" {...size} viewBox={viewBox} {...props}>{@html content}</svg>
 `
@@ -623,7 +623,7 @@ import css from './icon.css';
 let props = $props();
 
 const viewBox = '0 0 16 16';
-const content = \`<path class="\${css['${testClassName}']}" /><path class="\${css['${testClassName2}']}" />\`;
+const content = \`<path class="\${css['${testClassName}']}"/><path class="\${css['${testClassName2}']}"/>\`;
 </script>
 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox={viewBox} {...props}>{@html content}</svg>
 `
@@ -677,7 +677,7 @@ const content = \`<path class="\${css['${testClassName}']}" /><path class="\${cs
 let props = $props();
 
 const viewBox = '0 0 16 16';
-const content = \`<path class="${testClassName}" /><path class="${testClassName2}" />\`;
+const content = \`<path class="${testClassName}"/><path class="${testClassName2}"/>\`;
 </script>
 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox={viewBox} {...props}>{@html content}</svg>
 <style>

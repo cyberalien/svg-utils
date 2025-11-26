@@ -120,7 +120,7 @@ function Component(props) {
 		"width": "1em",
 		"height": "1em",
 		viewBox,
-		dangerouslySetInnerHTML: {__html: \`<path class="${testClassName}" />\`},
+		dangerouslySetInnerHTML: {__html: \`<path class="${testClassName}"/>\`},
 	});
 }
 
@@ -208,7 +208,7 @@ function Component<{
 		...props,
 		...size,
 		viewBox,
-		dangerouslySetInnerHTML: {__html: \`<path class="\${${testImportName}['${testClassName}']}" />\`},
+		dangerouslySetInnerHTML: {__html: \`<path class="\${${testImportName}['${testClassName}']}"/>\`},
 	});
 }
 
@@ -294,7 +294,7 @@ function Component({width, height, ...props}) {
 		...props,
 		...size,
 		viewBox,
-		dangerouslySetInnerHTML: {__html: \`<path class="${testClassName}" />\`},
+		dangerouslySetInnerHTML: {__html: \`<path class="${testClassName}"/>\`},
 	});
 }
 
@@ -381,7 +381,7 @@ function Component({width, height, ...props}) {
 		...props,
 		...size,
 		viewBox,
-		dangerouslySetInnerHTML: {__html: \`<style>.${testClassName} {\n  d: path("M0 0l16 16");\n  fill: currentColor;\n}\n</style><path class="${testClassName}" />\`},
+		dangerouslySetInnerHTML: {__html: \`<style>.${testClassName} {\n  d: path("M0 0l16 16");\n  fill: currentColor;\n}\n</style><path class="${testClassName}"/>\`},
 	});
 }
 

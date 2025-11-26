@@ -51,15 +51,23 @@ const skipTags = [
 	'discard',
 ];
 
+const legacyProps = ['d'];
+
 /**
  * Get property type
  */
-function getSVGPropertyType(
+export function getSVGPropertyType(
 	tag: string,
-	prop: string
+	prop: string,
+	supportLegacyBrowsers = false
 ): SVGPropertyType | undefined {
 	// Skip some tags
 	if (skipTags.includes(tag)) {
+		return;
+	}
+
+	// Make sure it is not legacy property
+	if (supportLegacyBrowsers && legacyProps.includes(prop)) {
 		return;
 	}
 
@@ -88,9 +96,9 @@ export function convertSVGPropertyToCSS(
 	value: string | number,
 	supportLegacyBrowsers = false
 ): [string, string] | undefined {
-	switch (getSVGPropertyType(tag, prop)) {
+	switch (getSVGPropertyType(tag, prop, supportLegacyBrowsers)) {
 		case 'path':
-			if (supportLegacyBrowsers || typeof value !== 'string') {
+			if (typeof value !== 'string') {
 				return;
 			}
 			return [prop, `path("${value.replace(/\s+/g, ' ')}")`];

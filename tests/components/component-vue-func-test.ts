@@ -118,7 +118,7 @@ const Component = defineComponent(
 			"width": "1em",
 			"height": "1em",
 			viewBox,
-			"innerHTML": \`<path class="${testClassName}" />\`,
+			"innerHTML": \`<path class="${testClassName}"/>\`,
 		});
 	},
 	{
@@ -202,7 +202,7 @@ const Component = defineComponent(
 			"xmlns": "http://www.w3.org/2000/svg",
 			...size.value,
 			viewBox,
-			"innerHTML": \`<path class="\${${testImportName}['${testClassName}']}" />\`,
+			"innerHTML": \`<path class="\${${testImportName}['${testClassName}']}"/>\`,
 		});
 	},
 	{
@@ -288,7 +288,7 @@ const Component = defineComponent(
 			"xmlns": "http://www.w3.org/2000/svg",
 			...size.value,
 			viewBox,
-			"innerHTML": \`<path class="${testClassName}" />\`,
+			"innerHTML": \`<path class="${testClassName}"/>\`,
 		});
 	},
 	{
@@ -375,7 +375,7 @@ const Component = defineComponent(
 			"xmlns": "http://www.w3.org/2000/svg",
 			...size.value,
 			viewBox,
-			"innerHTML": \`<style>.${testClassName} {\n  d: path("M0 0l16 16");\n  fill: currentColor;\n}\n</style><path class="${testClassName}" />\`,
+			"innerHTML": \`<style>.${testClassName} {\n  d: path("M0 0l16 16");\n  fill: currentColor;\n}\n</style><path class="${testClassName}"/>\`,
 		});
 	},
 	{

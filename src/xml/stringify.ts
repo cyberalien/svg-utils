@@ -1,4 +1,4 @@
-import type { ParsedXMLTagElement, StringifyXMLOptions } from './types.js';
+import type { ParsedXMLNode, StringifyXMLOptions } from './types.js';
 
 const defaultOptions: Required<StringifyXMLOptions> = {
 	useSelfClosing: true,
@@ -15,7 +15,7 @@ function assertNever(v: never) {
  * Convert parsed XML content to string
  */
 export function stringifyXMLContent(
-	root: ParsedXMLTagElement[],
+	root: ParsedXMLNode[],
 	options?: StringifyXMLOptions
 ): string | null {
 	const fullOptions = {
@@ -32,10 +32,13 @@ export function stringifyXMLContent(
 	const nl = prettyPrint === false ? '' : '\n';
 
 	// Add tag
-	const add = (
-		node: ParsedXMLTagElement,
-		depth: number
-	): boolean | undefined => {
+	const add = (node: ParsedXMLNode, depth: number): boolean | undefined => {
+		if (node.type !== 'tag') {
+			// Not a tag
+			output += node.content;
+			return true;
+		}
+
 		// Add tag start
 		output += tabs(depth) + '<' + node.tag;
 		for (const key in node.attribs) {
@@ -56,7 +59,7 @@ export function stringifyXMLContent(
 		// Close tag if no children
 		if (!node.children.length) {
 			if (fullOptions.useSelfClosing) {
-				output += ' />' + nl;
+				output += (prettyPrint ? ' ' : '') + '/>' + nl;
 			} else {
 				output += '></' + node.tag + '>' + nl;
 			}

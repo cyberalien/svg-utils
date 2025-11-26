@@ -104,7 +104,7 @@ export default Component;
 import './css/${testClassName}.css';
 
 const viewBox = '0 0 16 16';
-const content = \`<path class="${testClassName}" />\`;
+const content = \`<path class="${testClassName}"/>\`;
 </script>
 <template><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" :viewBox="viewBox" v-html="content" /></template>
 `
@@ -183,7 +183,7 @@ const props = defineProps<{
 
 const viewBox = '0 0 16 16';
 const size = computed(() => getSizeProps(props.width, props.height, 1));
-const content = \`<path class="\${${testImportName}['${testClassName}']}" />\`;
+const content = \`<path class="\${${testImportName}['${testClassName}']}"/>\`;
 </script>
 <template><svg xmlns="http://www.w3.org/2000/svg" v-bind="size" :viewBox="viewBox" v-html="content" /></template>
 `
@@ -272,7 +272,7 @@ const props = defineProps(["width","height"]);
 
 const viewBox = '0 0 16 16';
 const size = computed(() => getSizeProps(props.width, props.height, 1));
-const content = \`<path class="${testClassName}" />\`;
+const content = \`<path class="${testClassName}"/>\`;
 </script>
 <template><svg xmlns="http://www.w3.org/2000/svg" v-bind="size" :viewBox="viewBox" v-html="content" /></template>
 `
@@ -513,7 +513,7 @@ export default Component;
 import css from './icon.css';
 
 const viewBox = '0 0 16 16';
-const content = \`<path class="\${css['${testClassName}']}" /><path class="\${css['${testClassName2}']}" />\`;
+const content = \`<path class="\${css['${testClassName}']}"/><path class="\${css['${testClassName2}']}"/>\`;
 </script>
 <template><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" :viewBox="viewBox" v-html="content" /></template>
 `
@@ -567,7 +567,7 @@ const content = \`<path class="\${css['${testClassName}']}" /><path class="\${cs
 			`<script setup>
 
 const viewBox = '0 0 16 16';
-const content = \`<path class="${testClassName}" /><path class="${testClassName2}" />\`;
+const content = \`<path class="${testClassName}"/><path class="${testClassName2}"/>\`;
 </script>
 <template><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" :viewBox="viewBox" v-html="content" /></template>
 <style>

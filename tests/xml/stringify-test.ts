@@ -6,7 +6,7 @@ describe('Testing converting XML content back to string', () => {
 		// Self closing tag
 		expect(
 			stringifyXMLContent(parseXMLContent('<path d="M0 0"></path>')!)
-		).toEqual('<path d="M0 0" />');
+		).toEqual('<path d="M0 0"/>');
 
 		// Disabled self closing tag
 		expect(
@@ -22,6 +22,14 @@ describe('Testing converting XML content back to string', () => {
 				prettyPrint: true,
 			})
 		).toEqual('<path d="M0 0"></path>\n');
+
+		// Pretty print with self closing
+		expect(
+			stringifyXMLContent(parseXMLContent('<path d="M0 0"></path>')!, {
+				useSelfClosing: true,
+				prettyPrint: true,
+			})
+		).toEqual('<path d="M0 0" />\n');
 	});
 
 	it('Nested tag', () => {
@@ -32,7 +40,7 @@ describe('Testing converting XML content back to string', () => {
 				)!
 			)
 		).toEqual(
-			'<g fill="none"><path stroke="currentColor" fill="initial" /><circle stroke="currentcolor" fill="inherit" /></g>'
+			'<g fill="none"><path stroke="currentColor" fill="initial"/><circle stroke="currentcolor" fill="inherit"/></g>'
 		);
 
 		// Pretty print
@@ -48,5 +56,29 @@ describe('Testing converting XML content back to string', () => {
 		).toEqual(
 			'<g fill="none">\n\t<path stroke="currentColor" fill="initial" />\n\t<circle stroke="currentcolor" fill="inherit" />\n</g>\n'
 		);
+	});
+
+	it('Text node', () => {
+		// Style
+		expect(
+			stringifyXMLContent(
+				parseXMLContent(
+					'<style>.cls-1{fill:#fff;opacity:0;}.cls-2{fill:#231f20;}</style>'
+				)!
+			)
+		).toEqual(
+			'<style>.cls-1{fill:#fff;opacity:0;}.cls-2{fill:#231f20;}</style>'
+		);
+
+		// Style only as children
+		expect(
+			stringifyXMLContent([
+				{
+					type: 'text',
+					content:
+						'.cls-1{fill:#fff;opacity:0;}.cls-2{fill:#231f20;}',
+				},
+			])
+		).toEqual('.cls-1{fill:#fff;opacity:0;}.cls-2{fill:#231f20;}');
 	});
 });

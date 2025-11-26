@@ -72,7 +72,7 @@ describe('Creating raw components', () => {
 			`import './css/${testClassName}.css';\n\n` +
 				'const icon = `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16"><path class="' +
 				testClassName +
-				'" /></svg>`;\n\nexport default icon;\n'
+				'"/></svg>`;\n\nexport default icon;\n'
 		);
 		expect(result.assets).toHaveLength(2);
 		expect(result.assets[0].filename).toBe(`css/${testClassName}.css`);
@@ -122,7 +122,7 @@ describe('Creating raw components', () => {
 			`import ${testImportName} from './css/${testClassName}.module.css';\n\n` +
 				'const icon = `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16"><path class="${' +
 				`${testImportName}['${testClassName}']` +
-				'}" /></svg>`;\n\nexport default icon;\n'
+				'}"/></svg>`;\n\nexport default icon;\n'
 		);
 		expect(result.assets).toHaveLength(2);
 		expect(result.assets[0].filename).toBe(
@@ -171,7 +171,7 @@ describe('Creating raw components', () => {
 		expect(result.content).toBe(
 			'const icon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path class="' +
 				testClassName +
-				'" /></svg>`;\n\nexport default icon;\n'
+				'"/></svg>`;\n\nexport default icon;\n'
 		);
 		expect(result.assets).toHaveLength(1);
 		expect(result.assets[0].filename).toBe('line-icon.d.ts');
@@ -221,7 +221,7 @@ describe('Creating raw components', () => {
 				testClassName +
 				' {\n  d: path("M0 0l16 16");\n  fill: currentColor;\n}\n</style><path class="' +
 				testClassName +
-				'" /></svg>`;\n\nexport default icon;\n'
+				'"/></svg>`;\n\nexport default icon;\n'
 		);
 		expect(result.assets).toHaveLength(1);
 		expect(result.assets[0].filename).toBe('line-icon.d.ts');
