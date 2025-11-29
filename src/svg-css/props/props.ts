@@ -2,11 +2,7 @@ import { iterateXMLContent } from '../../xml/iterate.js';
 import type { ParsedXMLTagElement } from '../../xml/types.js';
 import type { SVGConvertedToCSSProperties } from './types.js';
 import { convertSVGPropertyToCSS } from './prop.js';
-import {
-	svgAnimateTransformTag,
-	svgAnimationTag,
-	svgSetTag,
-} from '../animations/tags.js';
+import { svgAnimateTransformTag, svgAnimationTag, svgSetTag } from './tags.js';
 
 /**
  * Extract SVG tag properties that can be converted to CSS
