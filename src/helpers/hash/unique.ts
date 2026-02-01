@@ -3,10 +3,6 @@ import { hashToString } from './stringify.js';
 import { hashString } from './hash.js';
 import type { UniqueHashOptions } from './types.js';
 
-// Cache for collision test: [prefix + hash] = stringified object
-const uniqueHashes = Object.create(null) as Record<string, string>;
-const uniqueWithPrefixHashes = Object.create(null) as Record<string, string>;
-
 /**
  * Hash an object, make sure hash is unique
  *
@@ -25,7 +21,7 @@ export function getUniqueHash(
 	data: unknown,
 	options: UniqueHashOptions
 ): string {
-	const { length, lengths, css } = options;
+	const { length, lengths, css, context } = options;
 	const prefix = options.prefix || '';
 
 	const str =
@@ -42,7 +38,12 @@ export function getUniqueHash(
 		hash = hashToString(values, css, hasPrefix, lengths[hash]);
 	}
 
-	const cache = hasPrefix ? uniqueWithPrefixHashes : uniqueHashes;
+	// Make sure it is unique within context
+	if (!context.cache) {
+		context.cache = Object.create(null);
+	}
+	const cache = context.cache!;
+
 	const result = `${prefix}${hash}`;
 	if (!cache[result]) {
 		// Store hash

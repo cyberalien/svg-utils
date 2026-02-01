@@ -13,6 +13,7 @@ import { mergeExportedComponentFiles } from '../../src/components/export/merge.j
 import { createExportsForMainFiles } from '../../src/components/export/exports.js';
 import { saveExportedFilesToFS } from '../../src/components/export/fs.js';
 import { createSvelteComponent } from '../../src/components/svelte.js';
+import { createUniqueHashContext } from '../../src/helpers/hash/context.js';
 
 describe.skip('Creating components package with fallback', () => {
 	const testModes = ['vue', 'svelte'] as const;
@@ -58,6 +59,7 @@ describe.skip('Creating components package with fallback', () => {
 			const cssMode = 'embed'; //testMode === 'svelte' ? 'embed' : 'import';
 			const useFallback = true;
 			const height: string | undefined = undefined;
+			const context = createUniqueHashContext();
 
 			// Options
 			const options = componentFactoryFileSystemOptions({
@@ -77,10 +79,9 @@ describe.skip('Creating components package with fallback', () => {
 						prefix,
 						name,
 						{
-							hashOptions: {
-								throwOnCollision: true,
-							},
-							classNamePrefix: 'test',
+							context,
+							throwOnCollision: true,
+							prefix: 'test',
 						}
 					);
 					if (!useFallback) {
@@ -89,6 +90,7 @@ describe.skip('Creating components package with fallback', () => {
 
 					// Create component
 					const result = testFunction(iconData, {
+						context,
 						...options,
 						cssMode,
 						height,

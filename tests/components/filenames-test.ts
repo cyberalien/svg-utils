@@ -4,6 +4,7 @@ import { getGeneratedComponentFilename } from '../../src/components/export/filen
 import { getGeneratedCSSFilename } from '../../src/components/helpers/filenames/css.js';
 import { getGeneratedComponentTypesFilename } from '../../src/components/helpers/filenames/types.js';
 import { componentFactoryFileSystemOptions } from '../../src/components/prepare/options.js';
+import { createUniqueHashContext } from '../../src/helpers/hash/context.js';
 
 describe('Generating filenames for component factory', () => {
 	it('Component filename', () => {
@@ -222,6 +223,8 @@ describe('Generating filenames for component factory', () => {
 	});
 
 	it('Types filename', () => {
+		const context = createUniqueHashContext();
+
 		// Basic name
 		expect(
 			getGeneratedComponentTypesFilename(
@@ -230,10 +233,13 @@ describe('Generating filenames for component factory', () => {
 					name: 'icon-name',
 				},
 				'test',
-				componentFactoryFileSystemOptions({
-					doubleDirsForComponents: false,
-					prefixDirsForComponents: false,
-				})
+				{
+					...componentFactoryFileSystemOptions({
+						doubleDirsForComponents: false,
+						prefixDirsForComponents: false,
+					}),
+					context,
+				}
 			)
 		).toEqual({
 			import: './icon-name.d.ts',
@@ -248,11 +254,14 @@ describe('Generating filenames for component factory', () => {
 					name: 'icon-name',
 				},
 				'test',
-				componentFactoryFileSystemOptions({
-					doubleDirsForComponents: false,
-					prefixDirsForComponents: false,
-					sharedTypes: true,
-				})
+				{
+					...componentFactoryFileSystemOptions({
+						doubleDirsForComponents: false,
+						prefixDirsForComponents: false,
+						sharedTypes: true,
+					}),
+					context,
+				}
 			)
 		).toEqual({
 			import: './types/gzs3j1bx.d.ts',
@@ -267,10 +276,13 @@ describe('Generating filenames for component factory', () => {
 					name: 'icon-name',
 				},
 				'test',
-				componentFactoryFileSystemOptions({
-					doubleDirsForComponents: true,
-					prefixDirsForComponents: true,
-				})
+				{
+					...componentFactoryFileSystemOptions({
+						doubleDirsForComponents: true,
+						prefixDirsForComponents: true,
+					}),
+					context,
+				}
 			)
 		).toEqual({
 			import: './icon-name.d.ts',
@@ -285,10 +297,13 @@ describe('Generating filenames for component factory', () => {
 					name: 'icon-name',
 				},
 				'test',
-				componentFactoryFileSystemOptions({
-					doubleDirsForComponents: true,
-					prefixDirsForComponents: 'foo/bar',
-				})
+				{
+					...componentFactoryFileSystemOptions({
+						doubleDirsForComponents: true,
+						prefixDirsForComponents: 'foo/bar',
+					}),
+					context,
+				}
 			)
 		).toEqual({
 			import: './icon-name.d.ts',
@@ -303,13 +318,16 @@ describe('Generating filenames for component factory', () => {
 					name: 'icon-name',
 				},
 				'test',
-				componentFactoryFileSystemOptions(
-					{
-						doubleDirsForComponents: false,
-						prefixDirsForComponents: false,
-					},
-					'package-root'
-				)
+				{
+					...componentFactoryFileSystemOptions(
+						{
+							doubleDirsForComponents: false,
+							prefixDirsForComponents: false,
+						},
+						'package-root'
+					),
+					context,
+				}
 			)
 		).toEqual({
 			import: './icon-name.d.ts',

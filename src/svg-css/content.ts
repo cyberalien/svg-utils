@@ -8,7 +8,7 @@ import type { ConvertedSVGContent, ConvertSVGContentOptions } from './types.js';
  */
 export function convertSVGContentToCSSRules(
 	content: string,
-	options?: ConvertSVGContentOptions
+	options: ConvertSVGContentOptions
 ): ConvertedSVGContent {
 	const root = parseXMLContent(content);
 	if (!root) {

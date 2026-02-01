@@ -1,3 +1,4 @@
+import type { UniqueHashPartialOptions } from '../../helpers/hash/types.js';
 import type { CSSExportMode } from './css.js';
 
 /**
@@ -62,7 +63,9 @@ export interface ComponentFactoryRenderingOptions {
  * Options for component factory
  */
 export interface ComponentFactoryOptions
-	extends ComponentFactoryFileSystemOptions,
-		ComponentFactoryRenderingOptions {
+	extends
+		ComponentFactoryFileSystemOptions,
+		ComponentFactoryRenderingOptions,
+		Pick<UniqueHashPartialOptions, 'context'> {
 	//
 }

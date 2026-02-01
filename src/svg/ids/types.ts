@@ -1,3 +1,4 @@
+import type { UniqueHashPartialOptions } from '../../helpers/hash/types.js';
 import type { ParsedXMLTagElement } from '../../xml/types.js';
 
 export interface ChangeIDResult {
@@ -7,3 +8,5 @@ export interface ChangeIDResult {
 	// Usage of each ID
 	usage: Record<string, ParsedXMLTagElement[]>;
 }
+
+export type UniqueIDOptions = UniqueHashPartialOptions;

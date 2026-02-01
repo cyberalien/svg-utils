@@ -1,5 +1,6 @@
 import { getUniqueHash } from '../../src/helpers/hash/unique.js';
 import {
+	createUniqueHashContext,
 	stringifyXMLContent,
 	type ParsedXMLTagElement,
 } from '../../src/index.js';
@@ -206,6 +207,7 @@ describe('Replacing IDs in SVG', () => {
 				css: false,
 				prefix: 'test-',
 				length: 8,
+				context: createUniqueHashContext(),
 			});
 			if (hashes.has(hash)) {
 				throw new Error(`Hash collision detected: ${hash}`);

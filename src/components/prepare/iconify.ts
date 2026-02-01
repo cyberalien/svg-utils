@@ -18,7 +18,7 @@ export function convertIconifyIconToFactoryContent(
 	icon: IconifyIcon,
 	prefix: string,
 	name: string,
-	options?: Options
+	options: Options
 ): FactoryIconData {
 	const { body, viewBox } = normaliseIconifyIcon(icon);
 	const fallbackOption = options?.fallback ?? true;
@@ -26,8 +26,8 @@ export function convertIconifyIconToFactoryContent(
 		typeof fallbackOption === 'string'
 			? fallbackOption
 			: fallbackOption
-			? `${prefix}:${name}`
-			: undefined;
+				? `${prefix}:${name}`
+				: undefined;
 
 	return {
 		prefix,

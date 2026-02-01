@@ -2,9 +2,11 @@ import { createVueFunctionalComponent } from '../../src/components/vue-func.js';
 import { createVueComponent } from '../../src/components/vue.js';
 import { componentFactoryFileSystemOptions } from '../../src/components/prepare/options.js';
 import type { FactoryIconData } from '../../src/components/types/data.js';
+import { createUniqueHashContext } from '../../src/helpers/hash/context.js';
 
 describe('Creating Vue components with fallback', () => {
 	it('Functional component', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({});
 		const data: FactoryIconData = {
 			prefix: 'test',
@@ -20,6 +22,7 @@ describe('Creating Vue components with fallback', () => {
 			fallback: 'test:icon',
 		};
 		const result = createVueFunctionalComponent(data, {
+			context,
 			...options,
 			cssMode: 'import',
 		});
@@ -67,6 +70,7 @@ export default Component;
 	});
 
 	it('Vue component', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({});
 		const data: FactoryIconData = {
 			prefix: 'test',
@@ -82,6 +86,7 @@ export default Component;
 			fallback: 'test:icon',
 		};
 		const result = createVueComponent(data, {
+			context,
 			...options,
 			cssMode: 'import',
 		});

@@ -6,6 +6,20 @@ import type {
 import { getGeneratedComponentFilename } from '../../export/filename.js';
 import { getUniqueHash } from '../../../helpers/hash/unique.js';
 import { getGeneratedAssetFilename } from './asset.js';
+import type { UniqueHashPartialOptions } from '../../../helpers/hash/types.js';
+
+interface Options
+	extends
+		Pick<UniqueHashPartialOptions, 'context'>,
+		Pick<
+			ComponentFactoryFileSystemOptions,
+			| 'rootPath'
+			| 'doubleDirsForComponents'
+			| 'prefixDirsForComponents'
+			| 'sharedTypes'
+		> {
+	//
+}
 
 /**
  * Generate component types filename based on options
@@ -13,16 +27,11 @@ import { getGeneratedAssetFilename } from './asset.js';
 export function getGeneratedComponentTypesFilename(
 	icon: Pick<FactoryIconData, 'name' | 'prefix'>,
 	content: string,
-	options: Pick<
-		ComponentFactoryFileSystemOptions,
-		| 'rootPath'
-		| 'doubleDirsForComponents'
-		| 'prefixDirsForComponents'
-		| 'sharedTypes'
-	>
+	options: Options
 ): GeneratedAssetPath {
 	if (options.sharedTypes) {
 		const hash = getUniqueHash(content, {
+			context: options.context, // Pick only context
 			css: true,
 			length: 8,
 		});

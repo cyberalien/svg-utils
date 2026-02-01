@@ -3,9 +3,11 @@ import { createJSXComponent } from '../../src/components/jsx.js';
 import { generateCSSDefaultImportName } from '../../src/components/helpers/css/name.js';
 import { componentFactoryFileSystemOptions } from '../../src/components/prepare/options.js';
 import type { FactoryIconData } from '../../src/components/types/data.js';
+import { createUniqueHashContext } from '../../src/helpers/hash/context.js';
 
 describe('Creating React/Preact components', () => {
 	it('Simple icon', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({});
 		const data: FactoryIconData = {
 			prefix: 'test',
@@ -20,6 +22,7 @@ describe('Creating React/Preact components', () => {
 			},
 		};
 		const result = createJSXComponent(data, {
+			context,
 			...options,
 			jsx: 'react',
 			cssMode: 'import',
@@ -69,6 +72,7 @@ export default Component;
 	});
 
 	it('Icon with CSS, hardcoded size', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({
 			doubleDirsForCSS: false,
 			doubleDirsForComponents: false,
@@ -81,7 +85,7 @@ export default Component;
 			},
 			'test-prefix',
 			'line-icon',
-			{ fallback: false }
+			{ context, fallback: false }
 		);
 		expect(data.prefix).toBe('test-prefix');
 		expect(data.name).toBe('line-icon');
@@ -100,6 +104,7 @@ export default Component;
 
 		// Generate component
 		const result = createJSXComponent(data, {
+			context,
 			...options,
 			jsx: 'react',
 			cssMode: 'import',
@@ -150,6 +155,7 @@ export default Component;
 	});
 
 	it('Icon with CSS, using modules, TypeScript', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({
 			doubleDirsForCSS: false,
 			doubleDirsForComponents: false,
@@ -162,9 +168,7 @@ export default Component;
 			},
 			'test-prefix',
 			'line-icon',
-			{
-				fallback: false,
-			}
+			{ context, fallback: false }
 		);
 		expect(data.prefix).toBe('test-prefix');
 		expect(data.name).toBe('line-icon');
@@ -184,6 +188,7 @@ export default Component;
 
 		// Generate component
 		const result = createJSXComponent(data, {
+			context,
 			...options,
 			jsx: 'react',
 			ts: true,
@@ -242,6 +247,7 @@ export default Component;
 	});
 
 	it('Icon with CSS, separate css file', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({
 			doubleDirsForCSS: false,
 			doubleDirsForComponents: false,
@@ -254,9 +260,7 @@ export default Component;
 			},
 			'test-prefix',
 			'line-icon',
-			{
-				fallback: false,
-			}
+			{ context, fallback: false }
 		);
 		expect(data.prefix).toBe('test-prefix');
 		expect(data.name).toBe('line-icon');
@@ -275,6 +279,7 @@ export default Component;
 
 		// Generate component
 		const result = createJSXComponent(data, {
+			context,
 			...options,
 			jsx: 'react',
 			cssMode: 'prop',
@@ -329,6 +334,7 @@ export default Component;
 	});
 
 	it('Icon with CSS, embedded', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({
 			doubleDirsForCSS: false,
 			doubleDirsForComponents: false,
@@ -341,9 +347,7 @@ export default Component;
 			},
 			'test-prefix',
 			'line-icon',
-			{
-				fallback: false,
-			}
+			{ context, fallback: false }
 		);
 		expect(data.prefix).toBe('test-prefix');
 		expect(data.name).toBe('line-icon');
@@ -362,6 +366,7 @@ export default Component;
 
 		// Generate component
 		const result = createJSXComponent(data, {
+			context,
 			...options,
 			jsx: 'react',
 			cssMode: 'embed',
@@ -414,6 +419,7 @@ export default Component;
 	});
 
 	it('Square property', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({});
 		const data: FactoryIconData = {
 			prefix: 'test',
@@ -428,6 +434,7 @@ export default Component;
 			},
 		};
 		const result = createJSXComponent(data, {
+			context,
 			...options,
 			jsx: 'react',
 			cssMode: 'module', // Makes no difference
@@ -482,6 +489,7 @@ export default Component;
 	});
 
 	it('Square property with hardcoded size, Preact', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({});
 		const data: FactoryIconData = {
 			prefix: 'test',
@@ -496,6 +504,7 @@ export default Component;
 			},
 		};
 		const result = createJSXComponent(data, {
+			context,
 			...options,
 			jsx: 'preact',
 			cssMode: 'import',
@@ -543,6 +552,7 @@ export default Component;
 	});
 
 	it('Square property with square viewBox and fallback', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({});
 		const data: FactoryIconData = {
 			prefix: 'test',
@@ -559,6 +569,7 @@ export default Component;
 			fallback: 'test:icon',
 		};
 		const result = createJSXComponent(data, {
+			context,
 			...options,
 			jsx: 'react',
 			cssMode: 'import',
@@ -610,6 +621,7 @@ export default Component;
 	});
 
 	it('Fallback', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({});
 		const data: FactoryIconData = {
 			prefix: 'test',
@@ -625,6 +637,7 @@ export default Component;
 			fallback: 'test:icon',
 		};
 		const result = createJSXComponent(data, {
+			context,
 			...options,
 			jsx: 'react',
 			fallbackPackage: '@iconify/css-react',

@@ -3,9 +3,11 @@ import { createVueFunctionalComponent } from '../../src/components/vue-func.js';
 import { generateCSSDefaultImportName } from '../../src/components/helpers/css/name.js';
 import { componentFactoryFileSystemOptions } from '../../src/components/prepare/options.js';
 import type { FactoryIconData } from '../../src/components/types/data.js';
+import { createUniqueHashContext } from '../../src/helpers/hash/context.js';
 
 describe('Creating Vue functional components', () => {
 	it('Simple icon', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({});
 		const data: FactoryIconData = {
 			prefix: 'test',
@@ -20,6 +22,7 @@ describe('Creating Vue functional components', () => {
 			},
 		};
 		const result = createVueFunctionalComponent(data, {
+			context,
 			...options,
 			cssMode: 'import',
 		});
@@ -69,6 +72,7 @@ export default Component;
 	});
 
 	it('Icon with CSS, hardcoded size', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({
 			doubleDirsForCSS: false,
 			doubleDirsForComponents: false,
@@ -81,7 +85,7 @@ export default Component;
 			},
 			'test-prefix',
 			'line-icon',
-			{ fallback: false }
+			{ context, fallback: false }
 		);
 		expect(data.prefix).toBe('test-prefix');
 		expect(data.name).toBe('line-icon');
@@ -100,6 +104,7 @@ export default Component;
 
 		// Generate component
 		const result = createVueFunctionalComponent(data, {
+			context,
 			...options,
 			cssMode: 'import',
 			height: '1em',
@@ -150,6 +155,7 @@ export default Component;
 	});
 
 	it('Icon with CSS, using modules', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({
 			doubleDirsForCSS: false,
 			doubleDirsForComponents: false,
@@ -162,9 +168,7 @@ export default Component;
 			},
 			'test-prefix',
 			'line-icon',
-			{
-				fallback: false,
-			}
+			{ context, fallback: false }
 		);
 		expect(data.prefix).toBe('test-prefix');
 		expect(data.name).toBe('line-icon');
@@ -184,6 +188,7 @@ export default Component;
 
 		// Generate component
 		const result = createVueFunctionalComponent(data, {
+			context,
 			...options,
 			cssMode: 'module',
 		});
@@ -238,6 +243,7 @@ export default Component;
 	});
 
 	it('Icon with CSS, separate css file', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({
 			doubleDirsForCSS: false,
 			doubleDirsForComponents: false,
@@ -250,9 +256,7 @@ export default Component;
 			},
 			'test-prefix',
 			'line-icon',
-			{
-				fallback: false,
-			}
+			{ context, fallback: false }
 		);
 		expect(data.prefix).toBe('test-prefix');
 		expect(data.name).toBe('line-icon');
@@ -271,6 +275,7 @@ export default Component;
 
 		// Generate component
 		const result = createVueFunctionalComponent(data, {
+			context,
 			...options,
 			cssMode: 'prop',
 		});
@@ -325,6 +330,7 @@ export default Component;
 	});
 
 	it('Icon with CSS, embedded', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({
 			doubleDirsForCSS: false,
 			doubleDirsForComponents: false,
@@ -337,9 +343,7 @@ export default Component;
 			},
 			'test-prefix',
 			'line-icon',
-			{
-				fallback: false,
-			}
+			{ context, fallback: false }
 		);
 		expect(data.prefix).toBe('test-prefix');
 		expect(data.name).toBe('line-icon');
@@ -358,6 +362,7 @@ export default Component;
 
 		// Generate component
 		const result = createVueFunctionalComponent(data, {
+			context,
 			...options,
 			cssMode: 'embed',
 		});
@@ -410,6 +415,7 @@ export default Component;
 	});
 
 	it('Square property', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({});
 		const data: FactoryIconData = {
 			prefix: 'test',
@@ -424,6 +430,7 @@ export default Component;
 			},
 		};
 		const result = createVueFunctionalComponent(data, {
+			context,
 			...options,
 			cssMode: 'module', // Makes no difference
 			square: true,
@@ -478,6 +485,7 @@ export default Component;
 	});
 
 	it('Square property with hardcoded size', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({});
 		const data: FactoryIconData = {
 			prefix: 'test',
@@ -492,6 +500,7 @@ export default Component;
 			},
 		};
 		const result = createVueFunctionalComponent(data, {
+			context,
 			...options,
 			cssMode: 'import',
 			square: true,
@@ -541,6 +550,7 @@ export default Component;
 	});
 
 	it('Square property with square viewBox', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({});
 		const data: FactoryIconData = {
 			prefix: 'test',
@@ -555,6 +565,7 @@ export default Component;
 			},
 		};
 		const result = createVueFunctionalComponent(data, {
+			context,
 			...options,
 			cssMode: 'import',
 			square: true,

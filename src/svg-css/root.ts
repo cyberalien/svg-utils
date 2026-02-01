@@ -13,21 +13,15 @@ import type { BaseConvertSVGContentOptions } from './types.js';
  */
 export function convertSVGRootToCSS(
 	root: ParsedXMLTagElement[],
-	options: BaseConvertSVGContentOptions = {}
+	options: BaseConvertSVGContentOptions
 ): Record<string, CSSRules> {
 	const rules = Object.create(null) as Record<string, CSSRules>;
-	const hashOptions = options.hashOptions || {};
-	const classNamePrefix = options.classNamePrefix || '';
 
 	iterateXMLContent(root, (node) => {
 		if (node.type === 'tag') {
 			const props = extractSVGTagPropertiesForCSS(node, options.legacy);
 			if (props) {
-				const className = createCSSClassName(
-					props.rules,
-					classNamePrefix,
-					hashOptions
-				);
+				const className = createCSSClassName(props.rules, options);
 				toggleClassName(node.attribs, className, true);
 				rules[className] = props.rules;
 			}

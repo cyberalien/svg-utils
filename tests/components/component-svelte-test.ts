@@ -4,9 +4,11 @@ import { componentFactoryFileSystemOptions } from '../../src/components/prepare/
 import type { FactoryIconData } from '../../src/components/types/data.js';
 import { getGeneratedAssetFilename } from '../../src/components/helpers/filenames/asset.js';
 import { generateCSSDefaultImportName } from '../../src/components/helpers/css/name.js';
+import { createUniqueHashContext } from '../../src/helpers/hash/context.js';
 
 describe('Creating Svelte components', () => {
 	it('Simple icon', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({});
 		const data: FactoryIconData = {
 			prefix: 'test',
@@ -21,6 +23,7 @@ describe('Creating Svelte components', () => {
 			},
 		};
 		const result = createSvelteComponent(data, {
+			context,
 			...options,
 			cssMode: 'import',
 		});
@@ -61,6 +64,7 @@ export default Component;
 	});
 
 	it('Simple icon with fallback', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({});
 		const data: FactoryIconData = {
 			prefix: 'test',
@@ -76,6 +80,7 @@ export default Component;
 			fallback: 'test:icon',
 		};
 		const result = createSvelteComponent(data, {
+			context,
 			...options,
 			cssMode: 'import',
 		});
@@ -114,6 +119,7 @@ export default Component;
 	});
 
 	it('Icon with CSS, hardcoded size', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({
 			doubleDirsForCSS: false,
 			doubleDirsForComponents: false,
@@ -126,7 +132,7 @@ export default Component;
 			},
 			'test-prefix',
 			'line-icon',
-			{ fallback: false }
+			{ context, fallback: false }
 		);
 		expect(data.prefix).toBe('test-prefix');
 		expect(data.name).toBe('line-icon');
@@ -145,6 +151,7 @@ export default Component;
 
 		// Generate component
 		const result = createSvelteComponent(data, {
+			context,
 			...options,
 			cssMode: 'import',
 			height: '1em',
@@ -185,6 +192,7 @@ export default Component;
 	});
 
 	it('Icon with CSS, using modules, TypeScript', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({
 			doubleDirsForCSS: false,
 			doubleDirsForComponents: false,
@@ -197,9 +205,7 @@ export default Component;
 			},
 			'test-prefix',
 			'line-icon',
-			{
-				fallback: false,
-			}
+			{ context, fallback: false }
 		);
 		expect(data.prefix).toBe('test-prefix');
 		expect(data.name).toBe('line-icon');
@@ -219,6 +225,7 @@ export default Component;
 
 		// Generate component
 		const result = createSvelteComponent(data, {
+			context,
 			...options,
 			cssMode: 'module',
 			ts: true,
@@ -270,6 +277,7 @@ export default Component;
 	});
 
 	it('Icon with CSS, using separate file', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({
 			doubleDirsForCSS: false, // Ignored
 			doubleDirsForComponents: true, // Used for CSS
@@ -285,9 +293,7 @@ export default Component;
 			},
 			prefix,
 			name,
-			{
-				fallback: false,
-			}
+			{ context, fallback: false }
 		);
 		expect(data.prefix).toBe(prefix);
 		expect(data.name).toBe(name);
@@ -306,6 +312,7 @@ export default Component;
 
 		// Generate component
 		const result = createSvelteComponent(data, {
+			context,
 			...options,
 			cssMode: 'prop',
 		});
@@ -353,6 +360,7 @@ export default Component;
 	});
 
 	it('Square property, CSS modules', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({});
 		const data: FactoryIconData = {
 			prefix: 'test',
@@ -367,6 +375,7 @@ export default Component;
 			},
 		};
 		const result = createSvelteComponent(data, {
+			context,
 			...options,
 			cssMode: 'module', // Makes no difference
 			square: true,
@@ -412,6 +421,7 @@ export default Component;
 	});
 
 	it('Square property, fallback', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({});
 		const data: FactoryIconData = {
 			prefix: 'test',
@@ -427,6 +437,7 @@ export default Component;
 			fallback: 'test:icon',
 		};
 		const result = createSvelteComponent(data, {
+			context,
 			...options,
 			cssMode: 'import',
 			square: true,
@@ -469,6 +480,7 @@ export default Component;
 	});
 
 	it('Square property with hardcoded size', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({});
 		const data: FactoryIconData = {
 			prefix: 'test',
@@ -483,6 +495,7 @@ export default Component;
 			},
 		};
 		const result = createSvelteComponent(data, {
+			context,
 			...options,
 			cssMode: 'import',
 			square: true,
@@ -522,6 +535,7 @@ export default Component;
 	});
 
 	it('Square property with square viewBox', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({});
 		const data: FactoryIconData = {
 			prefix: 'test',
@@ -536,6 +550,7 @@ export default Component;
 			},
 		};
 		const result = createSvelteComponent(data, {
+			context,
 			...options,
 			cssMode: 'import',
 			square: true,
@@ -578,6 +593,7 @@ export default Component;
 	});
 
 	it('Merged CSS file, CSS modules', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({
 			doubleDirsForCSS: false,
 			doubleDirsForComponents: false,
@@ -590,7 +606,7 @@ export default Component;
 			},
 			'test-prefix',
 			'line-icon',
-			{ fallback: false }
+			{ context, fallback: false }
 		);
 		expect(data.prefix).toBe('test-prefix');
 		expect(data.name).toBe('line-icon');
@@ -609,6 +625,7 @@ export default Component;
 
 		// Generate component
 		const result = createSvelteComponent(data, {
+			context,
 			...options,
 			cssMode: 'module',
 			height: '1em',
@@ -634,6 +651,7 @@ const content = \`<path class="\${css['${testClassName}']}"/><path class="\${css
 	});
 
 	it('CSS in component', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({
 			doubleDirsForCSS: false,
 			doubleDirsForComponents: false,
@@ -646,7 +664,7 @@ const content = \`<path class="\${css['${testClassName}']}"/><path class="\${css
 			},
 			'test-prefix',
 			'line-icon',
-			{ fallback: false }
+			{ context, fallback: false }
 		);
 		expect(data.prefix).toBe('test-prefix');
 		expect(data.name).toBe('line-icon');
@@ -665,6 +683,7 @@ const content = \`<path class="\${css['${testClassName}']}"/><path class="\${css
 
 		// Generate component
 		const result = createSvelteComponent(data, {
+			context,
 			...options,
 			cssMode: 'embed',
 			height: '1em',

@@ -3,9 +3,9 @@
 	"type": "module",
 	"description": "Common functions for working with SVG used by various packages.",
 	"author": "Vjacheslav Trushkin",
-	"version": "1.0.11",
+	"version": "1.1.1",
 	"license": "MIT",
-	"packageManager": "pnpm@10.24.0",
+	"packageManager": "pnpm@10.28.2",
 	"bugs": "https://github.com/cyberalien/svg-utils/issues",
 	"homepage": "https://cyberalien.dev/",
 	"repository": {
@@ -31,16 +31,16 @@
 	},
 	"devDependencies": {
 		"@eslint/eslintrc": "^3.3.3",
-		"@eslint/js": "^9.39.1",
-		"@iconify-json/ri": "^1.2.6",
+		"@eslint/js": "^9.39.2",
+		"@iconify-json/ri": "^1.2.8",
 		"@types/jest": "^30.0.0",
-		"@types/node": "^24.10.1",
-		"@typescript-eslint/eslint-plugin": "^8.48.0",
-		"@typescript-eslint/parser": "^8.48.0",
-		"eslint": "^9.39.1",
-		"globals": "^16.5.0",
-		"tsdown": "^0.15.12",
+		"@types/node": "^25.1.0",
+		"@typescript-eslint/eslint-plugin": "^8.54.0",
+		"@typescript-eslint/parser": "^8.54.0",
+		"eslint": "^9.39.2",
+		"globals": "^17.2.0",
+		"tsdown": "^0.20.1",
 		"typescript": "^5.9.3",
-		"vitest": "^4.0.14"
+		"vitest": "^4.0.18"
 	}
 }

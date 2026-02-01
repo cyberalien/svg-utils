@@ -3,9 +3,11 @@ import { createRawComponent } from '../../src/components/raw.js';
 import { componentFactoryFileSystemOptions } from '../../src/components/prepare/options.js';
 import type { FactoryIconData } from '../../src/components/types/data.js';
 import { generateCSSDefaultImportName } from '../../src/components/helpers/css/name.js';
+import { createUniqueHashContext } from '../../src/helpers/hash/context.js';
 
 describe('Creating raw components', () => {
 	it('Simple icon', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({});
 		const data: FactoryIconData = {
 			prefix: 'test',
@@ -20,6 +22,7 @@ describe('Creating raw components', () => {
 			},
 		};
 		const result = createRawComponent(data, {
+			context,
 			...options,
 			cssMode: 'import',
 		});
@@ -32,6 +35,7 @@ describe('Creating raw components', () => {
 	});
 
 	it('Icon with CSS', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({
 			doubleDirsForCSS: false,
 			doubleDirsForComponents: false,
@@ -43,7 +47,8 @@ describe('Creating raw components', () => {
 				body: '<path d="M0 0l16 16" fill="currentColor" />',
 			},
 			'test-prefix',
-			'line-icon'
+			'line-icon',
+			{ context }
 		);
 		expect(data.prefix).toBe('test-prefix');
 		expect(data.name).toBe('line-icon');
@@ -64,6 +69,7 @@ describe('Creating raw components', () => {
 
 		// Generate component
 		const result = createRawComponent(data, {
+			context,
 			...options,
 			cssMode: 'import',
 			height: '1em',
@@ -81,6 +87,7 @@ describe('Creating raw components', () => {
 	});
 
 	it('Icon with CSS, using modules', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({
 			doubleDirsForCSS: false,
 			doubleDirsForComponents: false,
@@ -92,7 +99,8 @@ describe('Creating raw components', () => {
 				body: '<path d="M0 0l16 16" fill="currentColor" />',
 			},
 			'test-prefix',
-			'line-icon'
+			'line-icon',
+			{ context }
 		);
 		expect(data.prefix).toBe('test-prefix');
 		expect(data.name).toBe('line-icon');
@@ -114,6 +122,7 @@ describe('Creating raw components', () => {
 
 		// Generate component
 		const result = createRawComponent(data, {
+			context,
 			...options,
 			cssMode: 'module',
 			height: '1em',
@@ -133,6 +142,7 @@ describe('Creating raw components', () => {
 	});
 
 	it('Icon with CSS, separate file', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({
 			doubleDirsForCSS: false,
 			doubleDirsForComponents: false,
@@ -144,7 +154,8 @@ describe('Creating raw components', () => {
 				body: '<path d="M0 0l16 16" fill="currentColor" />',
 			},
 			'test-prefix',
-			'line-icon'
+			'line-icon',
+			{ context }
 		);
 		expect(data.prefix).toBe('test-prefix');
 		expect(data.name).toBe('line-icon');
@@ -165,6 +176,7 @@ describe('Creating raw components', () => {
 
 		// Generate component
 		const result = createRawComponent(data, {
+			context,
 			...options,
 			cssMode: 'prop',
 		});
@@ -181,6 +193,7 @@ describe('Creating raw components', () => {
 	});
 
 	it('Icon with CSS, embedded', () => {
+		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({
 			doubleDirsForCSS: false,
 			doubleDirsForComponents: false,
@@ -192,7 +205,8 @@ describe('Creating raw components', () => {
 				body: '<path d="M0 0l16 16" fill="currentColor" />',
 			},
 			'test-prefix',
-			'line-icon'
+			'line-icon',
+			{ context }
 		);
 		expect(data.prefix).toBe('test-prefix');
 		expect(data.name).toBe('line-icon');
@@ -213,6 +227,7 @@ describe('Creating raw components', () => {
 
 		// Generate component
 		const result = createRawComponent(data, {
+			context,
 			...options,
 			cssMode: 'embed',
 		});

@@ -1,4 +1,4 @@
-import type { UniqueHashOptions } from '../helpers/hash/types.js';
+import type { UniqueHashPartialOptions } from '../helpers/hash/types.js';
 
 /**
  * CSS rules
@@ -24,6 +24,4 @@ export interface CSSKeyframes {
 /**
  * Hash options
  */
-export type CSSHashOptions = Partial<
-	Pick<UniqueHashOptions, 'length' | 'lengths' | 'throwOnCollision'>
->;
+export type CSSHashOptions = UniqueHashPartialOptions;

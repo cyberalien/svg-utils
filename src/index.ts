@@ -5,6 +5,7 @@ export * from './helpers/misc/keys.js';
 export * from './helpers/misc/promises.js';
 
 export * from './helpers/hash/types.js';
+export * from './helpers/hash/context.js';
 export * from './helpers/hash/stringify.js';
 export * from './helpers/hash/hash.js';
 export * from './helpers/hash/unique.js';

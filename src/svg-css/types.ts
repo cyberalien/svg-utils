@@ -4,13 +4,7 @@ import type { StringifyXMLOptions } from '../xml/types.js';
 /**
  * Options for converting SVG tags to SVG+CSS
  */
-export interface BaseConvertSVGContentOptions {
-	// Class name prefix
-	classNamePrefix?: string;
-
-	// Hash options
-	hashOptions?: CSSHashOptions;
-
+export interface BaseConvertSVGContentOptions extends CSSHashOptions {
 	// Support legacy browsers
 	legacy?: boolean;
 }
@@ -19,8 +13,7 @@ export interface BaseConvertSVGContentOptions {
  * Options for converting SVG content to SVG+CSS
  */
 export interface ConvertSVGContentOptions
-	extends StringifyXMLOptions,
-		BaseConvertSVGContentOptions {
+	extends StringifyXMLOptions, BaseConvertSVGContentOptions {
 	//
 }
 
