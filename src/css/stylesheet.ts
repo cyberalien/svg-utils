@@ -56,7 +56,10 @@ function stringifySelectors(data: CSSGeneratedSelectors, depth = 0): string {
 	for (const selector in data) {
 		const item = data[selector];
 		if (item.rules) {
-			lines.push(stringifyCSSSelector(selector, item.rules, depth));
+			const value = stringifyCSSSelector(selector, item.rules, depth);
+			if (value.length) {
+				lines.push(value);
+			}
 		}
 		if (item.nested) {
 			const nestedContent = stringifySelectors(item.nested, depth + 1);

@@ -49,6 +49,19 @@ describe('Converting generating CSS', () => {
 }
 `
 		);
+
+		// Empty selector
+		addGeneratedSelector(css, ['.empty'], {});
+		expect(stringifyStylesheet(css)).toBe(
+			`.foo {
+  color: green;
+}
+
+.bar {
+  color: blue;
+}
+`
+		);
 	});
 
 	it('Animations', () => {
@@ -94,6 +107,46 @@ describe('Converting generating CSS', () => {
   .fade {
     animation: fade 1s;
   }
+}
+
+@keyframes fade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+`
+		);
+
+		addGeneratedSelector(css, ['.fade-out'], {
+			opacity: '0',
+		});
+		addGeneratedSelector(
+			css,
+			['@media (prefers-reduced-motion)', '.fade-out'],
+			{
+				animation: 'fade 1s reverse',
+			}
+		);
+		expect(stringifyStylesheet(css)).toBe(
+			`.fade {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion) {
+  .fade {
+    animation: fade 1s;
+  }
+
+  .fade-out {
+    animation: fade 1s reverse;
+  }
+}
+
+.fade-out {
+  opacity: 0;
 }
 
 @keyframes fade {
