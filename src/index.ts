@@ -15,8 +15,10 @@ export * from './xml/iterate.js';
 export * from './xml/parse.js';
 export * from './xml/stringify.js';
 
+export * from './css/types.js';
 export * from './css/hash.js';
 export * from './css/stringify.js';
+export * from './css/stylesheet.js';
 
 export * from './classname/const.js';
 export * from './classname/toggle.js';

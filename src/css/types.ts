@@ -25,3 +25,24 @@ export interface CSSKeyframes {
  * Hash options
  */
 export type CSSHashOptions = UniqueHashPartialOptions;
+
+/**
+ * Generated stylesheet
+ */
+export interface CSSGeneratedSelector {
+	// Rules for this selector, if any
+	rules?: CSSRules | string;
+
+	// Nested selectors, e.g. for media queries
+	nested?: CSSGeneratedSelectors;
+}
+
+export type CSSGeneratedSelectors = Record<string, CSSGeneratedSelector>;
+
+export interface CSSGeneratedStylesheet {
+	// Selectors and their rules
+	selectors: CSSGeneratedSelectors;
+
+	// Keyframes
+	keyframes: Record<string, CSSKeyframes>;
+}
