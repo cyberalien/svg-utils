@@ -5,7 +5,7 @@
 	"author": "Vjacheslav Trushkin",
 	"version": "1.1.1",
 	"license": "MIT",
-	"packageManager": "pnpm@10.28.2",
+	"packageManager": "pnpm@10.29.3",
 	"bugs": "https://github.com/cyberalien/svg-utils/issues",
 	"homepage": "https://cyberalien.dev/",
 	"repository": {
@@ -32,14 +32,14 @@
 	"devDependencies": {
 		"@eslint/eslintrc": "^3.3.3",
 		"@eslint/js": "^9.39.2",
-		"@iconify-json/ri": "^1.2.8",
+		"@iconify-json/ri": "^1.2.10",
 		"@types/jest": "^30.0.0",
-		"@types/node": "^25.1.0",
-		"@typescript-eslint/eslint-plugin": "^8.54.0",
-		"@typescript-eslint/parser": "^8.54.0",
+		"@types/node": "^25.2.3",
+		"@typescript-eslint/eslint-plugin": "^8.55.0",
+		"@typescript-eslint/parser": "^8.55.0",
 		"eslint": "^9.39.2",
-		"globals": "^17.2.0",
-		"tsdown": "^0.20.1",
+		"globals": "^17.3.0",
+		"tsdown": "^0.20.3",
 		"typescript": "^5.9.3",
 		"vitest": "^4.0.18"
 	}
