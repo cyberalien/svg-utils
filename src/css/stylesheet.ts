@@ -53,7 +53,20 @@ function indent(depth: number) {
  */
 function stringifySelectors(data: CSSGeneratedSelectors, depth = 0): string {
 	const lines: string[] = [];
-	for (const selector in data) {
+
+	// Sort selectors, at-rules last
+	const selectors = Object.keys(data);
+	selectors.sort((a, b) =>
+		a.startsWith('@')
+			? b.startsWith('@')
+				? a.localeCompare(b)
+				: 1
+			: b.startsWith('@')
+				? -1
+				: a.localeCompare(b)
+	);
+
+	for (const selector of selectors) {
 		const item = data[selector];
 		if (item.rules) {
 			const value = stringifyCSSSelector(selector, item.rules, depth);

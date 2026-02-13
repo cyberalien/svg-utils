@@ -25,12 +25,12 @@ describe('Converting generating CSS', () => {
 			color: 'blue',
 		});
 		expect(stringifyStylesheet(css)).toBe(
-			`.foo {
-  color: red;
+			`.bar {
+  color: blue;
 }
 
-.bar {
-  color: blue;
+.foo {
+  color: red;
 }
 `
 		);
@@ -40,12 +40,12 @@ describe('Converting generating CSS', () => {
 			color: 'green',
 		});
 		expect(stringifyStylesheet(css)).toBe(
-			`.foo {
-  color: green;
+			`.bar {
+  color: blue;
 }
 
-.bar {
-  color: blue;
+.foo {
+  color: green;
 }
 `
 		);
@@ -53,12 +53,12 @@ describe('Converting generating CSS', () => {
 		// Empty selector
 		addGeneratedSelector(css, ['.empty'], {});
 		expect(stringifyStylesheet(css)).toBe(
-			`.foo {
-  color: green;
+			`.bar {
+  color: blue;
 }
 
-.bar {
-  color: blue;
+.foo {
+  color: green;
 }
 `
 		);
@@ -135,6 +135,10 @@ describe('Converting generating CSS', () => {
   opacity: 1;
 }
 
+.fade-out {
+  opacity: 0;
+}
+
 @media (prefers-reduced-motion) {
   .fade {
     animation: fade 1s;
@@ -143,10 +147,6 @@ describe('Converting generating CSS', () => {
   .fade-out {
     animation: fade 1s reverse;
   }
-}
-
-.fade-out {
-  opacity: 0;
 }
 
 @keyframes fade {
