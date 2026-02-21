@@ -1,3 +1,4 @@
+import { mergeCSSRules } from './rules.js';
 import { stringifyCSSKeyframes, stringifyCSSSelector } from './stringify.js';
 import type {
 	CSSGeneratedSelectors,
@@ -17,24 +18,29 @@ export function createEmptyStylesheet(): CSSGeneratedStylesheet {
 
 /**
  * Add generated selector to stylesheet
- *
- * If item exists, it will be overwritten. Class names should be hashed to avoid conflicts, so this should not cause issues.
  */
 export function addGeneratedSelector(
 	stylesheet: CSSGeneratedStylesheet,
 	tree: string[],
 	rules: CSSRules | string
 ) {
+	// Filter tree to remove duplicate at rules
+	tree = tree.filter((item, index) =>
+		item.startsWith('@') ? tree.indexOf(item) === index : true
+	);
+
+	// Traverse tree
 	let parent = stylesheet.selectors;
 	for (let i = 0; i < tree.length; i++) {
 		const selector = tree[i];
+
 		if (!parent[selector]) {
 			parent[selector] = {};
 		}
 		const parentItem = parent[selector];
 
 		if (i === tree.length - 1) {
-			parentItem.rules = rules;
+			parentItem.rules = mergeCSSRules(rules, parentItem.rules);
 			return;
 		}
 		if (!parentItem.nested) {

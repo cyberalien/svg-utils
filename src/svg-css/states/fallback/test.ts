@@ -2,7 +2,7 @@ import type { IconStatesList } from '../types.js';
 import { parseIconFallbackTemplate } from './parse.js';
 import type { IconFallbackTemplate } from './types.js';
 
-const match = /^[a-z0-9:-]+$/;
+const match = /^[a-z0-9:-]*$/;
 
 /**
  * Parse and test fallback template string

@@ -75,6 +75,7 @@ describe('Converting generating CSS', () => {
 				{ time: 1, value: '1' },
 			],
 		};
+		css.keyframes['fade-out'] = '100% { opacity: 0 }';
 		expect(stringifyStylesheet(css)).toBe(
 			`@keyframes fade {
   0% {
@@ -83,6 +84,10 @@ describe('Converting generating CSS', () => {
   100% {
     opacity: 1;
   }
+}
+
+@keyframes fade-out {
+  100% { opacity: 0 }
 }
 `
 		);
@@ -116,6 +121,10 @@ describe('Converting generating CSS', () => {
   100% {
     opacity: 1;
   }
+}
+
+@keyframes fade-out {
+  100% { opacity: 0 }
 }
 `
 		);
@@ -156,6 +165,10 @@ describe('Converting generating CSS', () => {
   100% {
     opacity: 1;
   }
+}
+
+@keyframes fade-out {
+  100% { opacity: 0 }
 }
 `
 		);

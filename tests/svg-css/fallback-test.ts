@@ -41,6 +41,18 @@ describe('Testing fallback template', () => {
 			},
 		]);
 
+		// Action state with quotes
+		expect(
+			parseAndTestIconFallbackTemplate(
+				`chevrons-bar{action?''|'-to'}-horizontal`,
+				['action', 'focus']
+			)
+		).toEqual([
+			'chevrons-bar',
+			{ state: 'action', values: ['-to', ''] },
+			'-horizontal',
+		]);
+
 		// Bad templates
 		expect(
 			// Missing }

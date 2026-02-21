@@ -44,5 +44,5 @@ export interface CSSGeneratedStylesheet {
 	selectors: CSSGeneratedSelectors;
 
 	// Keyframes
-	keyframes: Record<string, CSSKeyframes>;
+	keyframes: Record<string, CSSKeyframes | string>;
 }

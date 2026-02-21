@@ -26,7 +26,9 @@ export function stringifyCSSSelector(
 	depth = 0
 ): string {
 	const content =
-		typeof rules === 'string' ? rules : stringifyCSSRules(rules, depth + 1);
+		typeof rules === 'string'
+			? indent(depth + 1) + rules + '\n'
+			: stringifyCSSRules(rules, depth + 1);
 	if (!content.length) {
 		return '';
 	}
@@ -35,13 +37,16 @@ export function stringifyCSSSelector(
 }
 
 /**
- * Stringify CSS keyframes
+ * Convert animation frames to CSS string
+ *
+ * Does not include @keyframes block, only the content
  */
-export function stringifyCSSKeyframes(
-	animationName: string,
+export function stringifyCSSAnimationFrames(
 	keyframes: CSSKeyframes,
 	depth = 0
 ): string {
+	const lines: string[] = [];
+
 	const prop = keyframes.prop;
 	const values = new Map<string, number[]>();
 	keyframes.frames.forEach((frame) => {
@@ -53,9 +58,6 @@ export function stringifyCSSKeyframes(
 			values.set(css, [frame.time]);
 		}
 	});
-
-	const lines: string[] = [];
-	lines.push(`${indent(depth)}@keyframes ${animationName} {\n`);
 	values.forEach((times, css) => {
 		lines.push(
 			`${indent(depth + 1)}${times
@@ -66,6 +68,26 @@ export function stringifyCSSKeyframes(
 				.join(', ')} {\n${css}${indent(depth + 1)}}\n`
 		);
 	});
-	lines.push('}\n');
-	return lines.join('');
+
+	return lines.join('').trim();
+}
+
+/**
+ * Stringify CSS keyframes
+ */
+export function stringifyCSSKeyframes(
+	animationName: string,
+	keyframes: CSSKeyframes | string,
+	depth = 0
+): string {
+	const content =
+		typeof keyframes === 'string'
+			? keyframes
+			: stringifyCSSAnimationFrames(keyframes, depth);
+	if (content.includes('@keyframes')) {
+		// Sanity check to prevent nesting keyframes if content is already a full keyframes block
+		return content;
+	}
+
+	return `${indent(depth)}@keyframes ${animationName} {\n${indent(depth + 1)}${content}\n}\n`;
 }
