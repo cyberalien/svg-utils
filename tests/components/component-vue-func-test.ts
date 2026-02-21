@@ -3,6 +3,7 @@ import { createVueFunctionalComponent } from '../../src/components/vue-func.js';
 import { componentFactoryFileSystemOptions } from '../../src/components/prepare/options.js';
 import type { FactoryIconData } from '../../src/components/types/data.js';
 import { createUniqueHashContext } from '../../src/helpers/hash/context.js';
+import { stringifyStylesheet } from '../../src/css/stylesheet.js';
 
 describe('Creating Vue functional components', () => {
 	it('Simple icon', () => {
@@ -305,7 +306,7 @@ export default Component;
 		expect(result.assets[1].filename).toBe('line-icon.d.ts');
 
 		// Check CSS
-		expect(result.style).toBe(
+		expect(result.style ? stringifyStylesheet(result.style) : '').toBe(
 			`.${testClassName} {\n  d: path("M0 0l16 16");\n  fill: currentColor;\n}\n`
 		);
 

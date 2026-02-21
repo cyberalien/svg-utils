@@ -2,6 +2,7 @@ import { generateCSSFilesForComponent } from '../../src/components/helpers/css/g
 import { createFactoryImports } from '../../src/components/helpers/imports/create.js';
 import { componentFactoryFileSystemOptions } from '../../src/components/prepare/options.js';
 import type { GeneratedAssetFile } from '../../src/components/types/component.js';
+import { stringifyStylesheet } from '../../src/index.js';
 
 describe('Generating CSS for component factory', () => {
 	it('Simple CSS', () => {
@@ -65,7 +66,7 @@ describe('Generating CSS for component factory', () => {
 			}
 		);
 		expect(assets).toHaveLength(0);
-		expect(result).toBe(
+		expect(result ? stringifyStylesheet(result) : '').toBe(
 			'.test1 {\n  fill: red;\n  d: path("M10 10H20V20H10Z");\n}\n'
 		);
 		expect(imports.css).toEqual(new Set());

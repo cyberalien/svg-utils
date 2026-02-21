@@ -67,15 +67,7 @@ describe('Rendering SVG+CSS icons', () => {
 		const stylesheet = createEmptyStylesheet();
 
 		// Empty icon
-		expect(
-			renderSVGCSSIconStyle(
-				{
-					viewBox: '0 0 24 24',
-					content: '<path d="M0 0h24v24H0z" />',
-				},
-				stylesheet
-			)
-		).toEqual({});
+		expect(renderSVGCSSIconStyle({}, stylesheet)).toEqual({});
 		expect(stringifyStylesheet(stylesheet)).toBe('');
 
 		// Scan icon
@@ -111,12 +103,7 @@ ${expectedStyles.r1menc}
 
 	test('Basic icon, split stylesheets', () => {
 		// Empty icon
-		expect(
-			renderSVGCSSIconStyle({
-				viewBox: '0 0 24 24',
-				content: '<path d="M0 0h24v24H0z" />',
-			})
-		).toEqual({});
+		expect(renderSVGCSSIconStyle({})).toEqual({});
 
 		// Scan icon
 		expect(

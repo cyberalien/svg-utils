@@ -1,12 +1,17 @@
-import {
-	stringifyCSSKeyframes,
-	stringifyCSSSelector,
-} from '../../../css/stringify.js';
 import { getGeneratedCSSFilename } from '../filenames/css.js';
 import type { ComponentFactoryOptions } from '../../types/options.js';
 import type { ComponentFactorySource } from '../../types/source.js';
 import type { FactoryComponentImports } from '../imports/types.js';
 import type { GeneratedAssetFile } from '../../types/component.js';
+import type {
+	CSSGeneratedSelectors,
+	CSSGeneratedStylesheet,
+} from '../../../css/types.js';
+import {
+	createEmptyStylesheet,
+	stringifyStylesheet,
+} from '../../../css/stylesheet.js';
+import { renderSVGCSSIconStyle } from '../../../svg-css/icon/css/render.js';
 
 interface Options extends Pick<
 	ComponentFactoryOptions,
@@ -26,11 +31,9 @@ export function generateCSSFilesForComponent(
 	imports: FactoryComponentImports,
 	assets: GeneratedAssetFile[],
 	options: Options
-): string | undefined {
-	const { classes, keyframes } = content;
-	if (!classes) {
+): CSSGeneratedStylesheet | undefined {
+	if (!content.classes) {
 		// Nothing to do
-		// Keyframes without classes is useless
 		return;
 	}
 
@@ -41,92 +44,60 @@ export function generateCSSFilesForComponent(
 
 	// Check if CSS should be merged
 	const mergeCSS = (returnCSS || options.mergeCSS) ?? false;
+	const commonStylesheet = mergeCSS ? createEmptyStylesheet() : undefined;
 
-	// Get class name/keyframe name prefixes for components
-	const classNamePrefix =
-		isComponent && componentType === 'svelte' ? ':global ' : '';
-	const keyframesPrefix =
-		isComponent && componentType === 'svelte' ? '-global-' : '';
+	// Render stylesheets
+	const stylesheets = renderSVGCSSIconStyle(content, commonStylesheet);
 
-	// All content
-	const mergedContent: string[] = [];
-
-	// Generate all classes
-	for (const className in classes) {
-		// Generate content
-		const baseContent = stringifyCSSSelector(
-			`${classNamePrefix}.${className}`,
-			classes[className]
-		);
-		let content = baseContent;
-
-		// Add keyframes
-		if (!mergeCSS && keyframes) {
-			for (const animationName in keyframes) {
-				if (baseContent.includes(animationName)) {
-					const value = keyframes[animationName];
-					content +=
-						'\n' +
-						(typeof value === 'string'
-							? value
-							: stringifyCSSKeyframes(
-									keyframesPrefix + animationName,
-									value
-								));
-				}
-			}
-		}
-
-		if (mergeCSS) {
-			mergedContent.push(content);
-			continue;
-		}
-
-		// Generate asset
-		const filename = getGeneratedCSSFilename(className, options);
-		assets.push({
-			...filename,
-			content,
-		});
-
-		// Add import
-		imports.css.add(filename.import);
-	}
-
-	// Generate keyframes
-	if (mergeCSS && keyframes) {
-		for (const animationName in keyframes) {
-			const value = keyframes[animationName];
-			const content =
-				typeof value === 'string'
-					? value
-					: stringifyCSSKeyframes(
-							keyframesPrefix + animationName,
-							value
-						);
-
-			if (mergeCSS) {
-				mergedContent.push(content);
-				continue;
+	// Update stylesheets for Svelte components
+	if (isComponent && componentType === 'svelte') {
+		const list = commonStylesheet
+			? [commonStylesheet]
+			: Object.values(stylesheets);
+		for (const stylesheet of list) {
+			// Wrap all selectors in :global
+			if (Object.keys(stylesheet.selectors).length) {
+				const newRoot: CSSGeneratedSelectors = {
+					':global': {
+						nested: stylesheet.selectors,
+					},
+				};
+				stylesheet.selectors = newRoot;
 			}
 
-			// Generate asset
-			const filename = getGeneratedCSSFilename(animationName, options);
-			assets.push({
-				...filename,
-				content,
-			});
-
-			// Add import
-			imports.css.add(filename.import);
+			// Add -global- prefix to all keyframes
+			const keyframes = stylesheet.keyframes;
+			const animations = Object.keys(keyframes);
+			for (const animationName of animations) {
+				const animation = keyframes[animationName];
+				delete keyframes[animationName];
+				keyframes['-global-' + animationName] = animation;
+			}
 		}
 	}
 
-	// Generate merged file
-	if (mergeCSS && mergedContent.length) {
-		const content = mergedContent.join('\n');
+	// Add assets
+	if (!mergeCSS) {
+		for (const className in stylesheets) {
+			const stylesheet = stylesheets[className];
+			const content = stringifyStylesheet(stylesheet);
 
-		if (typeof mergeCSS == 'object') {
+			if (content) {
+				// Generate asset
+				const filename = getGeneratedCSSFilename(className, options);
+				assets.push({
+					...filename,
+					content,
+				});
+
+				// Add import
+				imports.css.add(filename.import);
+			}
+		}
+	} else if (typeof mergeCSS == 'object') {
+		const content = stringifyStylesheet(commonStylesheet!);
+
+		if (content) {
 			assets.push({
 				...mergeCSS,
 				content,
@@ -135,10 +106,8 @@ export function generateCSSFilesForComponent(
 			// Add import
 			imports.css.add(mergeCSS.import);
 		}
-
-		// Return merged content
-		return returnCSS ? content : undefined;
 	}
 
-	return;
+	// Return stylesheet
+	return returnCSS ? commonStylesheet : undefined;
 }

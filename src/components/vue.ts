@@ -22,6 +22,7 @@ import {
 import { addVueComponentTypes } from './helpers/ts/vue.js';
 import { minifyViewBox } from '../svg/viewbox/minify.js';
 import { getViewBoxRatio } from './helpers/content/ratio.js';
+import { stringifyStylesheet } from '../css/stylesheet.js';
 
 interface VueOptions extends ComponentFactoryOptions {
 	// Use TypeScript
@@ -213,7 +214,7 @@ ${template}
 	const style = options.cssMode === 'prop' ? styleContent : undefined;
 
 	if (styleContent && !style) {
-		content += `<style>\n${styleContent}\n</style>\n`;
+		content += `<style>\n${stringifyStylesheet(styleContent)}\n</style>\n`;
 	}
 
 	// Add types file

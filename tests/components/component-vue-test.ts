@@ -5,6 +5,7 @@ import type { FactoryIconData } from '../../src/components/types/data.js';
 import { getGeneratedAssetFilename } from '../../src/components/helpers/filenames/asset.js';
 import { getGeneratedComponentFilename } from '../../src/components/export/filename.js';
 import { createUniqueHashContext } from '../../src/helpers/hash/context.js';
+import { stringifyStylesheet } from '../../src/css/stylesheet.js';
 
 describe('Creating Vue components', () => {
 	it('Simple icon', () => {
@@ -286,7 +287,7 @@ const content = \`<path class="${testClassName}"/>\`;
 		expect(result.assets[1].filename).toBe('line-icon.d.ts');
 
 		// Check CSS
-		expect(result.style).toBe(
+		expect(result.style ? stringifyStylesheet(result.style) : '').toBe(
 			`.${testClassName} {\n  d: path("M0 0l16 16");\n  fill: currentColor;\n}\n`
 		);
 
@@ -585,13 +586,13 @@ const content = \`<path class="${testClassName}"/><path class="${testClassName2}
 </script>
 <template><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" :viewBox="viewBox" v-html="content" /></template>
 <style>
-.${testClassName} {
-  d: path("M0 0l16 16");
+.${testClassName2} {
+  d: path("M16 0l-16 16");
   fill: currentColor;
 }
 
-.${testClassName2} {
-  d: path("M16 0l-16 16");
+.${testClassName} {
+  d: path("M0 0l16 16");
   fill: currentColor;
 }
 

@@ -22,6 +22,7 @@ import {
 import { addSvelteComponentTypes } from './helpers/ts/svelte.js';
 import { minifyViewBox } from '../svg/viewbox/minify.js';
 import { getViewBoxRatio } from './helpers/content/ratio.js';
+import { stringifyStylesheet } from '../css/stylesheet.js';
 
 interface SvelteOptions extends ComponentFactoryOptions {
 	// Use TypeScript
@@ -214,7 +215,7 @@ ${template}
 	// Add styles
 	const style = options.cssMode === 'prop' ? styleContent : undefined;
 	if (styleContent && !style) {
-		content += `<style>\n${styleContent}\n</style>\n`;
+		content += `<style>\n${stringifyStylesheet(styleContent)}\n</style>\n`;
 	}
 
 	// Add types file

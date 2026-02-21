@@ -15,6 +15,7 @@ import {
 	factoryPropTemplate,
 	stringifyFactoryProps,
 } from './helpers/props/stringify.js';
+import { stringifyStylesheet } from '../css/stylesheet.js';
 
 /**
  * Create raw component code
@@ -48,7 +49,9 @@ export function createRawComponent(
 	const icon = {
 		...data.icon,
 		content: `<svg ${stringifyFactoryProps(props, factoryPropTemplate)}>${
-			isEmbeddedCSS && style ? `<style>${style}</style>` : ''
+			isEmbeddedCSS && style
+				? `<style>${stringifyStylesheet(style)}</style>`
+				: ''
 		}${data.icon.content}</svg>`,
 	};
 

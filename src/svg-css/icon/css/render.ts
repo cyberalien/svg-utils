@@ -6,7 +6,7 @@ import type { CSSGeneratedStylesheet } from '../../../css/types.js';
 import { prefersReduceMotion } from '../../../helpers/reduce-motion.js';
 import { getSelectorsForStateValues } from '../../states/selector/parse.js';
 import type { StatefulIconSelectorsContext } from '../../states/selector/types.js';
-import type { SVGCSSIcon, SVGCSSStatefulIcon } from '../types.js';
+import type { SVGCSSIconRules, SVGCSSStatefulIconRules } from '../types.js';
 
 type StylesheetParam =
 	| CSSGeneratedStylesheet
@@ -22,7 +22,7 @@ type StylesheetParam =
  * stylesheets for classes and keyframes, which can be reused across icons.
  */
 export function renderStatefulSVGCSSIconStyle(
-	icon: SVGCSSStatefulIcon,
+	icon: SVGCSSStatefulIconRules,
 	context: StatefulIconSelectorsContext | null,
 	commonStylesheet: StylesheetParam = createEmptyStylesheet
 ): Record<string, CSSGeneratedStylesheet> {
@@ -122,7 +122,7 @@ export function renderStatefulSVGCSSIconStyle(
  * stylesheets for classes and keyframes, which can be reused across icons.
  */
 export function renderSVGCSSIconStyle(
-	icon: SVGCSSIcon,
+	icon: SVGCSSIconRules,
 	commonStylesheet?: StylesheetParam
 ): Record<string, CSSGeneratedStylesheet> {
 	return renderStatefulSVGCSSIconStyle(icon, null, commonStylesheet);

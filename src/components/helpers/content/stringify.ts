@@ -1,3 +1,5 @@
+import { stringifyStylesheet } from '../../../css/stylesheet.js';
+import type { CSSGeneratedStylesheet } from '../../../css/types.js';
 import type { ComponentFactorySource } from '../../types/source.js';
 
 /**
@@ -5,10 +7,11 @@ import type { ComponentFactorySource } from '../../types/source.js';
  */
 export function stringifyFactoryIconContent(
 	icon: ComponentFactorySource,
-	embedCSS?: string
+	embedCSS?: CSSGeneratedStylesheet
 ): string {
-	const fullContent = embedCSS
-		? `<style>${embedCSS}</style>${icon.content}`
+	const style = embedCSS ? stringifyStylesheet(embedCSS) : '';
+	const fullContent = style
+		? `<style>${style}</style>${icon.content}`
 		: icon.content;
 	return '`' + fullContent.replace(/`/g, '\\`') + '`';
 }

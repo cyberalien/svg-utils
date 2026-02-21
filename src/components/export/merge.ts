@@ -1,3 +1,4 @@
+import { stringifyStylesheet } from '../../css/stylesheet.js';
 import type {
 	FactoryComponent,
 	GeneratedComponentFile,
@@ -33,7 +34,7 @@ export function mergeExportedComponentFiles(
 		if (item.css && item.style) {
 			add({
 				filename: item.css,
-				content: item.style,
+				content: stringifyStylesheet(item.style),
 			});
 		}
 	}

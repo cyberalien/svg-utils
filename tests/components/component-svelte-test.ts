@@ -4,6 +4,7 @@ import { componentFactoryFileSystemOptions } from '../../src/components/prepare/
 import type { FactoryIconData } from '../../src/components/types/data.js';
 import { getGeneratedAssetFilename } from '../../src/components/helpers/filenames/asset.js';
 import { createUniqueHashContext } from '../../src/helpers/hash/context.js';
+import { stringifyStylesheet } from '../../src/css/stylesheet.js';
 
 describe('Creating Svelte components', () => {
 	it('Simple icon', () => {
@@ -334,7 +335,9 @@ const content = \`<path class="${testClassName}"/>\`;
 		);
 
 		// Check CSS
-		expect(result.style).toBe(
+		expect(
+			result.style ? stringifyStylesheet(result.style) : undefined
+		).toBe(
 			`.${testClassName} {\n  d: path("M0 0l16 16");\n  fill: currentColor;\n}\n`
 		);
 
@@ -696,14 +699,16 @@ const content = \`<path class="${testClassName}"/><path class="${testClassName2}
 </script>
 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox={viewBox} {...props}>{@html content}</svg>
 <style>
-:global .${testClassName} {
-  d: path("M0 0l16 16");
-  fill: currentColor;
-}
+:global {
+  .${testClassName2} {
+    d: path("M16 0l-16 16");
+    fill: currentColor;
+  }
 
-:global .${testClassName2} {
-  d: path("M16 0l-16 16");
-  fill: currentColor;
+  .${testClassName} {
+    d: path("M0 0l16 16");
+    fill: currentColor;
+  }
 }
 
 </style>

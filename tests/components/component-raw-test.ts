@@ -3,6 +3,7 @@ import { createRawComponent } from '../../src/components/raw.js';
 import { componentFactoryFileSystemOptions } from '../../src/components/prepare/options.js';
 import type { FactoryIconData } from '../../src/components/types/data.js';
 import { createUniqueHashContext } from '../../src/helpers/hash/context.js';
+import { stringifyStylesheet } from '../../src/css/stylesheet.js';
 
 describe('Creating raw components', () => {
 	it('Simple icon', () => {
@@ -183,7 +184,9 @@ describe('Creating raw components', () => {
 		);
 		expect(result.assets).toHaveLength(1);
 		expect(result.assets[0].filename).toBe('line-icon.d.ts');
-		expect(result.style).toBe(
+		expect(
+			result.style ? stringifyStylesheet(result.style) : undefined
+		).toBe(
 			`.${testClassName} {\n  d: path("M0 0l16 16");\n  fill: currentColor;\n}\n`
 		);
 	});
