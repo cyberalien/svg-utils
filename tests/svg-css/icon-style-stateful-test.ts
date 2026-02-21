@@ -3,7 +3,7 @@ import {
 	stringifyStylesheet,
 	type SVGCSSStatefulIcon,
 } from '../../src/index.js';
-import { renderStatefulSVGCSSIconStyle } from '../../src/svg-css/icon/css/stateful.js';
+import { renderStatefulSVGCSSIconStyle } from '../../src/svg-css/icon/css/render.js';
 import { createStatefulIconSelectorsContext } from '../../src/svg-css/states/selector/parse.js';
 
 const testIcon: SVGCSSStatefulIcon = {
@@ -65,7 +65,7 @@ describe('Rendering SVG+CSS icons', () => {
 						action: '&.state-action',
 						focus: '.focus-trigger:focus',
 					},
-					testIcon.states
+					testIcon.states!
 				),
 				stylesheet
 			)

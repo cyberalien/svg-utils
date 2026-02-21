@@ -18,7 +18,7 @@ interface MainProps {
 
 interface StatefulMainProps extends MainProps {
 	// List of supported states
-	states: IconStatesList;
+	states?: IconStatesList;
 }
 
 /**
