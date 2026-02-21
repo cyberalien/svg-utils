@@ -36,44 +36,6 @@ describe('Generating CSS for component factory', () => {
 			filename: 'css/test1.css',
 		});
 		expect(imports.css).toEqual(new Set(['./css/test1.css']));
-		expect(imports.modules).toEqual(Object.create(null));
-	});
-
-	it('Module', () => {
-		const assets: GeneratedAssetFile[] = [];
-		const imports = createFactoryImports();
-		generateCSSFilesForComponent(
-			{
-				content: '<path class="test1" />',
-				classes: {
-					test1: {
-						fill: 'red',
-						d: 'path("M10 10H20V20H10Z")',
-					},
-				},
-			},
-			imports,
-			assets,
-			{
-				...componentFactoryFileSystemOptions({
-					doubleDirsForComponents: true,
-					prefixDirsForComponents: true,
-					doubleDirsForCSS: true,
-				}),
-				cssMode: 'module',
-			}
-		);
-		expect(assets).toHaveLength(1);
-		expect(assets[0]).toEqual({
-			content:
-				'.test1 {\n  fill: red;\n  d: path("M10 10H20V20H10Z");\n}\n',
-			import: '../../css/t/test1.module.css',
-			filename: 'css/t/test1.module.css',
-		});
-		expect(imports.css).toEqual(new Set());
-		expect(imports.modules).toEqual({
-			'../../css/t/test1.module.css': 'cssTest1',
-		});
 	});
 
 	it('File', () => {
@@ -107,6 +69,5 @@ describe('Generating CSS for component factory', () => {
 			'.test1 {\n  fill: red;\n  d: path("M10 10H20V20H10Z");\n}\n'
 		);
 		expect(imports.css).toEqual(new Set());
-		expect(imports.modules).toEqual(Object.create(null));
 	});
 });

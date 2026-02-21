@@ -1,5 +1,3 @@
-import { generateCSSDefaultImportName } from '../css/name.js';
-import type { ComponentFactoryRenderingOptions } from '../../types/options.js';
 import type { ComponentFactorySource } from '../../types/source.js';
 
 /**
@@ -7,34 +5,10 @@ import type { ComponentFactorySource } from '../../types/source.js';
  */
 export function stringifyFactoryIconContent(
 	icon: ComponentFactorySource,
-	options: Pick<ComponentFactoryRenderingOptions, 'cssMode' | 'mergeCSS'>,
 	embedCSS?: string
 ): string {
-	const { cssMode, mergeCSS } = options;
-
 	const fullContent = embedCSS
 		? `<style>${embedCSS}</style>${icon.content}`
 		: icon.content;
-	let content = '`' + fullContent.replace(/`/g, '\\`') + '`';
-
-	switch (cssMode) {
-		case 'module': {
-			// Replace all class names
-			for (const className in icon.classes) {
-				content = content.replace(
-					// Allowed characters before and after  class name: [ "]
-					new RegExp('([" ])(' + className + ')([" ])', 'g'),
-					`$1\${${
-						mergeCSS
-							? 'css'
-							: generateCSSDefaultImportName(className)
-					}['${className}']}$3`
-				);
-			}
-			return content;
-		}
-
-		default:
-			return content;
-	}
+	return '`' + fullContent.replace(/`/g, '\\`') + '`';
 }

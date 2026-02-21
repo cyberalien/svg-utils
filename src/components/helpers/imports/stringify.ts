@@ -29,7 +29,6 @@ function split(
 		default: filterObject(imports.default),
 		named: filterObject(imports.named),
 		types: filterObject(imports.types),
-		modules: filterObject(imports.modules),
 		full: new Set([...imports.full].filter(shouldInclude)),
 		css: new Set([...imports.css].filter(shouldInclude)),
 	};
@@ -74,9 +73,6 @@ export function stringifyFactoryImports(
 		// CSS
 		for (const source of data.css) {
 			lines.push(`import '${source}';`);
-		}
-		for (const source in data.modules) {
-			lines.push(`import ${data.modules[source]} from '${source}';`);
 		}
 	}
 

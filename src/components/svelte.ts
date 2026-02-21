@@ -171,7 +171,7 @@ export function createSvelteComponent(
 
 	// Add content
 	componentCode.push(
-		`const content = ${stringifyFactoryIconContent(data.icon, options)};`
+		`const content = ${stringifyFactoryIconContent(data.icon)};`
 	);
 	const innerHTML = hasFallback ? '' : '{@html content}';
 	props.content = {

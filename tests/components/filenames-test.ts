@@ -150,7 +150,6 @@ describe('Generating filenames for component factory', () => {
 					doubleDirsForComponents: false,
 					prefixDirsForComponents: false,
 				}),
-				cssMode: 'import',
 				doubleDirsForCSS: false,
 			})
 		).toEqual({
@@ -165,7 +164,6 @@ describe('Generating filenames for component factory', () => {
 					doubleDirsForComponents: false,
 					prefixDirsForComponents: false,
 				}),
-				cssMode: 'import',
 				doubleDirsForCSS: true,
 			})
 		).toEqual({
@@ -173,19 +171,18 @@ describe('Generating filenames for component factory', () => {
 			filename: 'css/t/test1.css',
 		});
 
-		// Module, extra directories
+		// Extra directories
 		expect(
 			getGeneratedCSSFilename('test1', {
 				...componentFactoryFileSystemOptions({
 					doubleDirsForComponents: true,
 					prefixDirsForComponents: true,
 				}),
-				cssMode: 'module',
 				doubleDirsForCSS: false,
 			})
 		).toEqual({
-			import: '../../css/test1.module.css',
-			filename: 'css/test1.module.css',
+			import: '../../css/test1.css',
+			filename: 'css/test1.css',
 		});
 
 		// Custom path
@@ -195,12 +192,11 @@ describe('Generating filenames for component factory', () => {
 					doubleDirsForComponents: true,
 					prefixDirsForComponents: 'foo/bar',
 				}),
-				cssMode: 'module',
 				doubleDirsForCSS: false,
 			})
 		).toEqual({
-			import: '../../../css/test1.module.css',
-			filename: 'css/test1.module.css',
+			import: '../../../css/test1.css',
+			filename: 'css/test1.css',
 		});
 
 		// Custom prefix for path
@@ -213,7 +209,6 @@ describe('Generating filenames for component factory', () => {
 					},
 					'package-test'
 				),
-				cssMode: 'import',
 				doubleDirsForCSS: false,
 			})
 		).toEqual({

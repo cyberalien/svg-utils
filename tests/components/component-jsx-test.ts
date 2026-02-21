@@ -1,6 +1,5 @@
 import { convertIconifyIconToFactoryContent } from '../../src/components/prepare/iconify.js';
 import { createJSXComponent } from '../../src/components/jsx.js';
-import { generateCSSDefaultImportName } from '../../src/components/helpers/css/name.js';
 import { componentFactoryFileSystemOptions } from '../../src/components/prepare/options.js';
 import type { FactoryIconData } from '../../src/components/types/data.js';
 import { createUniqueHashContext } from '../../src/helpers/hash/context.js';
@@ -154,7 +153,7 @@ export default Component;
 `);
 	});
 
-	it('Icon with CSS, using modules, TypeScript', () => {
+	it('Icon with CSS, TypeScript', () => {
 		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({
 			doubleDirsForCSS: false,
@@ -184,7 +183,6 @@ export default Component;
 		const classNames = Object.keys(data.icon.classes ?? {});
 		expect(classNames).toHaveLength(1);
 		const testClassName = classNames[0];
-		const testImportName = generateCSSDefaultImportName(testClassName);
 
 		// Generate component
 		const result = createJSXComponent(data, {
@@ -192,14 +190,14 @@ export default Component;
 			...options,
 			jsx: 'react',
 			ts: true,
-			cssMode: 'module',
+			cssMode: 'import',
 		});
 
 		// console.log(result.content);
 		expect(result.content).toBe(
 			`import { createElement, useMemo } from 'react';
 import { getSizeProps } from './helpers/size.js';
-import ${testImportName} from './css/${testClassName}.module.css';
+import './css/${testClassName}.css';
 
 const viewBox = '0 0 16 16';
 
@@ -213,7 +211,7 @@ function Component<{
 		...props,
 		...size,
 		viewBox,
-		dangerouslySetInnerHTML: {__html: \`<path class="\${${testImportName}['${testClassName}']}"/>\`},
+		dangerouslySetInnerHTML: {__html: \`<path class="${testClassName}"/>\`},
 	});
 }
 
@@ -221,9 +219,7 @@ export default Component;
 `
 		);
 		expect(result.assets).toHaveLength(3);
-		expect(result.assets[0].filename).toBe(
-			`css/${testClassName}.module.css`
-		);
+		expect(result.assets[0].filename).toBe(`css/${testClassName}.css`);
 		expect(result.assets[1].filename).toBe('helpers/size.js');
 		expect(result.assets[2].filename).toBe('line-icon.d.ts');
 		expect(result.style).toBeUndefined();
@@ -437,7 +433,7 @@ export default Component;
 			context,
 			...options,
 			jsx: 'react',
-			cssMode: 'module', // Makes no difference
+			cssMode: 'import', // Makes no difference
 			square: true,
 		});
 		// console.log(result.content);

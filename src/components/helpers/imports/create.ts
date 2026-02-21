@@ -10,6 +10,5 @@ export function createFactoryImports(): FactoryComponentImports {
 		types: Object.create(null),
 		full: new Set(),
 		css: new Set(),
-		modules: Object.create(null),
 	};
 }

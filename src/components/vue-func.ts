@@ -164,7 +164,6 @@ export function createVueFunctionalComponent(
 	props[hasFallback ? 'content' : 'innerHTML'] = {
 		value: stringifyFactoryIconContent(
 			data.icon,
-			options,
 			isEmbeddedCSS ? style : undefined
 		),
 	};

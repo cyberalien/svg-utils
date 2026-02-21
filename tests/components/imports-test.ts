@@ -13,7 +13,6 @@ describe('Imports list', () => {
 		data.css.add('~iconify-css/t/two.css');
 		data.css.add('iconify-icon/three.css');
 		data.default['react'] = 'React';
-		data.modules['../css/test1.module.css'] = 'test1';
 		data.full.add('iconify-icon');
 		data.named['vue'] = new Set(['defineComponent']);
 		data.types['vue'] = new Set(['VNode']);
@@ -29,7 +28,6 @@ import type { VNode } from 'vue';
 import 'iconify-icon/three.css';
 import '../css/one.css';
 import '~iconify-css/t/two.css';
-import test1 from '../css/test1.module.css';
 `);
 	});
 });

@@ -2,7 +2,6 @@ import { convertIconifyIconToFactoryContent } from '../../src/components/prepare
 import { createRawComponent } from '../../src/components/raw.js';
 import { componentFactoryFileSystemOptions } from '../../src/components/prepare/options.js';
 import type { FactoryIconData } from '../../src/components/types/data.js';
-import { generateCSSDefaultImportName } from '../../src/components/helpers/css/name.js';
 import { createUniqueHashContext } from '../../src/helpers/hash/context.js';
 
 describe('Creating raw components', () => {
@@ -86,7 +85,7 @@ describe('Creating raw components', () => {
 		expect(result.style).toBeUndefined();
 	});
 
-	it('Icon with CSS, using modules', () => {
+	it('Icon with CSS', () => {
 		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({
 			doubleDirsForCSS: false,
@@ -118,25 +117,22 @@ describe('Creating raw components', () => {
 		const classNames = Object.keys(data.icon.classes ?? {});
 		expect(classNames).toHaveLength(1);
 		const testClassName = classNames[0];
-		const testImportName = generateCSSDefaultImportName(testClassName);
 
 		// Generate component
 		const result = createRawComponent(data, {
 			context,
 			...options,
-			cssMode: 'module',
+			cssMode: 'import',
 			height: '1em',
 		});
 		expect(result.content).toBe(
-			`import ${testImportName} from './css/${testClassName}.module.css';\n\n` +
-				'const icon = `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16"><path class="${' +
-				`${testImportName}['${testClassName}']` +
-				'}"/></svg>`;\n\nexport default icon;\n'
+			`import './css/${testClassName}.css';\n\n` +
+				'const icon = `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16"><path class="' +
+				testClassName +
+				'"/></svg>`;\n\nexport default icon;\n'
 		);
 		expect(result.assets).toHaveLength(2);
-		expect(result.assets[0].filename).toBe(
-			`css/${testClassName}.module.css`
-		);
+		expect(result.assets[0].filename).toBe(`css/${testClassName}.css`);
 		expect(result.assets[1].filename).toBe('line-icon.d.ts');
 		expect(result.style).toBeUndefined();
 	});

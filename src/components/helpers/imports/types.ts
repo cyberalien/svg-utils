@@ -18,8 +18,4 @@ export interface FactoryComponentImports {
 	// CSS imports, value is import path
 	// Same as 'full' but split for clarity
 	css: Set<string>;
-
-	// Modules to import: key is import path, value is variable name
-	// Same as 'default' but split for clarity
-	modules: Record<string, string>;
 }

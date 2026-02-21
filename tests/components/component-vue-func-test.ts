@@ -1,6 +1,5 @@
 import { convertIconifyIconToFactoryContent } from '../../src/components/prepare/iconify.js';
 import { createVueFunctionalComponent } from '../../src/components/vue-func.js';
-import { generateCSSDefaultImportName } from '../../src/components/helpers/css/name.js';
 import { componentFactoryFileSystemOptions } from '../../src/components/prepare/options.js';
 import type { FactoryIconData } from '../../src/components/types/data.js';
 import { createUniqueHashContext } from '../../src/helpers/hash/context.js';
@@ -154,7 +153,7 @@ export default Component;
 `);
 	});
 
-	it('Icon with CSS, using modules', () => {
+	it('Icon with CSS', () => {
 		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({
 			doubleDirsForCSS: false,
@@ -184,20 +183,19 @@ export default Component;
 		const classNames = Object.keys(data.icon.classes ?? {});
 		expect(classNames).toHaveLength(1);
 		const testClassName = classNames[0];
-		const testImportName = generateCSSDefaultImportName(testClassName);
 
 		// Generate component
 		const result = createVueFunctionalComponent(data, {
 			context,
 			...options,
-			cssMode: 'module',
+			cssMode: 'import',
 		});
 
 		// console.log(result.content);
 		expect(result.content).toBe(
 			`import { computed, defineComponent, h } from 'vue';
 import { getSizeProps } from './helpers/size.js';
-import ${testImportName} from './css/${testClassName}.module.css';
+import './css/${testClassName}.css';
 
 const Component = defineComponent(
 	(props) => {
@@ -207,7 +205,7 @@ const Component = defineComponent(
 			"xmlns": "http://www.w3.org/2000/svg",
 			...size.value,
 			viewBox,
-			"innerHTML": \`<path class="\${${testImportName}['${testClassName}']}"/>\`,
+			"innerHTML": \`<path class="${testClassName}"/>\`,
 		});
 	},
 	{
@@ -219,9 +217,7 @@ export default Component;
 `
 		);
 		expect(result.assets).toHaveLength(3);
-		expect(result.assets[0].filename).toBe(
-			`css/${testClassName}.module.css`
-		);
+		expect(result.assets[0].filename).toBe(`css/${testClassName}.css`);
 		expect(result.assets[1].filename).toBe('helpers/size.js');
 		expect(result.assets[2].filename).toBe('line-icon.d.ts');
 		expect(result.style).toBeUndefined();
@@ -432,7 +428,7 @@ export default Component;
 		const result = createVueFunctionalComponent(data, {
 			context,
 			...options,
-			cssMode: 'module', // Makes no difference
+			cssMode: 'import',
 			square: true,
 		});
 		// console.log(result.content);

@@ -9,19 +9,15 @@ import { getGeneratedAssetFilename } from './asset.js';
  */
 export function getGeneratedCSSFilename(
 	name: string,
-	options: Pick<
-		ComponentFactoryOptions,
-		'cssMode' | 'cssPath' | 'doubleDirsForCSS'
-	>
+	options: Pick<ComponentFactoryOptions, 'cssPath' | 'doubleDirsForCSS'>
 ): GeneratedAssetPath {
-	const { cssPath, doubleDirsForCSS, cssMode } = options;
+	const { cssPath, doubleDirsForCSS } = options;
 
 	// Filename
 	const baseName = doubleDirsForCSS
 		? `${name.slice(0, 1).toLowerCase()}/${name}`
 		: name;
-	const filename =
-		cssMode === 'module' ? `${baseName}.module.css` : `${baseName}.css`;
+	const filename = `${baseName}.css`;
 
 	// Return paths
 	return getGeneratedAssetFilename(filename, cssPath);

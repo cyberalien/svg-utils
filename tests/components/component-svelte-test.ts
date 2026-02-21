@@ -3,7 +3,6 @@ import { createSvelteComponent } from '../../src/components/svelte.js';
 import { componentFactoryFileSystemOptions } from '../../src/components/prepare/options.js';
 import type { FactoryIconData } from '../../src/components/types/data.js';
 import { getGeneratedAssetFilename } from '../../src/components/helpers/filenames/asset.js';
-import { generateCSSDefaultImportName } from '../../src/components/helpers/css/name.js';
 import { createUniqueHashContext } from '../../src/helpers/hash/context.js';
 
 describe('Creating Svelte components', () => {
@@ -191,7 +190,7 @@ export default Component;
 `);
 	});
 
-	it('Icon with CSS, using modules, TypeScript', () => {
+	it('Icon with CSS, TypeScript', () => {
 		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({
 			doubleDirsForCSS: false,
@@ -221,13 +220,12 @@ export default Component;
 		const classNames = Object.keys(data.icon.classes ?? {});
 		expect(classNames).toHaveLength(1);
 		const testClassName = classNames[0];
-		const testImportName = generateCSSDefaultImportName(testClassName);
 
 		// Generate component
 		const result = createSvelteComponent(data, {
 			context,
 			...options,
-			cssMode: 'module',
+			cssMode: 'import',
 			ts: true,
 		});
 
@@ -235,7 +233,7 @@ export default Component;
 		expect(result.content).toBe(
 			`<script lang="ts">
 import { getSizeProps } from './helpers/size.js';
-import ${testImportName} from './css/${testClassName}.module.css';
+import './css/${testClassName}.css';
 
 interface Props {
 \twidth?: string;
@@ -246,15 +244,13 @@ let {width, height, ...props}: Props = $props();
 
 const viewBox = '0 0 16 16';
 let size = $derived(getSizeProps(width, height, 1));
-const content = \`<path class="\${${testImportName}['${testClassName}']}"/>\`;
+const content = \`<path class="${testClassName}"/>\`;
 </script>
 <svg xmlns="http://www.w3.org/2000/svg" {...size} viewBox={viewBox} {...props}>{@html content}</svg>
 `
 		);
 		expect(result.assets).toHaveLength(3);
-		expect(result.assets[0].filename).toBe(
-			`css/${testClassName}.module.css`
-		);
+		expect(result.assets[0].filename).toBe(`css/${testClassName}.css`);
 		expect(result.assets[1].filename).toBe('helpers/size.js');
 		expect(result.assets[2].filename).toBe('line-icon.d.ts');
 		expect(result.style).toBeUndefined();
@@ -359,7 +355,7 @@ export default Component;
 `);
 	});
 
-	it('Square property, CSS modules', () => {
+	it('Square property', () => {
 		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({});
 		const data: FactoryIconData = {
@@ -377,7 +373,7 @@ export default Component;
 		const result = createSvelteComponent(data, {
 			context,
 			...options,
-			cssMode: 'module', // Makes no difference
+			cssMode: 'import',
 			square: true,
 		});
 		// console.log(result.content);
@@ -592,7 +588,7 @@ export default Component;
 `);
 	});
 
-	it('Merged CSS file, CSS modules', () => {
+	it('Merged CSS file', () => {
 		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({
 			doubleDirsForCSS: false,
@@ -627,7 +623,7 @@ export default Component;
 		const result = createSvelteComponent(data, {
 			context,
 			...options,
-			cssMode: 'module',
+			cssMode: 'import',
 			height: '1em',
 			mergeCSS: getGeneratedAssetFilename('icon.css', options.rootPath),
 		});
@@ -635,12 +631,12 @@ export default Component;
 		// console.log(result.content);
 		expect(result.content).toBe(
 			`<script>
-import css from './icon.css';
+import './icon.css';
 
 let props = $props();
 
 const viewBox = '0 0 16 16';
-const content = \`<path class="\${css['${testClassName}']}"/><path class="\${css['${testClassName2}']}"/>\`;
+const content = \`<path class="${testClassName}"/><path class="${testClassName2}"/>\`;
 </script>
 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox={viewBox} {...props}>{@html content}</svg>
 `

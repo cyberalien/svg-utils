@@ -172,7 +172,7 @@ export function createVueComponent(
 
 	// Add content
 	componentCode.push(
-		`const content = ${stringifyFactoryIconContent(data.icon, options)};`
+		`const content = ${stringifyFactoryIconContent(data.icon)};`
 	);
 	props.content = {
 		value: 'content',

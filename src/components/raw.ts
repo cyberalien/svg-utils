@@ -53,9 +53,7 @@ export function createRawComponent(
 	};
 
 	// Convert to string, export icon
-	codeLines.push(
-		`const icon = ${stringifyFactoryIconContent(icon, options)};\n`
-	);
+	codeLines.push(`const icon = ${stringifyFactoryIconContent(icon)};\n`);
 	codeLines.push('export default icon;\n');
 
 	// Add imports

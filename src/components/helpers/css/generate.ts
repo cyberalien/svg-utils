@@ -5,15 +5,13 @@ import {
 import { getGeneratedCSSFilename } from '../filenames/css.js';
 import type { ComponentFactoryOptions } from '../../types/options.js';
 import type { ComponentFactorySource } from '../../types/source.js';
-import { generateCSSDefaultImportName } from './name.js';
 import type { FactoryComponentImports } from '../imports/types.js';
 import type { GeneratedAssetFile } from '../../types/component.js';
 
-interface Options
-	extends Pick<
-		ComponentFactoryOptions,
-		'cssMode' | 'cssPath' | 'doubleDirsForCSS' | 'mergeCSS'
-	> {
+interface Options extends Pick<
+	ComponentFactoryOptions,
+	'cssMode' | 'cssPath' | 'doubleDirsForCSS' | 'mergeCSS'
+> {
 	// Style in component mode: merge CSS, do not add assets, merge content
 	componentType?: 'svelte';
 }
@@ -40,11 +38,9 @@ export function generateCSSFilesForComponent(
 	const { cssMode, componentType } = options;
 	const isComponent = cssMode === 'embed';
 	const returnCSS = isComponent || cssMode === 'prop';
-	const isModule = cssMode === 'module';
 
 	// Check if CSS should be merged
 	const mergeCSS = (returnCSS || options.mergeCSS) ?? false;
-	const embedAnimations = isModule && !mergeCSS;
 
 	// Get class name/keyframe name prefixes for components
 	const classNamePrefix =
@@ -65,7 +61,7 @@ export function generateCSSFilesForComponent(
 		let content = baseContent;
 
 		// Add keyframes
-		if (embedAnimations && keyframes) {
+		if (!mergeCSS && keyframes) {
 			for (const animationName in keyframes) {
 				if (baseContent.includes(animationName)) {
 					const value = keyframes[animationName];
@@ -76,7 +72,7 @@ export function generateCSSFilesForComponent(
 							: stringifyCSSKeyframes(
 									keyframesPrefix + animationName,
 									value
-							  ));
+								));
 				}
 			}
 		}
@@ -94,16 +90,11 @@ export function generateCSSFilesForComponent(
 		});
 
 		// Add import
-		if (isModule) {
-			imports.modules[filename.import] =
-				generateCSSDefaultImportName(className);
-		} else {
-			imports.css.add(filename.import);
-		}
+		imports.css.add(filename.import);
 	}
 
 	// Generate keyframes
-	if (!embedAnimations && keyframes) {
+	if (mergeCSS && keyframes) {
 		for (const animationName in keyframes) {
 			const value = keyframes[animationName];
 			const content =
@@ -112,7 +103,7 @@ export function generateCSSFilesForComponent(
 					: stringifyCSSKeyframes(
 							keyframesPrefix + animationName,
 							value
-					  );
+						);
 
 			if (mergeCSS) {
 				mergedContent.push(content);
@@ -127,13 +118,7 @@ export function generateCSSFilesForComponent(
 			});
 
 			// Add import
-			if (isModule) {
-				// This code should not be used, but just in case
-				imports.modules[filename.import] =
-					generateCSSDefaultImportName(animationName);
-			} else {
-				imports.css.add(filename.import);
-			}
+			imports.css.add(filename.import);
 		}
 	}
 
@@ -148,11 +133,7 @@ export function generateCSSFilesForComponent(
 			});
 
 			// Add import
-			if (isModule) {
-				imports.modules[mergeCSS.import] = 'css';
-			} else if (!returnCSS) {
-				imports.css.add(mergeCSS.import);
-			}
+			imports.css.add(mergeCSS.import);
 		}
 
 		// Return merged content

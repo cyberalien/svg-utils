@@ -4,8 +4,10 @@ import type { ConvertedSVGContent } from '../../svg-css/types.js';
 /**
  * Content for component factory
  */
-export interface ComponentFactorySource
-	extends Omit<ConvertedSVGContent, 'classes' | 'keyframes'> {
+export interface ComponentFactorySource extends Omit<
+	ConvertedSVGContent,
+	'classes' | 'keyframes'
+> {
 	// Classes, can be strings
 	classes?: Record<string, CSSRules | string>;
 

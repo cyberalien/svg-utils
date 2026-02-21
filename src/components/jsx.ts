@@ -201,7 +201,6 @@ export function createJSXComponent(
 	props.content = {
 		value: stringifyFactoryIconContent(
 			data.icon,
-			options,
 			isEmbeddedCSS ? style : undefined
 		),
 		template: hasFallback
