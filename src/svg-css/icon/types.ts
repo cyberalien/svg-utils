@@ -39,7 +39,7 @@ export interface SVGCSSIconRules {
 /**
  * Extended class interface for stateful icons
  */
-interface ExtendedSVGCSSIconClass {
+export interface ExtendedSVGCSSIconClass {
 	// Extended rules per state
 	stateRules?: Record<string, CSSRules | string>;
 

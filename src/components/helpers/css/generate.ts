@@ -11,7 +11,7 @@ import {
 	createEmptyStylesheet,
 	stringifyStylesheet,
 } from '../../../css/stylesheet.js';
-import { renderSVGCSSIconStyle } from '../../../svg-css/icon/css/render.js';
+import { renderStatefulSVGCSSIconStyle } from '../../../svg-css/icon/css.js';
 
 interface Options extends Pick<
 	ComponentFactoryOptions,
@@ -27,7 +27,7 @@ interface Options extends Pick<
  * Adds imports to imports object, adds assets
  */
 export function generateCSSFilesForComponent(
-	content: ComponentFactorySource,
+	content: Omit<ComponentFactorySource, 'viewBox'>,
 	imports: FactoryComponentImports,
 	assets: GeneratedAssetFile[],
 	options: Options
@@ -46,24 +46,44 @@ export function generateCSSFilesForComponent(
 	const mergeCSS = (returnCSS || options.mergeCSS) ?? false;
 	const commonStylesheet = mergeCSS ? createEmptyStylesheet() : undefined;
 
+	// Check for stateful data
+	const statefulData = content.statefulData;
+
 	// Render stylesheets
-	const stylesheets = renderSVGCSSIconStyle(content, commonStylesheet);
+	const stylesheets = renderStatefulSVGCSSIconStyle(
+		content,
+		statefulData?.context ?? null,
+		commonStylesheet
+	);
 
 	// Update stylesheets for Svelte components
 	if (isComponent && componentType === 'svelte') {
 		const list = commonStylesheet
 			? [commonStylesheet]
 			: Object.values(stylesheets);
+
+		const wrapSelectors = (selectors: CSSGeneratedSelectors) => {
+			const keys = Object.keys(selectors);
+			for (const selector of keys) {
+				const value = selectors[selector];
+				if (!selector.startsWith('@')) {
+					delete selectors[selector];
+					const newSelector = selector
+						.split(',')
+						.map((item) => `:global(${item.trim()})`)
+						.join(', ');
+					selectors[newSelector] = value;
+				}
+
+				if (value.nested) {
+					wrapSelectors(value.nested);
+				}
+			}
+		};
+
 		for (const stylesheet of list) {
 			// Wrap all selectors in :global
-			if (Object.keys(stylesheet.selectors).length) {
-				const newRoot: CSSGeneratedSelectors = {
-					':global': {
-						nested: stylesheet.selectors,
-					},
-				};
-				stylesheet.selectors = newRoot;
-			}
+			wrapSelectors(stylesheet.selectors);
 
 			// Add -global- prefix to all keyframes
 			const keyframes = stylesheet.keyframes;

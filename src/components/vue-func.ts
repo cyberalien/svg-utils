@@ -19,6 +19,8 @@ import type { IconViewBox } from '../svg/viewbox/types.js';
 import { getUsedFactoryProps } from './helpers/props/ts.js';
 import { minifyViewBox } from '../svg/viewbox/minify.js';
 import { getViewBoxRatio } from './helpers/content/ratio.js';
+import { addCustomFunctionAsset } from './helpers/functions/custom.js';
+import { addFallbackFunctionAsset } from './helpers/functions/fallback.js';
 
 /**
  * Create functional Vue component code
@@ -27,14 +29,18 @@ export function createVueFunctionalComponent(
 	data: FactoryIconData,
 	options: ComponentFactoryOptions
 ): FactoryGeneratedComponent {
+	const icon = data.icon;
+	const viewBox = icon.viewBox;
+	const fallback = icon.defaultFallback;
+	const statefulData = icon.statefulData;
+
 	// Init data
 	const assets: GeneratedAssetFile[] = [];
 	const imports = createFactoryImports();
 	const dependencies = new Set<string>();
 
 	// Check if fallback is used
-	const hasFallback = !!data.fallback;
-	if (hasFallback) {
+	if (fallback) {
 		imports.named['@iconify/css-vue'] = new Set(['Icon']);
 		dependencies.add('@iconify/css-vue');
 	}
@@ -44,21 +50,15 @@ export function createVueFunctionalComponent(
 	imports.named['vue'] = vueNamedImports;
 
 	// Add CSS
-	const style = generateCSSFilesForComponent(
-		data.icon,
-		imports,
-		assets,
-		options
-	);
+	const style = generateCSSFilesForComponent(icon, imports, assets, options);
 	const isEmbeddedCSS = options.cssMode === 'embed';
 
 	// Check if size is fixed and if viewBox is computed
 	let hasFixedSize = !!options.width && !!options.height;
 
-	const viewBox = data.viewBox;
 	const hasComputedViewbox =
 		options.square && !hasFixedSize && viewBox.width !== viewBox.height;
-	const isStringViewBox = !hasFallback;
+	const isStringViewBox = !fallback;
 	const hasComputedRatio = hasComputedViewbox && isStringViewBox;
 
 	if (!hasComputedViewbox && (options.width || options.height)) {
@@ -69,8 +69,94 @@ export function createVueFunctionalComponent(
 	// Get props
 	const componentCode: string[] = [];
 	const props: FactoryComponentProps = {};
-	if (!hasFallback) {
+	if (!fallback) {
 		props.xmlns = 'http://www.w3.org/2000/svg';
+	}
+
+	// Set stateful props
+	let computedFallback = false;
+	if (statefulData) {
+		const { supportedStates, allStates } = statefulData;
+		if (supportedStates.size) {
+			const computedStates: string[] = [];
+			let addedStateFunc = false;
+
+			for (const state of allStates) {
+				if (typeof state === 'string') {
+					// Boolean state
+					if (supportedStates.has(state)) {
+						props[state] = {
+							type: 'boolean',
+							value: state,
+							template: '',
+						};
+						computedStates.push(`'${state}': props['${state}']`);
+					}
+				} else {
+					// Advanced state
+					const stateName = state[0];
+					if (supportedStates.has(stateName)) {
+						const stateValues = state[1];
+						const defaultStateValue = state[2] ?? stateValues[0];
+
+						// Add component property
+						props[stateName] = {
+							type: stateValues
+								.map((value) => `'${value}'`)
+								.join(' | '),
+							value: stateName,
+							template: '',
+						};
+
+						// Add to computed state
+						computedStates.push(
+							`'${stateName}': namedStateValue(props['${stateName}'], '${defaultStateValue}')`
+						);
+						if (!addedStateFunc) {
+							addedStateFunc = true;
+
+							// Create asset for reusable function
+							addCustomFunctionAsset(imports, assets, options, {
+								functionName: 'namedStateValue',
+								content: `export function namedStateValue(value, defaultValue) {
+	return value && value !== defaultValue ? value : undefined;
+}`,
+							});
+						}
+					}
+				}
+			}
+
+			// Add computed states
+			if (computedStates.length) {
+				componentCode.push(
+					`const states = computed(() => ({ ${computedStates.join(', ')} }));`
+				);
+
+				// Compute stateful fallback
+				if (fallback && statefulData.fallback) {
+					computedFallback = true;
+					const func = addFallbackFunctionAsset(
+						imports,
+						assets,
+						options,
+						statefulData.defaultStateValues
+					);
+					componentCode.push(
+						`const fallback = computed(() => ${func}(${JSON.stringify(statefulData.fallback)},states.value));`
+					);
+				}
+
+				// Compute class name
+				componentCode.push(
+					`const className = computed(() => Object.entries(states.value).map(([key, value]) => value ? \`state-\${value === true ? key : value}\` : '').join(' ').trim() || undefined);`
+				);
+				props['class'] = {
+					value: 'class',
+					template: `'class': className.value,`,
+				};
+			}
+		}
 	}
 
 	// Compute viewBox
@@ -101,7 +187,7 @@ export function createVueFunctionalComponent(
 	// Set size
 	if (hasFixedSize) {
 		// Add fixed size props
-		const sizeProps = getComponentSizeValues(options, data.viewBox);
+		const sizeProps = getComponentSizeValues(options, viewBox);
 		if (!sizeProps) {
 			throw new Error('Fixed size expected, but could not be determined');
 		}
@@ -109,7 +195,7 @@ export function createVueFunctionalComponent(
 		props.height = sizeProps.height;
 	} else {
 		// Computed size props
-		if (hasFallback) {
+		if (fallback) {
 			// Computed size in fallback component
 			props.width = {
 				type: 'string',
@@ -129,7 +215,6 @@ export function createVueFunctionalComponent(
 					hasComputedRatio ? 'ratio.value' : ratioValue
 				}));`
 			);
-			vueNamedImports.add('computed');
 
 			// Add width and height props
 			props.width = {
@@ -147,6 +232,11 @@ export function createVueFunctionalComponent(
 		}
 	}
 
+	// Add computed import if needed
+	if (componentCode.some((line) => line.includes('computed('))) {
+		vueNamedImports.add('computed');
+	}
+
 	// Add square prop after size props
 	if (options.square) {
 		props.square = {
@@ -161,14 +251,19 @@ export function createVueFunctionalComponent(
 	};
 
 	// Add content
-	props[hasFallback ? 'content' : 'innerHTML'] = {
+	props[fallback ? 'content' : 'innerHTML'] = {
 		value: stringifyFactoryIconContent(
-			data.icon,
+			icon,
 			isEmbeddedCSS ? style : undefined
 		),
 	};
-	if (data.fallback) {
-		props.fallback = data.fallback;
+	if (fallback) {
+		props.fallback = computedFallback
+			? {
+					value: 'fallback',
+					template: 'fallback: fallback.value,',
+				}
+			: fallback;
 	}
 
 	// Add types file
@@ -176,7 +271,7 @@ export function createVueFunctionalComponent(
 
 	// Add return value to component code
 	componentCode.push(
-		`return () => h(${hasFallback ? 'Icon' : "'svg'"}, { 
+		`return () => h(${fallback ? 'Icon' : "'svg'"}, { 
 			${stringifyFactoryPropsAsJSON(props, '\n\t\t\t')}
 		});`
 	);

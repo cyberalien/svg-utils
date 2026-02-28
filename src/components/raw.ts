@@ -24,39 +24,39 @@ export function createRawComponent(
 	data: FactoryIconData,
 	options: ComponentFactoryOptions
 ): FactoryGeneratedComponent {
+	const icon = data.icon;
+	const viewBox = icon.viewBox;
+
 	// Init data
 	const assets: GeneratedAssetFile[] = [];
 	const imports = createFactoryImports();
 	const codeLines: string[] = [];
 
 	// Add CSS
-	const style = generateCSSFilesForComponent(
-		data.icon,
-		imports,
-		assets,
-		options
-	);
+	const style = generateCSSFilesForComponent(icon, imports, assets, options);
 	const isEmbeddedCSS = options.cssMode === 'embed';
 
 	// Get props
 	const props: Record<string, string> = {
 		xmlns: 'http://www.w3.org/2000/svg',
-		...getComponentSizeValues(options, data.viewBox),
-		viewBox: stringifyIconViewBox(data.viewBox),
+		...getComponentSizeValues(options, viewBox),
+		viewBox: stringifyIconViewBox(viewBox),
 	};
 
 	// Wrap icon content in <svg> tag
-	const icon = {
-		...data.icon,
+	const iconContent = {
+		...icon,
 		content: `<svg ${stringifyFactoryProps(props, factoryPropTemplate)}>${
 			isEmbeddedCSS && style
 				? `<style>${stringifyStylesheet(style)}</style>`
 				: ''
-		}${data.icon.content}</svg>`,
+		}${icon.content}</svg>`,
 	};
 
 	// Convert to string, export icon
-	codeLines.push(`const icon = ${stringifyFactoryIconContent(icon)};\n`);
+	codeLines.push(
+		`const icon = ${stringifyFactoryIconContent(iconContent)};\n`
+	);
 	codeLines.push('export default icon;\n');
 
 	// Add imports

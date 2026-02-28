@@ -11,15 +11,15 @@ describe('Creating Vue components with fallback', () => {
 		const data: FactoryIconData = {
 			prefix: 'test',
 			name: 'icon',
-			viewBox: {
-				width: 24,
-				height: 24,
-			},
 			icon: {
+				viewBox: {
+					width: 24,
+					height: 24,
+				},
 				content:
 					'<path d="M0 0l24 24" stroke="currentColor" fill="none" />',
+				defaultFallback: 'test:icon',
 			},
-			fallback: 'test:icon',
 		};
 		const result = createVueFunctionalComponent(data, {
 			context,
@@ -75,15 +75,15 @@ export default Component;
 		const data: FactoryIconData = {
 			prefix: 'test',
 			name: 'icon',
-			viewBox: {
-				width: 24,
-				height: 24,
-			},
 			icon: {
+				viewBox: {
+					width: 24,
+					height: 24,
+				},
 				content:
 					'<path d="M0 0l24 24" stroke="currentColor" fill="none" />',
+				defaultFallback: 'test:icon',
 			},
-			fallback: 'test:icon',
 		};
 		const result = createVueComponent(data, {
 			context,

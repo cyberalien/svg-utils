@@ -1,12 +1,12 @@
 import {
 	addGeneratedSelector,
 	createEmptyStylesheet,
-} from '../../../css/stylesheet.js';
-import type { CSSGeneratedStylesheet } from '../../../css/types.js';
-import { prefersReduceMotion } from '../../../helpers/reduce-motion.js';
-import { getSelectorsForStateValues } from '../../states/selector/parse.js';
-import type { StatefulIconSelectorsContext } from '../../states/selector/types.js';
-import type { SVGCSSIconRules, SVGCSSStatefulIconRules } from '../types.js';
+} from '../../css/stylesheet.js';
+import type { CSSGeneratedStylesheet } from '../../css/types.js';
+import { prefersReduceMotion } from '../../helpers/reduce-motion.js';
+import { getSelectorsForStateValues } from '../states/selector/parse.js';
+import type { StatefulIconSelectorsContext } from '../states/selector/types.js';
+import type { SVGCSSIconRules, SVGCSSStatefulIconRules } from './types.js';
 
 type StylesheetParam =
 	| CSSGeneratedStylesheet

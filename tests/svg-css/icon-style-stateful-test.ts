@@ -3,7 +3,7 @@ import {
 	stringifyStylesheet,
 	type SVGCSSStatefulIcon,
 } from '../../src/index.js';
-import { renderStatefulSVGCSSIconStyle } from '../../src/svg-css/icon/css/render.js';
+import { renderStatefulSVGCSSIconStyle } from '../../src/svg-css/icon/css.js';
 import { createStatefulIconSelectorsContext } from '../../src/svg-css/states/selector/parse.js';
 
 const testIcon: SVGCSSStatefulIcon = {

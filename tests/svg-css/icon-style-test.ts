@@ -3,7 +3,7 @@ import {
 	stringifyStylesheet,
 	type SVGCSSIcon,
 } from '../../src/index.js';
-import { renderSVGCSSIconStyle } from '../../src/svg-css/icon/css/render.js';
+import { renderSVGCSSIconStyle } from '../../src/svg-css/icon/css.js';
 
 const scanIcon: SVGCSSIcon = {
 	content:

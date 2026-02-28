@@ -85,7 +85,7 @@ describe.skip('Creating components package with fallback', () => {
 						}
 					);
 					if (!useFallback) {
-						delete iconData.fallback;
+						delete iconData.icon.defaultFallback;
 					}
 
 					// Create component

@@ -23,6 +23,9 @@ import { minifyViewBox } from '../svg/viewbox/minify.js';
 import { getViewBoxRatio } from './helpers/content/ratio.js';
 import { addJSXComponentTypes } from './helpers/ts/jsx.js';
 import type { JSXMode } from './types/jsx.js';
+import { addCustomFunctionAsset } from './helpers/functions/custom.js';
+import { addFallbackFunctionAsset } from './helpers/functions/fallback.js';
+import { addInnerHTMLFunctionAsset } from './helpers/functions/innerhtml.js';
 
 interface Options extends ComponentFactoryOptions {
 	// JSX mode
@@ -42,6 +45,11 @@ export function createJSXComponent(
 	data: FactoryIconData,
 	options: Options
 ): FactoryGeneratedComponent {
+	const icon = data.icon;
+	const viewBox = icon.viewBox;
+	const defaultFallback = icon.defaultFallback;
+	const statefulData = icon.statefulData;
+
 	// Check options
 	const useTS = options.ts ?? false;
 
@@ -63,7 +71,7 @@ export function createJSXComponent(
 
 	// Check if fallback is used
 	const fallbackPackage = options.fallbackPackage || null;
-	const hasFallback = !!(fallbackPackage && data.fallback);
+	const hasFallback = !!(fallbackPackage && defaultFallback);
 	if (hasFallback) {
 		imports.named[fallbackPackage] = new Set(['Icon']);
 		dependencies.add(fallbackPackage);
@@ -74,18 +82,12 @@ export function createJSXComponent(
 	imports.named[importPackage] = reactNamedImports;
 
 	// Add CSS
-	const style = generateCSSFilesForComponent(
-		data.icon,
-		imports,
-		assets,
-		options
-	);
+	const style = generateCSSFilesForComponent(icon, imports, assets, options);
 	const isEmbeddedCSS = options.cssMode === 'embed';
 
 	// Check if size is fixed and if viewBox is computed
 	let hasFixedSize = !!options.width && !!options.height;
 
-	const viewBox = data.viewBox;
 	const hasComputedViewbox =
 		options.square && !hasFixedSize && viewBox.width !== viewBox.height;
 	const isStringViewBox = !hasFallback;
@@ -107,6 +109,95 @@ export function createJSXComponent(
 		value: 'props',
 		template: '...props,',
 	};
+
+	// Set stateful props
+	let computedFallback = false;
+	if (statefulData) {
+		const { supportedStates, allStates } = statefulData;
+		if (supportedStates.size) {
+			const computedStates: string[] = [];
+			const computedStateNames: string[] = [];
+			let addedStateFunc = false;
+
+			for (const state of allStates) {
+				if (typeof state === 'string') {
+					// Boolean state
+					if (supportedStates.has(state)) {
+						props[state] = {
+							type: 'boolean',
+							value: state,
+							template: '',
+						};
+						computedStates.push(`'${state}': ${state}`);
+						computedStateNames.push(state);
+					}
+				} else {
+					// Advanced state
+					const stateName = state[0];
+					if (supportedStates.has(stateName)) {
+						const stateValues = state[1];
+						const defaultStateValue = state[2] ?? stateValues[0];
+
+						// Add component property
+						props[stateName] = {
+							type: stateValues
+								.map((value) => `'${value}'`)
+								.join(' | '),
+							value: stateName,
+							template: '',
+						};
+
+						// Add to computed state
+						computedStates.push(
+							`'${stateName}': namedStateValue(${stateName}, '${defaultStateValue}')`
+						);
+						computedStateNames.push(stateName);
+						if (!addedStateFunc) {
+							addedStateFunc = true;
+
+							// Create asset for reusable function
+							addCustomFunctionAsset(imports, assets, options, {
+								functionName: 'namedStateValue',
+								content: `export function namedStateValue(value, defaultValue) {
+	return value && value !== defaultValue ? value : undefined;
+}`,
+							});
+						}
+					}
+				}
+			}
+
+			// Add computed states
+			if (computedStates.length) {
+				componentInternalCode.push(
+					`const states = useMemo(() => ({ ${computedStates.join(', ')} }), [${computedStateNames.join(', ')}]);`
+				);
+
+				// Compute stateful fallback
+				if (hasFallback && statefulData.fallback) {
+					computedFallback = true;
+					const func = addFallbackFunctionAsset(
+						imports,
+						assets,
+						options,
+						statefulData.defaultStateValues
+					);
+					componentInternalCode.push(
+						`const fallback = useMemo(() => ${func}(${JSON.stringify(statefulData.fallback)}, states), [states]);`
+					);
+				}
+
+				// Compute class name
+				componentInternalCode.push(
+					`const className = useMemo(() => Object.entries(states).map(([key, value]) => value ? \`state-\${value === true ? key : value}\` : '').join(' ').trim() || undefined, [states]);`
+				);
+				props['className'] = {
+					value: 'className',
+					template: `className,`,
+				};
+			}
+		}
+	}
 
 	// Compute viewBox
 	const getViewBox = (viewBox: IconViewBox) =>
@@ -138,7 +229,7 @@ export function createJSXComponent(
 	// Set size
 	if (hasFixedSize) {
 		// Add fixed size props
-		const sizeProps = getComponentSizeValues(options, data.viewBox);
+		const sizeProps = getComponentSizeValues(options, viewBox);
 		if (!sizeProps) {
 			throw new Error('Fixed size expected, but could not be determined');
 		}
@@ -166,7 +257,6 @@ export function createJSXComponent(
 					hasComputedRatio ? 'ratio' : ratioValue
 				}), [width, height${hasComputedRatio ? ', ratio' : ''}]);`
 			);
-			reactNamedImports.add('useMemo');
 
 			// Add width and height props
 			props.width = {
@@ -184,6 +274,11 @@ export function createJSXComponent(
 		}
 	}
 
+	// Add useMemo import if needed
+	if (componentInternalCode.some((line) => line.includes('useMemo'))) {
+		reactNamedImports.add('useMemo');
+	}
+
 	// Add square prop after size props
 	if (options.square) {
 		props.square = {
@@ -198,17 +293,29 @@ export function createJSXComponent(
 	};
 
 	// Add content
+	let contentTemplate: undefined | string;
+	const contentValue = stringifyFactoryIconContent(
+		data.icon,
+		isEmbeddedCSS ? style : undefined
+	);
+	if (!hasFallback) {
+		const funcName = addInnerHTMLFunctionAsset(imports, assets, options);
+		componentExternalCode.push(
+			`const content = {__html: ${funcName}(${contentValue})};`
+		);
+		contentTemplate = `dangerouslySetInnerHTML: content,`;
+	}
 	props.content = {
-		value: stringifyFactoryIconContent(
-			data.icon,
-			isEmbeddedCSS ? style : undefined
-		),
-		template: hasFallback
-			? undefined
-			: 'dangerouslySetInnerHTML: {__html: {value}},',
+		value: contentValue,
+		template: contentTemplate,
 	};
-	if (hasFallback && data.fallback) {
-		props.fallback = data.fallback;
+	if (hasFallback && defaultFallback) {
+		props.fallback = computedFallback
+			? {
+					value: 'fallback',
+					template: 'fallback,',
+				}
+			: defaultFallback;
 	}
 
 	// Add return value to component code

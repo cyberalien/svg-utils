@@ -86,11 +86,12 @@ export function addSizeFunctionAsset(
 	);
 
 	// Add content
-	imports.named[filename.import] = new Set([functionName]);
 	assets.push({
 		...filename,
 		content: functionContent,
 	});
 
+	// Add import
+	imports.named[filename.import] = new Set([functionName]);
 	return functionName;
 }

@@ -22,7 +22,7 @@ export function convertIconifyIconToFactoryContent(
 ): FactoryIconData {
 	const { body, viewBox } = normaliseIconifyIcon(icon);
 	const fallbackOption = options?.fallback ?? true;
-	const fallback =
+	const defaultFallback =
 		typeof fallbackOption === 'string'
 			? fallbackOption
 			: fallbackOption
@@ -32,9 +32,11 @@ export function convertIconifyIconToFactoryContent(
 	return {
 		prefix,
 		name,
-		viewBox,
-		icon: convertSVGContentToCSSRules(body, options),
-		fallback,
+		icon: {
+			...convertSVGContentToCSSRules(body, options),
+			viewBox,
+			defaultFallback,
+		},
 	};
 }
 

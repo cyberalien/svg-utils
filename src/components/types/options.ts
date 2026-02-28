@@ -1,4 +1,5 @@
 import type { UniqueHashPartialOptions } from '../../helpers/hash/types.js';
+import type { StatefulIconSelectorsConfig } from '../../svg-css/states/selector/types.js';
 import type { CSSExportMode } from './css.js';
 
 /**
@@ -39,9 +40,17 @@ export interface ComponentFactoryFileSystemOptions {
 }
 
 /**
+ * Rendering options for stateful icons
+ */
+export interface ComponentFactoryStatefulIconRenderingOptions {
+	// Values for state selectors in CSS, which are set outside of component (e.g. parent element)
+	stateSelectors?: StatefulIconSelectorsConfig;
+}
+
+/**
  * Rendering options for component factory
  */
-export interface ComponentFactoryRenderingOptions {
+export interface ComponentFactoryRenderingOptions extends ComponentFactoryStatefulIconRenderingOptions {
 	// Add square parameter for non-square icons
 	square?: boolean;
 

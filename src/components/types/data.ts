@@ -1,4 +1,3 @@
-import type { IconViewBox } from '../../svg/viewbox/types.js';
 import type { ComponentFactorySource } from './source.js';
 
 /**
@@ -13,10 +12,4 @@ export interface FactoryIconData {
 
 	// Icon data
 	icon: ComponentFactorySource;
-
-	// Icon viewBox
-	viewBox: IconViewBox;
-
-	// Fallback icon name, if fallback is used
-	fallback?: string;
 }

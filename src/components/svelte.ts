@@ -23,6 +23,8 @@ import { addSvelteComponentTypes } from './helpers/ts/svelte.js';
 import { minifyViewBox } from '../svg/viewbox/minify.js';
 import { getViewBoxRatio } from './helpers/content/ratio.js';
 import { stringifyStylesheet } from '../css/stylesheet.js';
+import { addCustomFunctionAsset } from './helpers/functions/custom.js';
+import { addFallbackFunctionAsset } from './helpers/functions/fallback.js';
 
 interface SvelteOptions extends ComponentFactoryOptions {
 	// Use TypeScript
@@ -36,6 +38,11 @@ export function createSvelteComponent(
 	data: FactoryIconData,
 	options: SvelteOptions
 ): FactoryGeneratedComponent {
+	const icon = data.icon;
+	const viewBox = icon.viewBox;
+	const fallback = icon.defaultFallback;
+	const statefulData = icon.statefulData;
+
 	// Check options
 	const useTS = options.ts ?? false;
 
@@ -45,30 +52,23 @@ export function createSvelteComponent(
 	const dependencies = new Set<string>();
 
 	// Check if fallback is used
-	const hasFallback = !!data.fallback;
-	if (hasFallback) {
+	if (fallback) {
 		imports.default['@iconify/css-svelte'] = 'Icon';
 		dependencies.add('@iconify/css-svelte');
 	}
 
 	// Add CSS
-	const styleContent = generateCSSFilesForComponent(
-		data.icon,
-		imports,
-		assets,
-		{
-			...options,
-			componentType: 'svelte',
-		}
-	);
+	const styleContent = generateCSSFilesForComponent(icon, imports, assets, {
+		...options,
+		componentType: 'svelte',
+	});
 
 	// Check if size is fixed and if viewBox is computed
 	let hasFixedSize = !!options.width && !!options.height;
 
-	const viewBox = data.viewBox;
 	const hasComputedViewbox =
 		options.square && !hasFixedSize && viewBox.width !== viewBox.height;
-	const isStringViewBox = !hasFallback;
+	const isStringViewBox = !fallback;
 	const hasComputedRatio = hasComputedViewbox && isStringViewBox;
 
 	if (!hasComputedViewbox && (options.width || options.height)) {
@@ -79,8 +79,94 @@ export function createSvelteComponent(
 	// Get props
 	const componentCode: string[] = [];
 	const props: FactoryComponentProps = {};
-	if (!hasFallback) {
+	if (!fallback) {
 		props.xmlns = 'http://www.w3.org/2000/svg';
+	}
+
+	// Set stateful props
+	let computedFallback = false;
+	if (statefulData) {
+		const { supportedStates, allStates } = statefulData;
+		if (supportedStates.size) {
+			const computedStates: string[] = [];
+			let addedStateFunc = false;
+
+			for (const state of allStates) {
+				if (typeof state === 'string') {
+					// Boolean state
+					if (supportedStates.has(state)) {
+						props[state] = {
+							type: 'boolean',
+							value: state,
+							template: '',
+						};
+						computedStates.push(`'${state}': ${state}`);
+					}
+				} else {
+					// Advanced state
+					const stateName = state[0];
+					if (supportedStates.has(stateName)) {
+						const stateValues = state[1];
+						const defaultStateValue = state[2] ?? stateValues[0];
+
+						// Add component property
+						props[stateName] = {
+							type: stateValues
+								.map((value) => `'${value}'`)
+								.join(' | '),
+							value: stateName,
+							template: '',
+						};
+
+						// Add to computed state
+						computedStates.push(
+							`'${stateName}': namedStateValue(${stateName}, '${defaultStateValue}')`
+						);
+						if (!addedStateFunc) {
+							addedStateFunc = true;
+
+							// Create asset for reusable function
+							addCustomFunctionAsset(imports, assets, options, {
+								functionName: 'namedStateValue',
+								content: `export function namedStateValue(value, defaultValue) {
+	return value && value !== defaultValue ? value : undefined;
+}`,
+							});
+						}
+					}
+				}
+			}
+
+			// Add computed states
+			if (computedStates.length) {
+				componentCode.push(
+					`let states = $derived(({ ${computedStates.join(', ')} }));`
+				);
+
+				// Compute stateful fallback
+				if (fallback && statefulData.fallback) {
+					computedFallback = true;
+					const func = addFallbackFunctionAsset(
+						imports,
+						assets,
+						options,
+						statefulData.defaultStateValues
+					);
+					componentCode.push(
+						`let fallback = $derived(${func}(${JSON.stringify(statefulData.fallback)},states));`
+					);
+				}
+
+				// Compute class name
+				componentCode.push(
+					`let className = $derived(Object.entries(states).map(([key, value]) => value ? \`state-\${value === true ? key : value}\` : '').join(' ').trim() || undefined);`
+				);
+				props.class = {
+					value: 'className',
+					template: 'class={className}',
+				};
+			}
+		}
 	}
 
 	// Compute viewBox
@@ -112,7 +198,7 @@ export function createSvelteComponent(
 	// Set size
 	if (hasFixedSize) {
 		// Add fixed size props
-		const sizeProps = getComponentSizeValues(options, data.viewBox);
+		const sizeProps = getComponentSizeValues(options, viewBox);
 		if (!sizeProps) {
 			throw new Error('Fixed size expected, but could not be determined');
 		}
@@ -120,7 +206,7 @@ export function createSvelteComponent(
 		props.height = sizeProps.height;
 	} else {
 		// Computed size props
-		if (hasFallback) {
+		if (fallback) {
 			// Computed size in fallback component
 			props.width = {
 				type: 'string',
@@ -171,14 +257,12 @@ export function createSvelteComponent(
 	};
 
 	// Add content
-	componentCode.push(
-		`const content = ${stringifyFactoryIconContent(data.icon)};`
-	);
-	const innerHTML = hasFallback ? '' : '{@html content}';
+	componentCode.push(`const content = ${stringifyFactoryIconContent(icon)};`);
+	const innerHTML = fallback ? '' : '{@html content}';
 	props.content = {
 		value: 'content',
-		template: hasFallback
-			? `content={content} fallback="${data.fallback}"`
+		template: fallback
+			? `content={content} fallback=${computedFallback ? '{fallback}' : `"${fallback}"`}`
 			: '',
 	};
 
@@ -191,14 +275,19 @@ export function createSvelteComponent(
 	componentCode.unshift(
 		`let ${propsDestricturing}${useTS ? ': Props' : ''} = $props();\n`
 	);
+
+	// Add types before props
+	const propTypes = stringifyFactoryPropTypes(props);
 	if (useTS) {
+		componentCode.unshift(`interface Props {\n${propTypes}\n};\n`);
+	} else if (propTypes.trim()) {
 		componentCode.unshift(
-			`interface Props {\n${stringifyFactoryPropTypes(props)}\n};\n`
+			`/** @type {{${propTypes.replace(/\s*\n\s*/g, ' ').trim()}}} */`
 		);
 	}
 
 	// Create template
-	const tag = hasFallback ? 'Icon' : 'svg';
+	const tag = fallback ? 'Icon' : 'svg';
 	const template = `<${tag} ${stringifyFactoryProps(
 		props,
 		'{prop}={{value}}'

@@ -6,7 +6,7 @@ import type { ComponentFactorySource } from '../../types/source.js';
  * Convert icon content to a string literal
  */
 export function stringifyFactoryIconContent(
-	icon: ComponentFactorySource,
+	icon: Omit<ComponentFactorySource, 'viewBox' | 'fallback' | 'states'>,
 	embedCSS?: CSSGeneratedStylesheet
 ): string {
 	const style = embedCSS ? stringifyStylesheet(embedCSS) : '';
