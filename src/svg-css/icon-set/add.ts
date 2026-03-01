@@ -5,7 +5,12 @@ import {
 } from '../../css/stringify.js';
 import type { CSSRules } from '../../css/types.js';
 import type { SVGCSSIcon, SVGCSSStatefulIcon } from '../icon/types.js';
-import type { SVGCSSIconSet, SVGCSSIconSetClassData } from './types.js';
+import { expandSVGCSSIconSetFallback } from './minify/expand.js';
+import type {
+	SVGCSSIconSet,
+	SVGCSSIconSetClassData,
+	SVGCSSIconSetIcon,
+} from './types.js';
 
 function minifyRules(value: string | CSSRules | undefined): string | undefined {
 	// Minify, return undefined if empty
@@ -43,12 +48,28 @@ export function addIconToSVGCSSIconSet(
 	icon: SVGCSSIcon | SVGCSSStatefulIcon
 ) {
 	// Add icon data
-	iconSet.icons[iconName] = {
+	const iconData: SVGCSSIconSetIcon = {
 		content: icon.content,
-		fallback: icon.fallback,
 		states: (icon as SVGCSSStatefulIcon).states,
 		viewBox: icon.viewBox,
 	};
+
+	// Add fallback
+	let fallback = icon.fallback;
+	if (fallback) {
+		const fallbackPrefix = iconSet.fallbackPrefix ?? '';
+		if (fallbackPrefix) {
+			if (fallback.startsWith(fallbackPrefix)) {
+				fallback = fallback.slice(fallbackPrefix.length);
+			} else {
+				// Fallback prefix is invalid
+				expandSVGCSSIconSetFallback(iconSet);
+			}
+		}
+		iconData.fallback = fallback;
+	}
+
+	iconSet.icons[iconName] = iconData;
 
 	// Add classes
 	const { classes, animations, statefulClasses, keyframes } =

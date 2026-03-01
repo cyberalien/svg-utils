@@ -81,7 +81,43 @@ export function minifySVGCSSIconSet(iconSet: SVGCSSIconSet) {
 		});
 	}
 
-	// Parse all icons
+	// Fallback prefix
+	if (!iconSet.fallbackPrefix) {
+		let commonPrefix: string | null | undefined;
+		for (const iconName in iconSet.icons) {
+			const icon = iconSet.icons[iconName];
+			const fallback = icon.fallback;
+			if (fallback) {
+				const parts = fallback.split(':');
+				if (parts.length !== 2) {
+					commonPrefix = null;
+					break;
+				}
+
+				const prefix = parts[0];
+				if (commonPrefix === undefined) {
+					commonPrefix = prefix;
+				} else if (commonPrefix !== prefix) {
+					commonPrefix = null;
+					break;
+				}
+			}
+		}
+
+		if (commonPrefix) {
+			// Slice all fallback values
+			iconSet.fallbackPrefix = `${commonPrefix}:`;
+			for (const iconName in iconSet.icons) {
+				const icon = iconSet.icons[iconName];
+				const fallback = icon.fallback;
+				if (fallback) {
+					icon.fallback = fallback.slice(commonPrefix.length + 1);
+				}
+			}
+		}
+	}
+
+	// Parse viewBox and states
 	for (const iconName in iconSet.icons) {
 		const icon = iconSet.icons[iconName];
 

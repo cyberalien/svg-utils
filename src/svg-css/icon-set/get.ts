@@ -22,12 +22,7 @@ export function getSVGCSSIconFromIconSet(
 	}
 
 	// Compact data
-	const {
-		viewBoxes,
-		css,
-		fallbackPrefix = '',
-		fallbackSuffix = '',
-	} = iconSet;
+	const { viewBoxes, css, fallbackPrefix = '' } = iconSet;
 
 	// Get viewBox
 	let viewBox: string | number | IconViewBox | undefined = data.viewBox;
@@ -137,7 +132,7 @@ export function getSVGCSSIconFromIconSet(
 		states,
 		fallback:
 			typeof data.fallback === 'string'
-				? `${fallbackPrefix}${data.fallback}${fallbackSuffix}`
+				? `${fallbackPrefix}${data.fallback}`
 				: undefined,
 	};
 

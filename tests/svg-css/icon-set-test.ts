@@ -9,14 +9,13 @@ describe('SVG CSS icon set', () => {
 	it('Full cycle', () => {
 		// Create icon set
 		const iconSet = createEmptySVGCSSIconSet();
-		iconSet.fallbackPrefix = 'animated-line-24:';
 
 		// Add several icons
 		addIconToSVGCSSIconSet(iconSet, 'alert', {
 			viewBox: '0 0 4 24',
 			content:
 				'<path class="era5vp rq5r9b"/><path class="rq5r9b vyz4rm"/>',
-			fallback: 'alert',
+			fallback: 'animated-line-24:alert',
 			states: ['focus'],
 			keyframes: {
 				'so-from-8': '0%{stroke-dashoffset:8}',
@@ -56,7 +55,7 @@ describe('SVG CSS icon set', () => {
 			viewBox: '0 0 22 24',
 			content:
 				'<path class="ona74n qqacff"/><path class="a8wtkc cpqkom ona74n"/><path class="a8wtkc mccg4l ona74n"/>',
-			fallback: 'alert-circle',
+			fallback: 'animated-line-24:alert-circle',
 			states: ['focus'],
 			keyframes: {
 				'so-to-0': '100%{stroke-dashoffset:0}',
@@ -101,7 +100,7 @@ describe('SVG CSS icon set', () => {
 			viewBox: '0 0 22 24',
 			content:
 				'<defs><mask id="SVGD70oWcYx"><path class="iy2otu r1menc s_ydzo"/><path class="al390y ik2mhj r1menc"/></mask></defs><path class="iy2otu r1menc txtv4j"/><path mask="url(#SVGD70oWcYx)" class="bvh1dr"/><path class="a8wtkc ik2mhj iy2otu r1menc"/>',
-			fallback: 'remove-circle',
+			fallback: 'animated-line-24:remove-circle',
 			states: ['focus'],
 			keyframes: {
 				'so-from-14': '0%{stroke-dashoffset:14}',
@@ -149,26 +148,27 @@ describe('SVG CSS icon set', () => {
 		expect(iconSet.css).toBeUndefined();
 		expect(iconSet.viewBoxes).toBeUndefined();
 		expect(iconSet.statesList).toBeUndefined();
+		expect(iconSet.fallbackPrefix).toBeUndefined();
 		expect(iconSet.icons).toEqual({
 			'alert': {
 				viewBox: '0 0 4 24',
 				content:
 					'<path class="era5vp rq5r9b"/><path class="rq5r9b vyz4rm"/>',
-				fallback: 'alert',
+				fallback: 'animated-line-24:alert',
 				states: ['focus'],
 			},
 			'alert-circle': {
 				viewBox: '0 0 22 24',
 				content:
 					'<path class="ona74n qqacff"/><path class="a8wtkc cpqkom ona74n"/><path class="a8wtkc mccg4l ona74n"/>',
-				fallback: 'alert-circle',
+				fallback: 'animated-line-24:alert-circle',
 				states: ['focus'],
 			},
 			'remove-circle': {
 				viewBox: '0 0 22 24',
 				content:
 					'<defs><mask id="SVGD70oWcYx"><path class="iy2otu r1menc s_ydzo"/><path class="al390y ik2mhj r1menc"/></mask></defs><path class="iy2otu r1menc txtv4j"/><path mask="url(#SVGD70oWcYx)" class="bvh1dr"/><path class="a8wtkc ik2mhj iy2otu r1menc"/>',
-				fallback: 'remove-circle',
+				fallback: 'animated-line-24:remove-circle',
 				states: ['focus'],
 			},
 		});
@@ -309,6 +309,7 @@ describe('SVG CSS icon set', () => {
 		// Minify icon set
 		minifySVGCSSIconSet(iconSet);
 		expect(iconSet.css).toBeDefined();
+		expect(iconSet.fallbackPrefix).toBe('animated-line-24:');
 
 		// Check that "cpqkom" class is minified (used in next test)
 		expect(iconSet.classes?.['cpqkom']).toEqual({
@@ -321,6 +322,13 @@ describe('SVG CSS icon set', () => {
 		});
 
 		// Get icon
+		expect(iconSet.icons['alert-circle']).toEqual({
+			content:
+				'<path class="ona74n qqacff"/><path class="a8wtkc cpqkom ona74n"/><path class="a8wtkc mccg4l ona74n"/>',
+			fallback: 'alert-circle',
+			viewBox: 0,
+			states: 0,
+		});
 		expect(getSVGCSSIconFromIconSet(iconSet, 'alert-circle')).toEqual({
 			viewBox: '0 0 22 24',
 			content:
@@ -379,21 +387,21 @@ describe('SVG CSS icon set', () => {
 				viewBox: '0 0 4 24',
 				content:
 					'<path class="era5vp rq5r9b"/><path class="rq5r9b vyz4rm"/>',
-				fallback: 'alert',
+				fallback: 'animated-line-24:alert',
 				states: ['focus'],
 			},
 			'alert-circle': {
 				viewBox: '0 0 22 24',
 				content:
 					'<path class="ona74n qqacff"/><path class="a8wtkc cpqkom ona74n"/><path class="a8wtkc mccg4l ona74n"/>',
-				fallback: 'alert-circle',
+				fallback: 'animated-line-24:alert-circle',
 				states: ['focus'],
 			},
 			'remove-circle': {
 				viewBox: '0 0 22 24',
 				content:
 					'<defs><mask id="SVGD70oWcYx"><path class="iy2otu r1menc s_ydzo"/><path class="al390y ik2mhj r1menc"/></mask></defs><path class="iy2otu r1menc txtv4j"/><path mask="url(#SVGD70oWcYx)" class="bvh1dr"/><path class="a8wtkc ik2mhj iy2otu r1menc"/>',
-				fallback: 'remove-circle',
+				fallback: 'animated-line-24:remove-circle',
 				states: ['focus'],
 			},
 		});

@@ -12,7 +12,7 @@ export interface SVGCSSIconSetIcon {
 	viewBox: IconViewBox | string | number;
 
 	// Fallback icon to render from Iconify API for unsupported browsers (e.g. Safari)
-	// If `fallbackPrefix` or `fallbackSuffix` is defined in the icon set, it will be added to the fallback icon name
+	// If `fallbackPrefix` is defined in the icon set, it will be added to the fallback icon name
 	fallback?: string;
 
 	// States list, can be index in shared list
@@ -67,9 +67,8 @@ export interface SVGCSSIconSetSharedData {
  * Does not include metadata
  */
 export interface SVGCSSIconSet extends SVGCSSIconSetSharedData {
-	// Common fallback prefix and suffix to add to all icons
+	// Common fallback prefix to add to all icons
 	fallbackPrefix?: string;
-	fallbackSuffix?: string;
 
 	// Icons
 	icons: Record<string, SVGCSSIconSetIcon>;

@@ -33,12 +33,31 @@ export function expandSVGCSSIconSetClass(
 }
 
 /**
+ * Expand fallback prefix
+ */
+export function expandSVGCSSIconSetFallback(iconSet: SVGCSSIconSet) {
+	const fallbackPrefix = iconSet.fallbackPrefix ?? '';
+	if (fallbackPrefix) {
+		delete iconSet.fallbackPrefix;
+
+		for (const iconName in iconSet.icons) {
+			const icon = iconSet.icons[iconName];
+			const fallback = icon.fallback;
+			if (fallback) {
+				icon.fallback = fallbackPrefix + fallback;
+			}
+		}
+	}
+}
+
+/**
  * Unminify icon set
  */
 export function expandSVGCSSIconSet(iconSet: SVGCSSIconSet) {
 	const { viewBoxes, statesList, css } = iconSet;
 
 	// Parse all icons
+	expandSVGCSSIconSetFallback(iconSet);
 	if (viewBoxes || statesList) {
 		for (const iconName in iconSet.icons) {
 			const icon = iconSet.icons[iconName];
