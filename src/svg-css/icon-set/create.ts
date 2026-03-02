@@ -5,6 +5,7 @@ import type { SVGCSSIconSet } from './types.js';
  */
 export function createEmptySVGCSSIconSet(): SVGCSSIconSet {
 	return {
+		version: 1,
 		icons: Object.create(null),
 	};
 }

@@ -67,6 +67,9 @@ export interface SVGCSSIconSetSharedData {
  * Does not include metadata
  */
 export interface SVGCSSIconSet extends SVGCSSIconSetSharedData {
+	// Icon set format version
+	version: 1;
+
 	// Common fallback prefix to add to all icons
 	fallbackPrefix?: string;
 
