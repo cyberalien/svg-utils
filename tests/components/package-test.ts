@@ -1,8 +1,10 @@
 import { rm } from 'node:fs/promises';
 import type { IconifyJSON } from '@iconify/types';
-import { createVueComponent } from '../../src/components/vue.js';
 import { componentFactoryFileSystemOptions } from '../../src/components/prepare/options.js';
-import type { FactoryComponent } from '../../src/components/types/component.js';
+import type {
+	FactoryComponent,
+	FactoryGeneratedComponent,
+} from '../../src/components/types/component.js';
 import { parseIconifyIconSet } from '../../src/iconify/icon-set/parse.js';
 import {
 	convertIconifyIconToFactoryContent,
@@ -12,15 +14,18 @@ import { convertGeneratedComponentToFile } from '../../src/components/export/fil
 import { mergeExportedComponentFiles } from '../../src/components/export/merge.js';
 import { createExportsForMainFiles } from '../../src/components/export/exports.js';
 import { saveExportedFilesToFS } from '../../src/components/export/fs.js';
+import { createVueComponent } from '../../src/components/vue.js';
 import { createSvelteComponent } from '../../src/components/svelte.js';
+import { createJSXComponent } from '../../src/components/jsx.js';
 import { createUniqueHashContext } from '../../src/helpers/hash/context.js';
 import {
 	addComponentDependencies,
 	createDependenciesForPackage,
 } from '../../src/components/export/dependencies.js';
+import type { FactoryIconData } from '../../src/components/types/data.js';
 
 describe.skip('Creating components package with fallback', () => {
-	const testModes = ['vue', 'svelte'] as const;
+	const testModes = ['vue', 'svelte', 'react'] as const;
 	const prefix = 'ri';
 	const baseDir = `temp/test-{mode}-package`;
 	let iconSet: IconifyJSON;
@@ -55,12 +60,7 @@ describe.skip('Creating components package with fallback', () => {
 
 	for (const testMode of testModes) {
 		test(`Remix Icons as ${testMode} package`, async () => {
-			// Test mode specific stuff
-			const testFunction =
-				testMode === 'vue' ? createVueComponent : createSvelteComponent;
-			const defaultProp = testMode === 'svelte' ? testMode : undefined;
 			const dir = baseDir.replace('{mode}', testMode);
-			const cssMode = 'embed'; //testMode === 'svelte' ? 'embed' : 'import';
 			const useFallback = true;
 			const height: string | undefined = undefined;
 			const context = createUniqueHashContext();
@@ -75,6 +75,52 @@ describe.skip('Creating components package with fallback', () => {
 
 			// Export all icons
 			const components: FactoryComponent[] = [];
+
+			// Test mode specific stuff
+			let defaultProp: string | undefined;
+			let callback: (data: FactoryIconData) => FactoryGeneratedComponent;
+			let extension: string;
+
+			switch (testMode) {
+				case 'vue':
+					callback = (data) =>
+						createVueComponent(data, {
+							context,
+							...options,
+							cssMode: 'import',
+							height,
+						});
+					extension = '.vue';
+					break;
+
+				case 'svelte':
+					callback = (data) =>
+						createSvelteComponent(data, {
+							context,
+							...options,
+							cssMode: 'import',
+							height,
+						});
+					defaultProp = 'svelte';
+					extension = '.svelte';
+					break;
+
+				case 'react':
+					callback = (data) =>
+						createJSXComponent(data, {
+							context,
+							...options,
+							cssMode: 'import',
+							height,
+							jsx: 'react',
+							fallbackPackage: '@iconify/css-react',
+						});
+					extension = '.jsx';
+					break;
+
+				default:
+					throw new Error(`Unknown test mode: ${testMode}`);
+			}
 
 			parseIconifyIconSet(iconSet, (name, data) => {
 				if (data && names.has(name)) {
@@ -94,12 +140,7 @@ describe.skip('Creating components package with fallback', () => {
 					}
 
 					// Create component
-					const result = testFunction(iconData, {
-						context,
-						...options,
-						cssMode,
-						height,
-					});
+					const result = callback(iconData);
 
 					// Create file data
 					const file = convertGeneratedComponentToFile(
@@ -107,7 +148,7 @@ describe.skip('Creating components package with fallback', () => {
 						result,
 						{
 							...options,
-							extension: `.${testMode}`,
+							extension,
 						}
 					);
 

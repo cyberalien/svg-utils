@@ -37,6 +37,7 @@ import { cleanupHTML } from '../helpers/innerhtml.js';
 const viewBox = '0 0 24 24';
 const content = {__html: cleanupHTML(\`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`)};
 
+/** @type {{width?: string; height?: string;}} */
 function Component({width, height, ...props}) {
 	const size = useMemo(() => getSizeProps(width, height, 1), [width, height]);
 	return createElement('svg', {
@@ -211,10 +212,12 @@ import './css/${testClassName}.css';
 const viewBox = '0 0 16 16';
 const content = {__html: cleanupHTML(\`<path class="${testClassName}"/>\`)};
 
-function Component<{
+interface Props {
 \twidth?: string;
 \theight?: string;
-}>({width, height, ...props}) {
+};
+
+function Component<Props>({width, height, ...props}) {
 	const size = useMemo(() => getSizeProps(width, height, 1), [width, height]);
 	return createElement('svg', {
 		"xmlns": "http://www.w3.org/2000/svg",
@@ -301,6 +304,7 @@ import { cleanupHTML } from './helpers/innerhtml.js';
 const viewBox = '0 0 16 16';
 const content = {__html: cleanupHTML(\`<path class="${testClassName}"/>\`)};
 
+/** @type {{width?: string; height?: string;}} */
 function Component({width, height, ...props}) {
 	const size = useMemo(() => getSizeProps(width, height, 1), [width, height]);
 	return createElement('svg', {
@@ -393,6 +397,7 @@ import { cleanupHTML } from './helpers/innerhtml.js';
 const viewBox = '0 0 16 16';
 const content = {__html: cleanupHTML(\`<style>.${testClassName} {\n  d: path("M0 0l16 16");\n  fill: currentColor;\n}\n</style><path class="${testClassName}"/>\`)};
 
+/** @type {{width?: string; height?: string;}} */
 function Component({width, height, ...props}) {
 	const size = useMemo(() => getSizeProps(width, height, 1), [width, height]);
 	return createElement('svg', {
@@ -465,6 +470,7 @@ const baseViewBox = '0 0 20 24';
 const squareViewBox = '-2 0 24 24';
 const content = {__html: cleanupHTML(\`<path d="M0 0l20 24" stroke="currentColor" fill="none" />\`)};
 
+/** @type {{width?: string; height?: string; square?: boolean;}} */
 function Component({width, height, square, ...props}) {
 	const viewBox = useMemo(() => square ? squareViewBox : baseViewBox, [square]);
 	const ratio = useMemo(() => square ? 1 : 0.84, [square]);
@@ -538,6 +544,7 @@ import { cleanupHTML } from '../helpers/innerhtml.js';
 const viewBox = '0 0 24 24';
 const content = {__html: cleanupHTML(\`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`)};
 
+/** @type {{square?: boolean;}} */
 function Component({square, ...props}) {
 	return h('svg', {
 		"xmlns": "http://www.w3.org/2000/svg",
@@ -604,6 +611,7 @@ import { cleanupHTML } from '../helpers/innerhtml.js';
 const viewBox = '0 0 24 24';
 const content = {__html: cleanupHTML(\`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`)};
 
+/** @type {{width?: string; height?: string; square?: boolean;}} */
 function Component({width, height, square, ...props}) {
 	const size = useMemo(() => getSizeProps(width, height, 1), [width, height]);
 	return createElement('svg', {
@@ -674,6 +682,7 @@ import { createElement } from 'react';
 
 const viewBox = {"width":24,"height":24};
 
+/** @type {{width?: string; height?: string; square?: boolean;}} */
 function Component({width, height, square, ...props}) {
 	return createElement(Icon, {
 		...props,

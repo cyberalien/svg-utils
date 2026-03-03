@@ -330,13 +330,20 @@ export function createJSXComponent(
 		? componentExternalCode.join('\n') + '\n\n'
 		: '';
 
+	// Types
+	const propTypes = stringifyFactoryPropTypes(props);
+	const typesCode = useTS
+		? `interface Props {\n${propTypes}\n};\n\n`
+		: propTypes
+			? `/** @type {{${propTypes.replace(/\s*\n\s*/g, ' ').trim()}}} */\n`
+			: '';
+
 	// Generate component function
 	const usedProps = getUsedFactoryProps(props);
 	const propsDestricturing = usedProps.length
 		? `{${[...usedProps, '...props'].join(', ')}}`
 		: 'props';
-	const tsCode = useTS ? `<{\n${stringifyFactoryPropTypes(props)}\n}>` : '';
-	const componentFunction = `function Component${tsCode}(${propsDestricturing}) {
+	const componentFunction = `${typesCode}function Component${useTS ? `<Props>` : ''}(${propsDestricturing}) {
 \t${componentInternalCode.join('\n\t')}
 }
 `;
