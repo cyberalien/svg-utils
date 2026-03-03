@@ -14,6 +14,10 @@ import { createExportsForMainFiles } from '../../src/components/export/exports.j
 import { saveExportedFilesToFS } from '../../src/components/export/fs.js';
 import { createSvelteComponent } from '../../src/components/svelte.js';
 import { createUniqueHashContext } from '../../src/helpers/hash/context.js';
+import {
+	addComponentDependencies,
+	createDependenciesForPackage,
+} from '../../src/components/export/dependencies.js';
 
 describe.skip('Creating components package with fallback', () => {
 	const testModes = ['vue', 'svelte'] as const;
@@ -60,6 +64,7 @@ describe.skip('Creating components package with fallback', () => {
 			const useFallback = true;
 			const height: string | undefined = undefined;
 			const context = createUniqueHashContext();
+			const dependencies = new Set<string>();
 
 			// Options
 			const options = componentFactoryFileSystemOptions({
@@ -106,6 +111,7 @@ describe.skip('Creating components package with fallback', () => {
 						}
 					);
 
+					addComponentDependencies(result, dependencies);
 					components.push(file);
 				}
 			});
@@ -141,6 +147,7 @@ describe.skip('Creating components package with fallback', () => {
 					...exports,
 					'./*': './*',
 				},
+				dependencies: createDependenciesForPackage(dependencies),
 			};
 			allFiles.push({
 				filename: 'package.json',
