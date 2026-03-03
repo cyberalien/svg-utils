@@ -134,7 +134,7 @@ export function minifySVGCSSIconSet(iconSet: SVGCSSIconSet) {
 		}
 
 		const statesValue = icon.states;
-		if (typeof statesValue !== 'number') {
+		if (typeof statesValue !== 'number' && statesValue?.length) {
 			// Minify states
 			compactItem(
 				statesList,
