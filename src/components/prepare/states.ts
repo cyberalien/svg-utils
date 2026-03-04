@@ -71,7 +71,7 @@ export function prepareComponentFactoryStatefulIcon(
 			if (state === 'focus') {
 				// Focus state is special: can be triggered by external css
 				config[stateName] =
-					'.svg-focus-anchor:focus-within, .svg-hover-anchor:hover, &.state-focus';
+					`input:focus-visible, input:hover, button:focus-visible, button:hover, &.state-${stateName}`;
 			} else {
 				config[stateName] = `&.state-{state}`;
 			}
