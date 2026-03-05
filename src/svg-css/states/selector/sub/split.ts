@@ -21,39 +21,28 @@ export function splitSelectorToSubParts(
 		selector = selector.slice(1).trim();
 	}
 
-	// Get pseudo selector
-	const pseudoSelectors = selector.split(':');
-	while (pseudoSelectors.length > 1) {
+	// Get pseudo selectors
+	const pseudoMatches = selector.matchAll(/:[a-z-]+(\(:[a-z-]+\))*/g);
+	for (const match of pseudoMatches) {
+		const value = match[0];
+		selector = selector.replace(value, '');
 		const list = result.pseudo || new Set<string>();
 		if (!result.pseudo) {
 			result.pseudo = list;
 		}
-		list.add(':' + pseudoSelectors.pop()!);
+		list.add(value);
 	}
-	selector = pseudoSelectors[0]!;
 
-	// Get attribute selector
-	let attrStart = selector.indexOf('[');
-	while (attrStart !== -1) {
-		// Get attribute selector value
-		const attrEnd = selector.indexOf(']', attrStart);
-		let attrValue: string;
-		if (attrEnd === -1) {
-			attrValue = selector.slice(attrStart);
-			selector = selector.slice(0, attrStart);
-		} else {
-			attrValue = selector.slice(attrStart, attrEnd + 1);
-			selector =
-				selector.slice(0, attrStart) + selector.slice(attrEnd + 1);
-		}
-
+	// Get attribute selectors
+	const attrMatches = selector.matchAll(/\[[^\]]+\]/g);
+	for (const match of attrMatches) {
+		const value = match[0];
+		selector = selector.replace(value, '');
 		const list = result.attr || new Set<string>();
 		if (!result.attr) {
 			result.attr = list;
 		}
-		list.add(attrValue);
-
-		attrStart = selector.indexOf('[');
+		list.add(value);
 	}
 
 	// Check for tag name

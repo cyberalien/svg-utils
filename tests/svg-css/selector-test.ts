@@ -81,6 +81,14 @@ describe('Testing selector template', () => {
 			combinator: '>',
 			tag: 'svg',
 		});
+
+		// :not
+		expect(
+			splitSelectorToSubParts('input:not(:disabled):focus-visible')
+		).toEqual({
+			tag: 'input',
+			pseudo: new Set([':not(:disabled)', ':focus-visible']),
+		});
 	});
 
 	test('Merge multiple selector sub-parts', () => {
@@ -353,6 +361,18 @@ describe('Testing selector template', () => {
 				{
 					combinator: '~',
 					name: new Set(['.bar']),
+				},
+			],
+		});
+
+		// :not
+		expect(
+			splitSelectorToParts('input:not(:disabled):focus-visible')
+		).toEqual({
+			parents: [
+				{
+					tag: 'input',
+					pseudo: new Set([':not(:disabled)', ':focus-visible']),
 				},
 			],
 		});
