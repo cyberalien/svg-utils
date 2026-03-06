@@ -23,9 +23,10 @@ import {
 	createDependenciesForPackage,
 } from '../../src/components/export/dependencies.js';
 import type { FactoryIconData } from '../../src/components/types/data.js';
+import { createSolidComponent } from '../../src/components/solid.js';
 
 describe.skip('Creating components package with fallback', () => {
-	const testModes = ['vue', 'svelte', 'react'] as const;
+	const testModes = ['vue', 'svelte', 'react', 'solid'] as const;
 	const prefix = 'ri';
 	const baseDir = `temp/test-{mode}-package`;
 	let iconSet: IconifyJSON;
@@ -61,10 +62,13 @@ describe.skip('Creating components package with fallback', () => {
 	for (const testMode of testModes) {
 		test(`Remix Icons as ${testMode} package`, async () => {
 			const dir = baseDir.replace('{mode}', testMode);
-			const useFallback = true;
 			const height: string | undefined = undefined;
 			const context = createUniqueHashContext();
 			const dependencies = new Set<string>();
+
+			// Use TS for one icon with fallback and one without fallback to test both cases
+			const useTS = (name: string) =>
+				name === 'twitter-x-line' || name === 'github-line';
 
 			// Options
 			const options = componentFactoryFileSystemOptions({
@@ -79,7 +83,7 @@ describe.skip('Creating components package with fallback', () => {
 			// Test mode specific stuff
 			let defaultProp: string | undefined;
 			let callback: (data: FactoryIconData) => FactoryGeneratedComponent;
-			let extension: string;
+			let extension: (data: FactoryIconData) => string;
 
 			switch (testMode) {
 				case 'vue':
@@ -89,8 +93,9 @@ describe.skip('Creating components package with fallback', () => {
 							...options,
 							cssMode: 'import',
 							height,
+							ts: useTS(data.name),
 						});
-					extension = '.vue';
+					extension = () => '.vue';
 					break;
 
 				case 'svelte':
@@ -100,9 +105,10 @@ describe.skip('Creating components package with fallback', () => {
 							...options,
 							cssMode: 'import',
 							height,
+							ts: useTS(data.name),
 						});
 					defaultProp = 'svelte';
-					extension = '.svelte';
+					extension = () => '.svelte';
 					break;
 
 				case 'react':
@@ -114,8 +120,21 @@ describe.skip('Creating components package with fallback', () => {
 							height,
 							jsx: 'react',
 							fallbackPackage: '@iconify/css-react',
+							ts: useTS(data.name),
 						});
-					extension = '.jsx';
+					extension = (data) => (useTS(data.name) ? '.tsx' : '.jsx');
+					break;
+
+				case 'solid':
+					callback = (data) =>
+						createSolidComponent(data, {
+							context,
+							...options,
+							cssMode: 'import',
+							height,
+							ts: useTS(data.name),
+						});
+					extension = (data) => (useTS(data.name) ? '.tsx' : '.jsx');
 					break;
 
 				default:
@@ -135,7 +154,9 @@ describe.skip('Creating components package with fallback', () => {
 							prefix: 'test',
 						}
 					);
-					if (!useFallback) {
+
+					// Do not use fallback for 'bluesky-line' and 'github-line'
+					if (name === 'bluesky-line' || name === 'github-line') {
 						delete iconData.icon.defaultFallback;
 					}
 
@@ -148,7 +169,7 @@ describe.skip('Creating components package with fallback', () => {
 						result,
 						{
 							...options,
-							extension,
+							extension: extension(iconData),
 						}
 					);
 

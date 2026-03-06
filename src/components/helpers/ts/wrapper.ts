@@ -6,6 +6,11 @@ import type { FactoryComponentProps } from '../props/types.js';
 import type { GeneratedAssetFile } from '../../types/component.js';
 
 /**
+ * Properties to omit
+ */
+export const omitComponentSVGProps = `'viewBox' | 'width' | 'height' | 'xmlns'`;
+
+/**
  * Add component types
  */
 export function addComponentTypes(

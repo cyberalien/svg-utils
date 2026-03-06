@@ -3,7 +3,7 @@ import type { FactoryIconData } from '../../types/data.js';
 import type { JSXMode } from '../../types/jsx.js';
 import type { ComponentFactoryOptions } from '../../types/options.js';
 import type { FactoryComponentProps } from '../props/types.js';
-import { addComponentTypes } from './wrapper.js';
+import { addComponentTypes, omitComponentSVGProps } from './wrapper.js';
 
 interface Options extends ComponentFactoryOptions {
 	// JSX mode
@@ -16,8 +16,6 @@ const iconPropsTemplate = `interface IconProps {
 
 const exportTemplate = `export { type IconProps };
 export default Component;`;
-
-const omitProps = `'viewBox' | 'width' | 'height' | 'xmlns'`;
 
 /**
  * Add JSX component types
@@ -36,7 +34,7 @@ export function addJSXComponentTypes(
 ${iconPropsTemplate}
 
 const Component: ForwardRefExoticComponent<
-    Omit<SVGProps<SVGSVGElement>, ${omitProps}> & IconProps
+    Omit<SVGProps<SVGSVGElement>, ${omitComponentSVGProps}> & IconProps
 >;
 
 ${exportTemplate}
@@ -48,7 +46,7 @@ ${exportTemplate}
 
 ${iconPropsTemplate}
 
-const Component: (props: Omit<JSX.SVGAttributes<SVGSVGElement>, ${omitProps}> & IconProps) => JSX.Element;
+const Component: (props: Omit<JSX.SVGAttributes<SVGSVGElement>, ${omitComponentSVGProps}> & IconProps) => JSX.Element;
 
 ${exportTemplate}
 `;

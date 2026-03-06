@@ -11,7 +11,7 @@ import type {
 } from './types/component.js';
 import type { FactoryComponentProps } from './helpers/props/types.js';
 import { addSizeFunctionAsset } from './helpers/functions/size.js';
-import { stringifyFactoryPropsAsJSON } from './helpers/props/object.js';
+import { stringifyFactoryProps } from './helpers/props/stringify.js';
 import { stringifyFactoryImports } from './helpers/imports/stringify.js';
 import { makeSquareViewBox } from '../svg/viewbox/square.js';
 import type { IconViewBox } from '../svg/viewbox/types.js';
@@ -21,33 +21,25 @@ import {
 } from './helpers/props/ts.js';
 import { minifyViewBox } from '../svg/viewbox/minify.js';
 import { getViewBoxRatio } from './helpers/content/ratio.js';
-import { addJSXComponentTypes } from './helpers/ts/jsx.js';
-import type { JSXMode } from './types/jsx.js';
+import { addSolidComponentTypes } from './helpers/ts/solid.js';
 import { addCustomFunctionAsset } from './helpers/functions/custom.js';
 import { addFallbackFunctionAsset } from './helpers/functions/fallback.js';
-import { addInnerHTMLFunctionAsset } from './helpers/functions/innerhtml.js';
 
 interface Options extends ComponentFactoryOptions {
-	// JSX mode
-	jsx: JSXMode;
-
-	// Supported fallback package
-	fallbackPackage?: string;
-
 	// Use TypeScript
 	ts?: boolean;
 }
 
 /**
- * Create React component code
+ * Create Solid component code
  */
-export function createJSXComponent(
+export function createSolidComponent(
 	data: FactoryIconData,
 	options: Options
 ): FactoryGeneratedComponent {
 	const icon = data.icon;
 	const viewBox = icon.viewBox;
-	const defaultFallback = icon.defaultFallback;
+	const fallback = icon.defaultFallback;
 	const statefulData = icon.statefulData;
 
 	// Check options
@@ -58,28 +50,15 @@ export function createJSXComponent(
 	const imports = createFactoryImports();
 	const dependencies = new Set<string>();
 
-	// Modes
-	let importPackage = 'react';
-	let createElement = 'createElement';
-
-	switch (options.jsx) {
-		case 'preact':
-			importPackage = 'preact';
-			createElement = 'h';
-			break;
-	}
-
 	// Check if fallback is used
-	const fallbackPackage = options.fallbackPackage || null;
-	const hasFallback = !!(fallbackPackage && defaultFallback);
-	if (hasFallback) {
-		imports.named[fallbackPackage] = new Set(['Icon']);
-		dependencies.add(fallbackPackage);
+	if (fallback) {
+		imports.named['@iconify/css-solid'] = new Set(['Icon']);
+		dependencies.add('@iconify/css-solid');
 	}
 
-	// Add React imports
-	const reactNamedImports = new Set([createElement]);
-	imports.named[importPackage] = reactNamedImports;
+	// Add Solid imports
+	const solidNamedImports = new Set<string>([]);
+	imports.named['solid-js'] = solidNamedImports;
 
 	// Add CSS
 	const style = generateCSSFilesForComponent(icon, imports, assets, options);
@@ -90,7 +69,7 @@ export function createJSXComponent(
 
 	const hasComputedViewbox =
 		options.square && !hasFixedSize && viewBox.width !== viewBox.height;
-	const isStringViewBox = !hasFallback;
+	const isStringViewBox = !fallback;
 	const hasComputedRatio = hasComputedViewbox && isStringViewBox;
 
 	if (!hasComputedViewbox && (options.width || options.height)) {
@@ -102,13 +81,9 @@ export function createJSXComponent(
 	const componentExternalCode: string[] = [];
 	const componentInternalCode: string[] = [];
 	const props: FactoryComponentProps = {};
-	if (!hasFallback) {
+	if (!fallback) {
 		props.xmlns = 'http://www.w3.org/2000/svg';
 	}
-	props.props = {
-		value: 'props',
-		template: '...props,',
-	};
 
 	// Set stateful props
 	let computedFallback = false;
@@ -116,7 +91,6 @@ export function createJSXComponent(
 		const { supportedStates, allStates } = statefulData;
 		if (supportedStates.size) {
 			const computedStates: string[] = [];
-			const computedStateNames: string[] = [];
 			let addedStateFunc = false;
 
 			for (const state of allStates) {
@@ -128,8 +102,7 @@ export function createJSXComponent(
 							value: state,
 							template: '',
 						};
-						computedStates.push(`'${state}': ${state}`);
-						computedStateNames.push(state);
+						computedStates.push(`'${state}': local['${state}']`);
 					}
 				} else {
 					// Advanced state
@@ -149,9 +122,8 @@ export function createJSXComponent(
 
 						// Add to computed state
 						computedStates.push(
-							`'${stateName}': namedStateValue(${stateName}, '${defaultStateValue}')`
+							`'${stateName}': namedStateValue(local['${stateName}'], '${defaultStateValue}')`
 						);
-						computedStateNames.push(stateName);
 						if (!addedStateFunc) {
 							addedStateFunc = true;
 
@@ -159,8 +131,8 @@ export function createJSXComponent(
 							addCustomFunctionAsset(imports, assets, options, {
 								functionName: 'namedStateValue',
 								content: `export function namedStateValue(value, defaultValue) {
-	return value && value !== defaultValue ? value : undefined;
-}`,
+		return value && value !== defaultValue ? value : undefined;
+	}`,
 							});
 						}
 					}
@@ -170,11 +142,11 @@ export function createJSXComponent(
 			// Add computed states
 			if (computedStates.length) {
 				componentInternalCode.push(
-					`const states = useMemo(() => ({ ${computedStates.join(', ')} }), [${computedStateNames.join(', ')}]);`
+					`const states = createMemo(() => ({ ${computedStates.join(', ')} }));`
 				);
 
 				// Compute stateful fallback
-				if (hasFallback && statefulData.fallback) {
+				if (fallback && statefulData.fallback) {
 					computedFallback = true;
 					const func = addFallbackFunctionAsset(
 						imports,
@@ -183,17 +155,17 @@ export function createJSXComponent(
 						statefulData.defaultStateValues
 					);
 					componentInternalCode.push(
-						`const fallback = useMemo(() => ${func}(${JSON.stringify(statefulData.fallback)}, states), [states]);`
+						`const fallback = createMemo(() => ${func}(${JSON.stringify(statefulData.fallback)},states()));`
 					);
 				}
 
 				// Compute class name
 				componentInternalCode.push(
-					`const className = useMemo(() => Object.entries(states).map(([key, value]) => value ? \`state-\${value === true ? key : value}\` : '').join(' ').trim() || undefined, [states]);`
+					`const className = createMemo(() => Object.entries(states()).map(([key, value]) => value ? \`state-\${value === true ? key : value}\` : '').join(' ').trim() || undefined);`
 				);
-				props['className'] = {
+				props.class = {
 					value: 'className',
-					template: `className,`,
+					template: 'class={className()}',
 				};
 			}
 		}
@@ -211,7 +183,7 @@ export function createJSXComponent(
 			`const squareViewBox = ${getViewBox(makeSquareViewBox(viewBox))};`
 		);
 		componentInternalCode.push(
-			`const viewBox = useMemo(() => square ? squareViewBox : baseViewBox, [square]);`
+			`const viewBox = createMemo(() => local.square ? squareViewBox : baseViewBox);`
 		);
 	} else {
 		// Hardcoded viewBox
@@ -222,7 +194,7 @@ export function createJSXComponent(
 	const ratioValue = getViewBoxRatio(viewBox);
 	if (hasComputedRatio) {
 		componentInternalCode.push(
-			`const ratio = useMemo(() => square ? 1 : ${ratioValue}, [square]);`
+			`const ratio = createMemo(() => local.square ? 1 : ${ratioValue});`
 		);
 	}
 
@@ -237,25 +209,25 @@ export function createJSXComponent(
 		props.height = sizeProps.height;
 	} else {
 		// Computed size props
-		if (hasFallback) {
+		if (fallback) {
 			// Computed size in fallback component
 			props.width = {
 				type: 'string',
 				value: 'width',
-				template: 'width,',
+				template: 'width={local.width}',
 			};
 			props.height = {
 				type: 'string',
 				value: 'height',
-				template: 'height,',
+				template: 'height={local.height}',
 			};
 		} else {
 			// Add computed size and getSizeProps() function
 			const getSizeProps = addSizeFunctionAsset(imports, assets, options);
 			componentInternalCode.push(
-				`const size = useMemo(() => ${getSizeProps}(width, height, ${
-					hasComputedRatio ? 'ratio' : ratioValue
-				}), [width, height${hasComputedRatio ? ', ratio' : ''}]);`
+				`const size = createMemo(() => ${getSizeProps}(local.width, local.height, ${
+					hasComputedRatio ? 'ratio()' : ratioValue
+				}));`
 			);
 
 			// Add width and height props
@@ -263,7 +235,7 @@ export function createJSXComponent(
 				type: 'string',
 				value: 'width',
 				// Spread computed size
-				template: '...size,',
+				template: '{...size()}',
 			};
 			props.height = {
 				type: 'string',
@@ -274,9 +246,9 @@ export function createJSXComponent(
 		}
 	}
 
-	// Add useMemo import if needed
-	if (componentInternalCode.some((line) => line.includes('useMemo'))) {
-		reactNamedImports.add('useMemo');
+	// Add createMemo import if needed
+	if (componentInternalCode.some((line) => line.includes('createMemo'))) {
+		solidNamedImports.add('createMemo');
 	}
 
 	// Add square prop after size props
@@ -289,41 +261,36 @@ export function createJSXComponent(
 	// Add viewBox prop
 	props.viewBox = {
 		value: 'viewBox',
-		template: 'viewBox,',
+		template: `viewBox={viewBox${hasComputedViewbox ? '()' : ''}}`,
 	};
 
 	// Add content
-	let contentTemplate: undefined | string;
-	const contentValue = stringifyFactoryIconContent(
-		data.icon,
-		isEmbeddedCSS ? style : undefined
+	componentExternalCode.push(
+		`const content = ${stringifyFactoryIconContent(icon, isEmbeddedCSS ? style : undefined)};`
 	);
-	if (!hasFallback) {
-		const funcName = addInnerHTMLFunctionAsset(imports, assets, options);
-		componentExternalCode.push(
-			`const content = {__html: ${funcName}(${contentValue})};`
-		);
-		contentTemplate = `dangerouslySetInnerHTML: content,`;
-	}
 	props.content = {
-		value: contentValue,
-		template: contentTemplate,
+		value: 'content',
+		template: fallback
+			? `content={content} fallback={${computedFallback ? 'fallback()' : `"${fallback}"`}}`
+			: 'innerHTML={content}',
 	};
-	if (hasFallback && defaultFallback) {
-		props.fallback = computedFallback
-			? {
-					value: 'fallback',
-					template: 'fallback,',
-				}
-			: defaultFallback;
+
+	// Split props
+	const usedProps = getUsedFactoryProps(props);
+	if (usedProps.length) {
+		componentInternalCode.unshift(
+			`const [local, others] = splitProps(props, ${JSON.stringify(usedProps)});\n`
+		);
+		solidNamedImports.add('splitProps');
 	}
 
 	// Add return value to component code
-	componentInternalCode.push(
-		`return ${createElement}(${hasFallback ? 'Icon' : "'svg'"}, {
-\t\t${stringifyFactoryPropsAsJSON(props, '\n\t\t')}
-\t});`
-	);
+	const tag = fallback ? 'Icon' : 'svg';
+	const template = `<${tag} ${stringifyFactoryProps(
+		props,
+		'{prop}={{value}}'
+	)} {...${usedProps.length ? 'others' : 'props'}} />`;
+	componentInternalCode.push(`return (${template});`);
 
 	// Generate code before function
 	const beforeFunction = componentExternalCode.length
@@ -335,15 +302,11 @@ export function createJSXComponent(
 	const typesCode = useTS
 		? `interface Props {\n${propTypes}\n};\n\n`
 		: propTypes
-			? `/** @type {{${propTypes.replace(/\s*\n\s*/g, ' ').trim()}}} */\n`
+			? `/** @param props {{${propTypes.replace(/\s*\n\s*/g, ' ').trim()}}} */\n`
 			: '';
 
 	// Generate component function
-	const usedProps = getUsedFactoryProps(props);
-	const propsDestricturing = usedProps.length
-		? `{${[...usedProps, '...props'].join(', ')}}`
-		: 'props';
-	const componentFunction = `${typesCode}function Component(${propsDestricturing}${useTS ? `: Props` : ''}) {
+	const componentFunction = `${typesCode}function Component(props${useTS ? `: Props` : ''}) {
 \t${componentInternalCode.join('\n\t')}
 }
 `;
@@ -354,7 +317,7 @@ export function createJSXComponent(
 	)}\n${beforeFunction}${componentFunction}\nexport default Component;\n`;
 
 	// Add types file
-	const types = addJSXComponentTypes(data, options, assets, props);
+	const types = addSolidComponentTypes(data, options, assets, props);
 
 	// Return data
 	return {

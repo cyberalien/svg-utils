@@ -2,13 +2,15 @@
 import { convertGeneratedComponentToFile } from '../../src/components/export/file.js';
 import { saveExportedFilesToFS } from '../../src/components/export/fs.js';
 import { mergeExportedComponentFiles } from '../../src/components/export/merge.js';
-import { createJSXComponent } from '../../src/components/jsx.js';
 import { componentFactoryFileSystemOptions } from '../../src/components/prepare/options.js';
 import { prepareComponentFactoryStatefulIcon } from '../../src/components/prepare/states.js';
+import { createJSXComponent } from '../../src/components/jsx.js';
+import { createSolidComponent } from '../../src/components/solid.js';
 import { createSvelteComponent } from '../../src/components/svelte.js';
+import { createVueComponent } from '../../src/components/vue.js';
+import { createVueFunctionalComponent } from '../../src/components/vue-func.js';
 import type { FactoryIconData } from '../../src/components/types/data.js';
 import type { ComponentFactoryFileSystemOptions } from '../../src/components/types/options.js';
-import { createVueComponent } from '../../src/components/vue.js';
 import {
 	createUniqueHashContext,
 	type SVGCSSStatefulIcon,
@@ -280,8 +282,8 @@ describe.skip('Testing stateful component', () => {
 		doubleDirsForCSS: false,
 		doubleDirsForComponents: false,
 	});
-	const extension = `.vue`;
 	const ts = false;
+	const extension = '.svelte'; // ts ? '.ts' : '.js';
 	const iconSuffix = ts ? '-ts' : '';
 
 	function createExport(data: FactoryIconData) {
@@ -296,7 +298,7 @@ describe.skip('Testing stateful component', () => {
 			cssMode: data.name.startsWith('icon2') ? 'embed' : 'import',
 		});
 		*/
-		return createVueComponent(data, {
+		return createSvelteComponent(data, {
 			context,
 			...options,
 			cssMode: data.name.startsWith('icon2') ? 'embed' : 'import',

@@ -217,7 +217,7 @@ interface Props {
 \theight?: string;
 };
 
-function Component<Props>({width, height, ...props}) {
+function Component({width, height, ...props}: Props) {
 	const size = useMemo(() => getSizeProps(width, height, 1), [width, height]);
 	return createElement('svg', {
 		"xmlns": "http://www.w3.org/2000/svg",
