@@ -2,7 +2,7 @@ import type { IconifyIcon, IconifyJSON } from '@iconify/types';
 import { convertSVGContentToCSSRules } from '../../svg-css/content.js';
 import type { ConvertSVGContentOptions } from '../../svg-css/types.js';
 import type { FactoryIconData } from '../types/data.js';
-import { normaliseIconifyIcon } from '../../iconify/icon/nornalise.js';
+import { normaliseIconifyIcon } from '../../iconify/icon/normalise.js';
 import { getGeneratedAssetFilename } from '../helpers/filenames/asset.js';
 import type { GeneratedAssetPath } from '../types/options.js';
 import type { GeneratedAssetFile } from '../types/component.js';

@@ -1,4 +1,4 @@
-import { normaliseIconifyIcon } from '../../src/iconify/icon/nornalise.js';
+import { normaliseIconifyIcon } from '../../src/iconify/icon/normalise.js';
 
 describe('Parsing Iconify data', () => {
 	it('Parsing IconifyIcon', () => {
