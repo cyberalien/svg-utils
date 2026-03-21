@@ -70,7 +70,7 @@ export function mergeArrays<T>(
 					if (i > 0) {
 						prev.push(list1[orderItem.index]);
 					}
-				// no-fallthrough
+
 				case 'before': {
 					// Add current item before index
 					const newPrev = [...prev, currentItem];

@@ -13,7 +13,7 @@
 		"url": "https://github.com/cyberalien/svg-utils.git"
 	},
 	"scripts": {
-		"lint": "eslint --fix src/**/*.ts && tsc --noemit",
+		"lint": "oxlint --fix src/**/*.ts && tsc --noemit",
 		"prebuild": "pnpm run lint",
 		"build": "tsdown",
 		"test": "vitest"
@@ -30,15 +30,10 @@
 		"@iconify/types": "^2.0.0"
 	},
 	"devDependencies": {
-		"@eslint/eslintrc": "^3.3.5",
-		"@eslint/js": "^10.0.1",
 		"@iconify-json/ri": "^1.2.10",
 		"@types/jest": "^30.0.0",
 		"@types/node": "^25.5.0",
-		"@typescript-eslint/eslint-plugin": "^8.57.1",
-		"@typescript-eslint/parser": "^8.57.1",
-		"eslint": "^10.0.3",
-		"globals": "^17.4.0",
+		"oxlint": "^1.56.0",
 		"tsdown": "^0.21.4",
 		"typescript": "^5.9.3",
 		"vitest": "^4.1.0"
