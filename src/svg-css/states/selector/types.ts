@@ -60,6 +60,11 @@ export interface StatefulIconSelectorsContext {
 	// States
 	states: IconStatesList;
 
+	// Class name to remove animation
+	// Basic class name, such as 'state-static'
+	// Applied to SVG element as svg:not(.${staticClassname})
+	staticClassname?: string;
+
 	// Cached parsed data
 	data: Record<string, StateSelectorData | null>;
 

@@ -45,6 +45,9 @@ export interface ComponentFactoryFileSystemOptions {
 export interface ComponentFactoryStatefulIconRenderingOptions {
 	// Values for state selectors in CSS, which are set outside of component (e.g. parent element)
 	stateSelectors?: StatefulIconSelectorsConfig;
+
+	// Enable static state: can disable animation by setting 'static' property
+	staticState?: boolean;
 }
 
 /**

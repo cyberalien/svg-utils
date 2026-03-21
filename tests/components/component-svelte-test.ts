@@ -803,6 +803,7 @@ const content = \`<path class="${testClassName}"/><path class="${testClassName2}
 		expect(data.icon.defaultFallback).toBe(
 			'animated-line-24:align-box-left-top'
 		);
+		expect(data.icon.statefulData!.staticClassname).toBe('state-static');
 
 		// Generate component
 		const result = createSvelteComponent(data, {
@@ -816,5 +817,8 @@ const content = \`<path class="${testClassName}"/><path class="${testClassName2}
 		expect(result.content).toContain(
 			'<Icon class={className} width={width} height={height} viewBox={viewBox} content={content} fallback={fallback} {...props}></Icon>'
 		);
+
+		// Make sure static property is included in types
+		expect(result.content).toContain(`static?: boolean;`);
 	});
 });

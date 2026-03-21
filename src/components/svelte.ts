@@ -86,8 +86,8 @@ export function createSvelteComponent(
 	// Set stateful props
 	let computedFallback = false;
 	if (statefulData) {
-		const { supportedStates, allStates } = statefulData;
-		if (supportedStates.size) {
+		const { supportedStates, allStates, staticClassname } = statefulData;
+		if (supportedStates.size || staticClassname) {
 			const computedStates: string[] = [];
 			let addedStateFunc = false;
 
@@ -135,6 +135,17 @@ export function createSvelteComponent(
 						}
 					}
 				}
+			}
+
+			if (staticClassname) {
+				// Add 'static' as boolean state
+				const state = 'static';
+				props[state] = {
+					type: 'boolean',
+					value: state,
+					template: '',
+				};
+				computedStates.push(`'${state}': ${state}`);
 			}
 
 			// Add computed states

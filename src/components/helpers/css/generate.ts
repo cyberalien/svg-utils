@@ -15,7 +15,7 @@ import { renderStatefulSVGCSSIconStyle } from '../../../svg-css/icon/css.js';
 
 interface Options extends Pick<
 	ComponentFactoryOptions,
-	'cssMode' | 'cssPath' | 'doubleDirsForCSS' | 'mergeCSS'
+	'cssMode' | 'cssPath' | 'doubleDirsForCSS' | 'mergeCSS' | 'staticState'
 > {
 	// Style in component mode: merge CSS, do not add assets, merge content
 	componentType?: 'svelte';

@@ -835,6 +835,7 @@ export default Component;
 		expect(data.icon.defaultFallback).toBe(
 			'animated-line-24:align-box-left-top'
 		);
+		expect(data.icon.statefulData!.staticClassname).toBe('state-static');
 
 		// Generate component
 		const result = createSolidComponent(data, {
@@ -848,5 +849,8 @@ export default Component;
 		expect(result.content).toContain(
 			'(<Icon class={className()} width={local.width} height={local.height} viewBox={viewBox} content={content} fallback={fallback()} {...others} />)'
 		);
+
+		// Make sure static property is included in types
+		expect(result.content).toContain(`static?: boolean;`);
 	});
 });

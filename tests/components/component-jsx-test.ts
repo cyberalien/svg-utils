@@ -794,6 +794,7 @@ export default Component;
 		expect(data.icon.defaultFallback).toBe(
 			'animated-line-24:align-box-left-top'
 		);
+		expect(data.icon.statefulData!.staticClassname).toBe('state-static');
 
 		// Generate component
 		const result = createJSXComponent(data, {
@@ -812,7 +813,7 @@ export default Component;
 
 		// Check props
 		expect(result.content).toContain(
-			'function Component({halign, valign, focus, width, height, ...props}) {'
+			'function Component({halign, valign, focus, static, width, height, ...props}) {'
 		);
 	});
 });

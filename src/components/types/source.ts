@@ -17,6 +17,9 @@ export interface StatefulComponentFactorySource {
 	// Supported states, if any
 	supportedStates: Set<string>;
 
+	// If icon supports 'static' state for disabling animation, value is class name
+	staticClassname?: string;
+
 	// Default values for all states and supported states
 	defaultStateValues: Record<string, string | boolean>;
 	supportedStateValues: Record<string, string | boolean>;

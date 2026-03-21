@@ -155,4 +155,110 @@ svg.state-action {
 @keyframes so-from-20{0%{stroke-dashoffset:20}}
 @keyframes so-to-0{100%{stroke-dashoffset:0}}`);
 	});
+
+	test('Stateful icon with static mode', () => {
+		const stylesheet = createEmptyStylesheet();
+
+		expect(
+			renderStatefulSVGCSSIconStyle(
+				testIcon,
+				createStatefulIconSelectorsContext(
+					{
+						action: '&.state-action',
+						focus: '.focus-trigger:focus',
+						static: '&.state-static',
+					},
+					testIcon.states!,
+					'state-static'
+				),
+				stylesheet
+			)
+		).toEqual({});
+		expect(stringifyStylesheet(stylesheet)).toBe(`.al390y {
+  stroke-width: var(--svg-mask-width, calc(var(--svg-stroke-width, 1.5px) + 1px));
+  stroke: #000;
+}
+
+.c7cd9u {
+  d: path('M0 0h20v24H0z');
+  fill: #486496;
+}
+
+.focus-trigger:focus {
+  .z6za9t {
+    d: path('M1 12h18');
+  }
+
+  svg.state-action {
+    .z6za9t {
+      d: path('M1 12h18');
+    }
+
+    .zzz4jg {
+      d: path('M10 3v18');
+    }
+  }
+}
+
+.i7rily {
+  width: 20px;
+  height: 24px;
+  fill: #eee;
+}
+
+.iy2otu {
+  stroke-width: var(--svg-stroke-width, 1.5px);
+}
+
+.j92okf {
+  stroke: #459330;
+}
+
+.r1menc {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+.z6za9t {
+  d: path('M2 12h16');
+}
+
+.zzz4jg {
+  d: path('M10 12v0');
+  stroke: #fff;
+}
+
+svg.state-action {
+  .zzz4jg {
+    d: path('M10 4v16');
+  }
+}
+
+@media not (prefers-reduced-motion) {
+  .z6za9t {
+    transition: d 0.4s linear;
+  }
+
+  .zzz4jg {
+    transition: d 0.4s linear;
+  }
+
+  svg:not(.state-static) {
+    .h2mb7i {
+      stroke-dasharray: 20;
+      stroke-dashoffset: 20;
+      animation: 0.3s linear 0.3s forwards so-to-0;
+    }
+
+    .mz6rrw {
+      stroke-dasharray: 20;
+      animation: 0.3s linear forwards so-from-20;
+    }
+  }
+}
+
+@keyframes so-from-20{0%{stroke-dashoffset:20}}
+@keyframes so-to-0{100%{stroke-dashoffset:0}}`);
+	});
 });

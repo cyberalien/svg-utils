@@ -80,13 +80,25 @@ export function prepareComponentFactoryStatefulIcon(
 		}
 	}
 
+	// Static class name for disabling animation
+	const hasAnimations = Object.keys(icon.animations ?? {}).length > 0;
+	const staticClassname =
+		hasAnimations && options?.staticState !== false
+			? 'state-static'
+			: undefined;
+
 	// Generate data
 	const statefulData: StatefulComponentFactorySource = {
 		allStates,
 		supportedStates,
 		defaultStateValues,
 		supportedStateValues,
-		context: createStatefulIconSelectorsContext(config, allStates),
+		staticClassname,
+		context: createStatefulIconSelectorsContext(
+			config,
+			allStates,
+			staticClassname
+		),
 	};
 
 	// Get fallback template

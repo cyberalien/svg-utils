@@ -113,8 +113,8 @@ export function createJSXComponent(
 	// Set stateful props
 	let computedFallback = false;
 	if (statefulData) {
-		const { supportedStates, allStates } = statefulData;
-		if (supportedStates.size) {
+		const { supportedStates, allStates, staticClassname } = statefulData;
+		if (supportedStates.size || staticClassname) {
 			const computedStates: string[] = [];
 			const computedStateNames: string[] = [];
 			let addedStateFunc = false;
@@ -165,6 +165,18 @@ export function createJSXComponent(
 						}
 					}
 				}
+			}
+
+			if (staticClassname) {
+				// Add 'static' as boolean state
+				const state = 'static';
+				props[state] = {
+					type: 'boolean',
+					value: state,
+					template: '',
+				};
+				computedStates.push(`'${state}': ${state}`);
+				computedStateNames.push(state);
 			}
 
 			// Add computed states

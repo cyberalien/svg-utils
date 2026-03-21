@@ -52,9 +52,13 @@ export function renderStatefulSVGCSSIconStyle(
 
 	// Add animations
 	for (const className in icon.animations) {
+		const tree = [prefersReduceMotion];
+		if (context?.staticClassname) {
+			tree.push(`svg:not(.${context.staticClassname})`);
+		}
 		addGeneratedSelector(
 			getStylesheet(className),
-			[prefersReduceMotion, `.${className}`],
+			[...tree, `.${className}`],
 			icon.animations[className]
 		);
 	}

@@ -76,8 +76,8 @@ export function createVueFunctionalComponent(
 	// Set stateful props
 	let computedFallback = false;
 	if (statefulData) {
-		const { supportedStates, allStates } = statefulData;
-		if (supportedStates.size) {
+		const { supportedStates, allStates, staticClassname } = statefulData;
+		if (supportedStates.size || staticClassname) {
 			const computedStates: string[] = [];
 			let addedStateFunc = false;
 
@@ -125,6 +125,17 @@ export function createVueFunctionalComponent(
 						}
 					}
 				}
+			}
+
+			if (staticClassname) {
+				// Add 'static' as boolean state
+				const state = 'static';
+				props[state] = {
+					type: 'boolean',
+					value: state,
+					template: '',
+				};
+				computedStates.push(`'${state}': props['${state}']`);
 			}
 
 			// Add computed states

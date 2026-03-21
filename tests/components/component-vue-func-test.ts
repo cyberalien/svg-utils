@@ -691,6 +691,7 @@ export default Component;
 		expect(data.icon.defaultFallback).toBe(
 			'animated-line-24:align-box-left-top'
 		);
+		expect(data.icon.statefulData!.staticClassname).toBe('state-static');
 
 		// Generate component
 		const result = createVueFunctionalComponent(data, {
@@ -707,5 +708,6 @@ export default Component;
 
 		expect(result.content).toContain('const className = computed(()');
 		expect(result.content).toContain(`'class': className.value,`);
+		expect(result.content).toContain(`'static': props['static']`);
 	});
 });

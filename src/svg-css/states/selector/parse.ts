@@ -14,11 +14,13 @@ import type {
  */
 export function createStatefulIconSelectorsContext(
 	config: StatefulIconSelectorsConfig,
-	states: IconStatesList
+	states: IconStatesList,
+	staticClassname?: string
 ): StatefulIconSelectorsContext {
 	return {
 		config,
 		states,
+		staticClassname,
 		data: Object.create(null),
 		parsed: Object.create(null),
 	};
