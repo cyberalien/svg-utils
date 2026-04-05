@@ -5,7 +5,7 @@
 	"author": "Vjacheslav Trushkin",
 	"version": "1.2.8",
 	"license": "MIT",
-	"packageManager": "pnpm@10.32.1",
+	"packageManager": "pnpm@10.33.0",
 	"bugs": "https://github.com/cyberalien/svg-utils/issues",
 	"homepage": "https://cyberalien.dev/",
 	"repository": {
@@ -31,11 +31,10 @@
 	},
 	"devDependencies": {
 		"@iconify-json/ri": "^1.2.10",
-		"@types/jest": "^30.0.0",
-		"@types/node": "^25.5.0",
-		"oxlint": "^1.56.0",
-		"tsdown": "^0.21.4",
+		"@types/node": "^25.5.2",
+		"oxlint": "^1.58.0",
+		"tsdown": "^0.21.7",
 		"typescript": "^5.9.3",
-		"vitest": "^4.1.0"
+		"vitest": "^4.1.2"
 	}
 }

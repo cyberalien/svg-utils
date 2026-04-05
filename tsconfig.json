@@ -2,12 +2,13 @@
 	"include": ["./src/**/*.ts", "./tests/**/*.ts"],
 	"compilerOptions": {
 		"target": "ESNext",
-		"module": "esnext",
+		"module": "nodenext",
 		"declaration": true,
 		"declarationMap": false,
 		"sourceMap": false,
 		"strict": true,
-		"moduleResolution": "node",
+		"moduleResolution": "nodenext",
+		"types": ["node", "vitest/globals"],
 		"esModuleInterop": true,
 		"forceConsistentCasingInFileNames": true
 	}

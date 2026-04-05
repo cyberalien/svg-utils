@@ -6,13 +6,12 @@ import type { FactoryIconData } from '../types/data.js';
 import type { ComponentFactoryFileSystemOptions } from '../types/options.js';
 import { getGeneratedComponentFilename } from './filename.js';
 
-interface Options
-	extends Pick<
-		ComponentFactoryFileSystemOptions,
-		'doubleDirsForComponents' | 'prefixDirsForComponents'
-	> {
+interface Options extends Pick<
+	ComponentFactoryFileSystemOptions,
+	'doubleDirsForComponents' | 'prefixDirsForComponents'
+> {
 	// Include prefix in export name, default = false
-	includePrefix?: boolean;
+	includePrefix?: boolean | string;
 
 	// Component extension
 	extension: string;
@@ -37,14 +36,16 @@ export function convertGeneratedComponentToFile(
 	);
 
 	return {
-		icon: options.includePrefix ? `${prefix}/${name}` : name,
+		icon: options.includePrefix
+			? `${typeof options.includePrefix === 'string' ? options.includePrefix : prefix}/${name}`
+			: name,
 		filename,
 		css: item.style
 			? getGeneratedComponentFilename(
 					icon,
 					options.cssExtension ?? '.css',
 					options
-			  )
+				)
 			: undefined,
 		...item,
 	};

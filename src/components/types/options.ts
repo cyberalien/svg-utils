@@ -23,7 +23,7 @@ export interface ComponentFactoryFileSystemOptions {
 	// Add prefix directory for components: 'mdi/home.vue'
 	prefixDirsForComponents: boolean | string;
 
-	// Double directories for components: 'a/abc.tsx' instead of 'abc.tsx'
+	// Double directories for components, based on first letter of component name: 'a/abc.tsx' instead of 'abc.tsx'
 	doubleDirsForComponents: boolean;
 
 	// Path to root directory. Assets will be placed in subdirectory of this path
