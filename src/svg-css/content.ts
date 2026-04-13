@@ -21,7 +21,7 @@ export function convertSVGContentToCSSRules(
 		const newContent = stringifyXMLContent(root, options);
 		if (newContent) {
 			return {
-				content: newContent,
+				content: newContent.trim(),
 				classes,
 			};
 		}

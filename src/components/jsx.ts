@@ -363,7 +363,7 @@ export function createJSXComponent(
 	// Generate content
 	const content = `${stringifyFactoryImports(
 		imports
-	)}\n${beforeFunction}${componentFunction}\nexport default Component;\n`;
+	)}\n${beforeFunction}${componentFunction}\nexport default Component;\n`.trimStart();
 
 	// Add types file
 	const types = addJSXComponentTypes(data, options, assets, props);

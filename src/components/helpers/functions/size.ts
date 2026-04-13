@@ -9,8 +9,7 @@ import type { GeneratedAssetFile } from '../../types/component.js';
 const functionName = 'getSizeProps';
 
 // Copied from calculateSize(), but with string values only
-const functionContent = `
-const unitsSplit = /(-?[0-9.]*[0-9]+[0-9.]*)/g;
+const functionContent = `const unitsSplit = /(-?[0-9.]*[0-9]+[0-9.]*)/g;
 const unitsTest = /^-?[0-9.]*[0-9]+[0-9.]*$/g;
 
 const precision = 100;

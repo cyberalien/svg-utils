@@ -325,7 +325,7 @@ export function createSolidComponent(
 	// Generate content
 	const content = `${stringifyFactoryImports(
 		imports
-	)}\n${beforeFunction}${componentFunction}\nexport default Component;\n`;
+	)}\n${beforeFunction}${componentFunction}\nexport default Component;\n`.trimStart();
 
 	// Add types file
 	const types = addSolidComponentTypes(data, options, assets, props);

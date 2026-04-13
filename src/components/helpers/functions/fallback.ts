@@ -12,8 +12,7 @@ const sharedFunctionName = 'getIconFallback';
 const hashedFunctionName = 'getFallback';
 
 // Copied from getIconFallback()
-const functionContent = `
-export function ${sharedFunctionName}(
+const functionContent = `export function ${sharedFunctionName}(
     defaultValues,
     template,
     values,

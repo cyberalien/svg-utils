@@ -732,8 +732,7 @@ export default Component;
 
 		// console.log(result.content);
 		expect(result.content).toBe(
-			`
-const viewBox = '0 0 16 16';
+			`const viewBox = '0 0 16 16';
 const content = \`<style>.${testClassName2} {
   d: path("M16 0l-16 16");
   fill: currentColor;

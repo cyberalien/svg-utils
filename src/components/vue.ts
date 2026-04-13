@@ -307,12 +307,19 @@ export function createVueComponent(
 	)} /></template>`;
 
 	// Generate content
-	let content = `<script setup${useTS ? ' lang="ts"' : ''}>
-${stringifyFactoryImports(imports)}
-${componentCode.join('\n')}
+	const scriptContent = (
+		stringifyFactoryImports(imports) +
+		'\n' +
+		componentCode.join('\n')
+	).trim();
+
+	let content = scriptContent
+		? `<script setup${useTS ? ' lang="ts"' : ''}>
+${scriptContent}
 </script>
 ${template}
-`;
+`
+		: template;
 
 	// Add styles
 	const style = options.cssMode === 'prop' ? styleContent : undefined;

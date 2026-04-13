@@ -8,6 +8,10 @@ import type { GeneratedAssetPath } from '../types/options.js';
 import type { GeneratedAssetFile } from '../types/component.js';
 
 interface Options extends ConvertSVGContentOptions {
+	// If raw mode is enabled, do not convert to SVG+CSS
+	raw?: boolean;
+
+	// Custom fallback value, set to false to disable fallback
 	fallback?: string | boolean;
 }
 
@@ -21,7 +25,11 @@ export function convertIconifyIconToFactoryContent(
 	options: Options
 ): FactoryIconData {
 	const { body, viewBox } = normaliseIconifyIcon(icon);
-	const fallbackOption = options?.fallback ?? true;
+	const isRaw = options.raw ?? false;
+	const isLegacy = options.legacy ?? false;
+
+	// Do not set fallback if not needed
+	const fallbackOption = options?.fallback ?? !(isRaw || isLegacy);
 	const defaultFallback =
 		typeof fallbackOption === 'string'
 			? fallbackOption
@@ -33,7 +41,9 @@ export function convertIconifyIconToFactoryContent(
 		prefix,
 		name,
 		icon: {
-			...convertSVGContentToCSSRules(body, options),
+			...(isRaw
+				? { content: body }
+				: convertSVGContentToCSSRules(body, options)),
 			viewBox,
 			defaultFallback,
 		},

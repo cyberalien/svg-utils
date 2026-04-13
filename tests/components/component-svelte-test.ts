@@ -510,7 +510,6 @@ export default Component;
 		// console.log(result.content);
 		expect(result.content).toBe(
 			`<script>
-
 /** @type {{square?: boolean;}} */
 let {square, ...props} = $props();
 
@@ -699,7 +698,6 @@ const content = \`<path class="${testClassName}"/><path class="${testClassName2}
 		// console.log(result.content);
 		expect(result.content).toBe(
 			`<script>
-
 let props = $props();
 
 const viewBox = '0 0 16 16';

@@ -305,9 +305,14 @@ export function createSvelteComponent(
 	)} {...props}>${innerHTML}</${tag}>`;
 
 	// Generate content
+	const scriptContent = (
+		stringifyFactoryImports(imports) +
+		'\n' +
+		componentCode.join('\n')
+	).trim();
+
 	let content = `<script${useTS ? ' lang="ts"' : ''}>
-${stringifyFactoryImports(imports)}
-${componentCode.join('\n')}
+${scriptContent}
 </script>
 ${template}
 `;

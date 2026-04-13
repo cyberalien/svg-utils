@@ -395,7 +395,6 @@ export default Component;
 		// console.log(result.content);
 		expect(result.content).toBe(
 			`<script setup>
-
 const props = defineProps(["square"]);
 
 const viewBox = '0 0 24 24';
@@ -582,7 +581,6 @@ const content = \`<path class="${testClassName}"/><path class="${testClassName2}
 		// console.log(result.content);
 		expect(result.content).toBe(
 			`<script setup>
-
 const viewBox = '0 0 16 16';
 const content = \`<path class="${testClassName}"/><path class="${testClassName2}"/>\`;
 </script>
