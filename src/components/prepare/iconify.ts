@@ -29,7 +29,8 @@ export function convertIconifyIconToFactoryContent(
 	const isLegacy = options.legacy ?? false;
 
 	// Do not set fallback if not needed
-	const fallbackOption = options?.fallback ?? !(isRaw || isLegacy);
+	const fallbackOption =
+		isRaw || isLegacy ? false : (options?.fallback ?? true);
 	const defaultFallback =
 		typeof fallbackOption === 'string'
 			? fallbackOption
