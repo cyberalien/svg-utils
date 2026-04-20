@@ -103,7 +103,15 @@ describe('Preparing Iconify icon data', () => {
 			},
 			'test-prefix',
 			'line-icon',
-			{ context, legacy: true }
+			{
+				context,
+				legacy: true,
+				// Also test color variable in legacy mode
+				vars: {
+					fill: (color) =>
+						`--icon-color${color === 'currentcolor' ? '' : `--${color.replace(/[^a-z0-9]/g, '')}`}`,
+				},
+			}
 		);
 
 		expect(data.prefix).toBe('test-prefix');
@@ -118,7 +126,7 @@ describe('Preparing Iconify icon data', () => {
 		const testClassName = classNames[0];
 		expect(data.icon.classes).toEqual({
 			[testClassName]: {
-				fill: 'currentColor',
+				fill: 'var(--icon-color, currentColor)',
 			},
 		});
 	});

@@ -1,4 +1,5 @@
 import { convertSVGPropertyToCSS } from '../../src/svg-css/props/convert.js';
+import { defaultSVGCSSPropertyVars } from '../../src/svg-css/props/vars.js';
 
 describe('Converting SVG tag props to CSS', () => {
 	it('Path', () => {
@@ -25,6 +26,18 @@ describe('Converting SVG tag props to CSS', () => {
 			'x',
 			'1em',
 		]);
+
+		// Using variables
+		expect(
+			convertSVGPropertyToCSS('rect', 'stroke-width', 10, {
+				vars: defaultSVGCSSPropertyVars,
+			})
+		).toEqual(['stroke-width', 'var(--svg-stroke-width--10px, 10px)']);
+		expect(
+			convertSVGPropertyToCSS('rect', 'stroke-width', 'none', {
+				vars: defaultSVGCSSPropertyVars,
+			})
+		).toEqual(['stroke-width', 'none']);
 	});
 
 	it('Stroke and fill', () => {
@@ -51,6 +64,29 @@ describe('Converting SVG tag props to CSS', () => {
 		expect(convertSVGPropertyToCSS('g', 'stroke-linecap', 'round')).toEqual(
 			['stroke-linecap', 'round']
 		);
+
+		// Using variables
+		expect(
+			convertSVGPropertyToCSS('g', 'fill', 'currentColor', {
+				vars: defaultSVGCSSPropertyVars,
+			})
+		).toEqual(['fill', 'var(--svg-color, currentColor)']);
+		expect(
+			convertSVGPropertyToCSS('g', 'fill', 'none', {
+				vars: defaultSVGCSSPropertyVars,
+			})
+		).toEqual(['fill', 'none']);
+
+		expect(
+			convertSVGPropertyToCSS('g', 'fill', '#F00', {
+				vars: defaultSVGCSSPropertyVars,
+			})
+		).toEqual(['fill', 'var(--svg-color--f00, #F00)']);
+		expect(
+			convertSVGPropertyToCSS('g', 'fill', 'rgb(255, 0, 0)', {
+				vars: defaultSVGCSSPropertyVars,
+			})
+		).toEqual(['fill', 'var(--svg-color--rgb-255-0-0, rgb(255, 0, 0))']);
 	});
 
 	it('Unsupported properties', () => {
