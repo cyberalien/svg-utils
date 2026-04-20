@@ -1,7 +1,10 @@
 import { iterateXMLContent } from '../../xml/iterate.js';
 import type { ParsedXMLTagElement } from '../../xml/types.js';
-import type { SVGConvertedToCSSProperties } from './types.js';
-import { convertSVGPropertyToCSS } from './prop.js';
+import type {
+	ConvertSVGPropertyToCSSOptions,
+	SVGConvertedToCSSProperties,
+} from './types.js';
+import { convertSVGPropertyToCSS } from './convert.js';
 import { svgAnimateTransformTag, svgAnimationTag, svgSetTag } from './tags.js';
 
 /**
@@ -11,7 +14,7 @@ import { svgAnimateTransformTag, svgAnimationTag, svgSetTag } from './tags.js';
  */
 export function extractSVGTagPropertiesForCSS(
 	tag: ParsedXMLTagElement,
-	supportLegacyBrowsers = false
+	options: ConvertSVGPropertyToCSSOptions = {}
 ): SVGConvertedToCSSProperties | undefined {
 	const result: SVGConvertedToCSSProperties = {
 		props: [],
@@ -49,7 +52,7 @@ export function extractSVGTagPropertiesForCSS(
 				tag.tag,
 				prop,
 				value,
-				supportLegacyBrowsers
+				options
 			);
 			if (converted) {
 				const [propName, propValue] = converted;

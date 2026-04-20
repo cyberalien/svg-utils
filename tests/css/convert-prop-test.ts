@@ -1,4 +1,4 @@
-import { convertSVGPropertyToCSS } from '../../src/svg-css/props/prop.js';
+import { convertSVGPropertyToCSS } from '../../src/svg-css/props/convert.js';
 
 describe('Converting SVG tag props to CSS', () => {
 	it('Path', () => {
@@ -9,7 +9,9 @@ describe('Converting SVG tag props to CSS', () => {
 
 		// Legacy browsers support
 		expect(
-			convertSVGPropertyToCSS('path', 'd', 'M0 0h10', true)
+			convertSVGPropertyToCSS('path', 'd', 'M0 0h10', {
+				legacy: true,
+			})
 		).toBeUndefined();
 	});
 

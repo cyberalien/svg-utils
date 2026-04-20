@@ -1,12 +1,13 @@
 import type { CSSHashOptions, CSSKeyframes, CSSRules } from '../css/types.js';
 import type { StringifyXMLOptions } from '../xml/types.js';
+import type { ConvertSVGPropertyToCSSOptions } from './props/types.js';
 
 /**
  * Options for converting SVG tags to SVG+CSS
  */
-export interface BaseConvertSVGContentOptions extends CSSHashOptions {
-	// Support legacy browsers
-	legacy?: boolean;
+export interface BaseConvertSVGContentOptions
+	extends CSSHashOptions, ConvertSVGPropertyToCSSOptions {
+	//
 }
 
 /**

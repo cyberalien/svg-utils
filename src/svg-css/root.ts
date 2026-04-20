@@ -19,7 +19,7 @@ export function convertSVGRootToCSS(
 
 	iterateXMLContent(root, (node) => {
 		if (node.type === 'tag') {
-			const props = extractSVGTagPropertiesForCSS(node, options.legacy);
+			const props = extractSVGTagPropertiesForCSS(node, options);
 			if (props) {
 				const className = createCSSClassName(props.rules, options);
 				toggleClassName(node.attribs, className, true);

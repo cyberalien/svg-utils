@@ -67,7 +67,7 @@ describe('Converting SVG tag to CSS', () => {
 			},
 			children: [],
 		};
-		const extracted = extractSVGTagPropertiesForCSS(tag, true);
+		const extracted = extractSVGTagPropertiesForCSS(tag, { legacy: true });
 		expect(tag).toEqual({
 			type: 'tag',
 			tag: 'path',
