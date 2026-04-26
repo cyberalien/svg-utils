@@ -28,6 +28,7 @@ import { addFallbackFunctionAsset } from './helpers/functions/fallback.js';
 import { addInnerHTMLFunctionAsset } from './helpers/functions/innerhtml.js';
 import { addReplaceIDsFunctionAsset } from './helpers/functions/ids.js';
 import { cleanupJSXRenamedProps } from './helpers/props/cleanup.js';
+import { checkForUniqueIDs } from './helpers/code/ids.js';
 
 interface Options extends ComponentFactoryOptions {
 	// JSX mode
@@ -294,16 +295,25 @@ export function createJSXComponent(
 		data.icon,
 		isEmbeddedCSS ? style : undefined
 	);
-	if (!hasFallback) {
+	const hasDynamicContent =
+		!hasFallback && checkForUniqueIDs(stringifiedContent);
+	if (hasDynamicContent) {
 		// Replace IDs to avoid conflicts when multiple instances are used
 		const replaceIDs = addReplaceIDsFunctionAsset(imports, assets, options);
-		stringifiedContent = '' + replaceIDs + '(' + stringifiedContent + ')';
+		stringifiedContent = replaceIDs + '(' + stringifiedContent + ')';
 	}
 	if (!hasFallback) {
 		const funcName = addInnerHTMLFunctionAsset(imports, assets, options);
-		componentInternalCode.push(
-			`const content = useMemo(() => ({__html: ${funcName}(${stringifiedContent})}), []);`
-		);
+		if (hasDynamicContent) {
+			// Unique IDs, so memo for each instance
+			componentInternalCode.push(
+				`const content = useMemo(() => ({__html: ${funcName}(${stringifiedContent})}), []);`
+			);
+		} else {
+			componentExternalCode.push(
+				`const content = {__html: ${funcName}(${stringifiedContent})};`
+			);
+		}
 		contentTemplate = `dangerouslySetInnerHTML: content,`;
 	}
 

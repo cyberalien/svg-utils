@@ -26,6 +26,7 @@ import { stringifyStylesheet } from '../css/stylesheet.js';
 import { addFallbackFunctionAsset } from './helpers/functions/fallback.js';
 import { addCustomFunctionAsset } from './helpers/functions/custom.js';
 import { addReplaceIDsFunctionAsset } from './helpers/functions/ids.js';
+import { checkForUniqueIDs } from './helpers/code/ids.js';
 
 interface VueOptions extends ComponentFactoryOptions {
 	// Use TypeScript
@@ -280,11 +281,12 @@ export function createVueComponent(
 
 	// Add content
 	let stringifiedContent = stringifyFactoryIconContent(icon);
-	if (!fallback) {
+	if (!fallback && checkForUniqueIDs(stringifiedContent)) {
 		// Replace IDs to avoid conflicts when multiple instances are used
 		const replaceIDs = addReplaceIDsFunctionAsset(imports, assets, options);
-		stringifiedContent = '' + replaceIDs + '(' + stringifiedContent + ')';
+		stringifiedContent = replaceIDs + '(' + stringifiedContent + ')';
 	}
+
 	componentCode.push(`const content = ${stringifiedContent};`);
 	props.content = {
 		value: 'content',

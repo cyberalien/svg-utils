@@ -28,64 +28,62 @@ describe('Creating raw components', () => {
 			cssMode: 'import',
 		});
 		expect(result.content).toBe(
-			'import { replaceIDs } from \'../helpers/ids.js\';\n\nconst icon = () => replaceIDs(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0l24 24" stroke="currentColor" fill="none" /></svg>`);\n\nexport default icon;\n'
+			'const icon = () => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0l24 24" stroke="currentColor" fill="none" /></svg>`;\n\nexport default icon;\n'
+		);
+		expect(result.assets).toHaveLength(1);
+		expect(result.assets[0].filename).toBe('i/icon.d.ts');
+		expect(result.style).toBeUndefined();
+	});
+
+	it('Icon with CSS', () => {
+		const context = createUniqueHashContext();
+		const options = componentFactoryFileSystemOptions({
+			doubleDirsForCSS: false,
+			doubleDirsForComponents: false,
+		});
+
+		// Convert IconifyIcon and test it
+		const data = convertIconifyIconToFactoryContent(
+			{
+				body: '<path d="M0 0l16 16" fill="currentColor" />',
+			},
+			'test-prefix',
+			'line-icon',
+			{ context }
+		);
+		expect(data.prefix).toBe('test-prefix');
+		expect(data.name).toBe('line-icon');
+		expect(data.icon.viewBox).toEqual({
+			left: 0,
+			top: 0,
+			width: 16,
+			height: 16,
+		});
+
+		// Fallback should be set, but will be ignored
+		expect(data.icon.defaultFallback).toEqual('test-prefix:line-icon');
+
+		// Get class name
+		const classNames = Object.keys(data.icon.classes ?? {});
+		expect(classNames).toHaveLength(1);
+		const testClassName = classNames[0];
+
+		// Generate component
+		const result = createRawComponent(data, {
+			context,
+			...options,
+			cssMode: 'import',
+			height: '1em',
+		});
+		expect(result.content).toBe(
+			`import './css/${testClassName}.css';\n\n` +
+				'const icon = () => `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16"><path class="' +
+				testClassName +
+				'"/></svg>`;\n\nexport default icon;\n'
 		);
 		expect(result.assets).toHaveLength(2);
-		expect(result.assets[0].filename).toBe('helpers/ids.js');
-		expect(result.assets[1].filename).toBe('i/icon.d.ts');
-		expect(result.style).toBeUndefined();
-	});
-
-	it('Icon with CSS', () => {
-		const context = createUniqueHashContext();
-		const options = componentFactoryFileSystemOptions({
-			doubleDirsForCSS: false,
-			doubleDirsForComponents: false,
-		});
-
-		// Convert IconifyIcon and test it
-		const data = convertIconifyIconToFactoryContent(
-			{
-				body: '<path d="M0 0l16 16" fill="currentColor" />',
-			},
-			'test-prefix',
-			'line-icon',
-			{ context }
-		);
-		expect(data.prefix).toBe('test-prefix');
-		expect(data.name).toBe('line-icon');
-		expect(data.icon.viewBox).toEqual({
-			left: 0,
-			top: 0,
-			width: 16,
-			height: 16,
-		});
-
-		// Fallback should be set, but will be ignored
-		expect(data.icon.defaultFallback).toEqual('test-prefix:line-icon');
-
-		// Get class name
-		const classNames = Object.keys(data.icon.classes ?? {});
-		expect(classNames).toHaveLength(1);
-		const testClassName = classNames[0];
-
-		// Generate component
-		const result = createRawComponent(data, {
-			context,
-			...options,
-			cssMode: 'import',
-			height: '1em',
-		});
-		expect(result.content).toBe(
-			`import { replaceIDs } from './helpers/ids.js';\nimport './css/${testClassName}.css';\n\n` +
-				'const icon = () => replaceIDs(`<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16"><path class="' +
-				testClassName +
-				'"/></svg>`);\n\nexport default icon;\n'
-		);
-		expect(result.assets).toHaveLength(3);
 		expect(result.assets[0].filename).toBe(`css/${testClassName}.css`);
-		expect(result.assets[1].filename).toBe(`helpers/ids.js`);
-		expect(result.assets[2].filename).toBe('line-icon.d.ts');
+		expect(result.assets[1].filename).toBe('line-icon.d.ts');
 		expect(result.style).toBeUndefined();
 	});
 
@@ -99,7 +97,7 @@ describe('Creating raw components', () => {
 		// Convert IconifyIcon and test it
 		const data = convertIconifyIconToFactoryContent(
 			{
-				body: '<path d="M0 0l16 16" fill="currentColor" />',
+				body: '<path d="M0 0l16 16" fill="currentColor" id="test" />',
 			},
 			'test-prefix',
 			'line-icon',
@@ -131,7 +129,7 @@ describe('Creating raw components', () => {
 		});
 		expect(result.content).toBe(
 			`import { replaceIDs } from './helpers/ids.js';\nimport './css/${testClassName}.css';\n\n` +
-				'const icon = () => replaceIDs(`<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16"><path class="' +
+				'const icon = () => replaceIDs(`<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16"><path id="test" class="' +
 				testClassName +
 				'"/></svg>`);\n\nexport default icon;\n'
 		);
@@ -182,13 +180,12 @@ describe('Creating raw components', () => {
 			cssMode: 'prop',
 		});
 		expect(result.content).toBe(
-			'import { replaceIDs } from \'./helpers/ids.js\';\n\nconst icon = () => replaceIDs(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path class="' +
+			'const icon = () => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path class="' +
 				testClassName +
-				'"/></svg>`);\n\nexport default icon;\n'
+				'"/></svg>`;\n\nexport default icon;\n'
 		);
-		expect(result.assets).toHaveLength(2);
-		expect(result.assets[0].filename).toBe('helpers/ids.js');
-		expect(result.assets[1].filename).toBe('line-icon.d.ts');
+		expect(result.assets).toHaveLength(1);
+		expect(result.assets[0].filename).toBe('line-icon.d.ts');
 		expect(
 			result.style ? stringifyStylesheet(result.style) : undefined
 		).toBe(
@@ -206,7 +203,7 @@ describe('Creating raw components', () => {
 		// Convert IconifyIcon and test it
 		const data = convertIconifyIconToFactoryContent(
 			{
-				body: '<path d="M0 0l16 16" fill="currentColor" />',
+				body: '<path id="test" d="M0 0l16 16" fill="currentColor" />',
 			},
 			'test-prefix',
 			'line-icon',
@@ -238,7 +235,7 @@ describe('Creating raw components', () => {
 		expect(result.content).toBe(
 			'import { replaceIDs } from \'./helpers/ids.js\';\n\nconst icon = () => replaceIDs(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><style>.' +
 				testClassName +
-				' {\n  d: path("M0 0l16 16");\n  fill: currentColor;\n}\n</style><path class="' +
+				' {\n  d: path("M0 0l16 16");\n  fill: currentColor;\n}\n</style><path id="test" class="' +
 				testClassName +
 				'"/></svg>`);\n\nexport default icon;\n'
 		);
@@ -333,7 +330,7 @@ describe('Creating raw components', () => {
 		// console.log(result.content);
 		// Should not contain any stateful data: requires manually toggling class names SVG
 		expect(result.content).toContain(
-			'const icon = () => replaceIDs(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 24"><path class="fabh7v mfq4_u ona74n"/><path class="ek9rqv mfxbmu ona74n"/></svg>`);'
+			'const icon = () => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 24"><path class="fabh7v mfq4_u ona74n"/><path class="ek9rqv mfxbmu ona74n"/></svg>`;'
 		);
 	});
 });

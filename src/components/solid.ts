@@ -26,6 +26,7 @@ import { addCustomFunctionAsset } from './helpers/functions/custom.js';
 import { addFallbackFunctionAsset } from './helpers/functions/fallback.js';
 import { addReplaceIDsFunctionAsset } from './helpers/functions/ids.js';
 import { cleanupJSXRenamedProps } from './helpers/props/cleanup.js';
+import { checkForUniqueIDs } from './helpers/code/ids.js';
 
 interface Options extends ComponentFactoryOptions {
 	// Use TypeScript
@@ -264,7 +265,9 @@ export function createSolidComponent(
 		icon,
 		isEmbeddedCSS ? style : undefined
 	);
-	if (!fallback) {
+	const hasDynamicContent =
+		!fallback && checkForUniqueIDs(stringifiedContent);
+	if (hasDynamicContent) {
 		// Replace IDs to avoid conflicts when multiple instances are used
 		const replaceIDs = addReplaceIDsFunctionAsset(imports, assets, options);
 		componentInternalCode.push(
@@ -297,7 +300,7 @@ export function createSolidComponent(
 		value: 'content',
 		template: fallback
 			? `content={content} fallback={${computedFallback ? 'fallback()' : `"${fallback}"`}}`
-			: 'innerHTML={content()}',
+			: `innerHTML={content${hasDynamicContent ? '()' : ''}}`,
 	};
 
 	// Split props

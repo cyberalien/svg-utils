@@ -25,6 +25,7 @@ import { addCustomFunctionAsset } from './helpers/functions/custom.js';
 import { addAstroComponentTypes } from './helpers/ts/astro.js';
 import { addReplaceIDsFunctionAsset } from './helpers/functions/ids.js';
 import { cleanupJSXRenamedProps } from './helpers/props/cleanup.js';
+import { checkForUniqueIDs } from './helpers/code/ids.js';
 
 /**
  * Create Astro component code
@@ -219,10 +220,13 @@ export function createAstroComponent(
 	};
 
 	// Add content
-	const replaceIDs = addReplaceIDsFunctionAsset(imports, assets, options);
-	componentCode.push(
-		`const content = ${replaceIDs}(${stringifyFactoryIconContent(icon)});`
-	);
+	let stringifiedContent = stringifyFactoryIconContent(icon);
+	if (checkForUniqueIDs(icon.content)) {
+		// Do not embed replaceIDs function if there are no IDs to replace, to avoid unnecessary dependencies and code
+		const replaceIDs = addReplaceIDsFunctionAsset(imports, assets, options);
+		stringifiedContent = `${replaceIDs}(${stringifiedContent})`;
+	}
+	componentCode.push(`const content = ${stringifiedContent};`);
 
 	// Add props
 	const usedProps = getUsedFactoryProps(props);

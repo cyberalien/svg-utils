@@ -33,27 +33,25 @@ describe('Creating Astro components', () => {
 		expect(result.content).toBe(
 			`---
 import { getSizeProps } from '../helpers/size.js';
-import { replaceIDs } from '../helpers/ids.js';
 
 /** @type {{width?: string; height?: string;}} */
 const {width, height, ...props} = Astro.props;
 
 const viewBox = '0 0 24 24';
 const size = getSizeProps(width, height, 1);
-const content = replaceIDs(\`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`);
+const content = \`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`;
 ---
 
 <svg xmlns="http://www.w3.org/2000/svg" {...size} viewBox={viewBox} {...props} set:html={content}></svg>
 `
 		);
-		expect(result.assets).toHaveLength(3);
+		expect(result.assets).toHaveLength(2);
 		expect(result.assets[0].filename).toBe('helpers/size.js');
-		expect(result.assets[1].filename).toBe('helpers/ids.js');
-		expect(result.assets[2].filename).toBe('i/icon.d.ts');
+		expect(result.assets[1].filename).toBe('i/icon.d.ts');
 		expect(result.style).toBeUndefined();
 
 		// Check types
-		expect(result.assets[2].content)
+		expect(result.assets[1].content)
 			.toBe(`/// <reference types="astro/astro-jsx" />
 
 interface IconProps {
@@ -78,7 +76,7 @@ export default Component;
 		// Convert IconifyIcon and test it
 		const data = convertIconifyIconToFactoryContent(
 			{
-				body: '<path d="M0 0l16 16" fill="currentColor" />',
+				body: '<path d="M0 0l16 16" fill="currentColor" id="test" />',
 			},
 			'test-prefix',
 			'line-icon',
@@ -116,7 +114,7 @@ import './css/${testClassName}.css';
 const props = Astro.props;
 
 const viewBox = '0 0 16 16';
-const content = replaceIDs(\`<path class="${testClassName}"/>\`);
+const content = replaceIDs(\`<path id="test" class="${testClassName}"/>\`);
 ---
 
 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox={viewBox} {...props} set:html={content}></svg>
@@ -188,7 +186,6 @@ export default Component;
 		expect(result.content).toBe(
 			`---
 import { getSizeProps } from './helpers/size.js';
-import { replaceIDs } from './helpers/ids.js';
 import './css/${testClassName}.css';
 
 /** @type {{width?: string; height?: string;}} */
@@ -196,21 +193,20 @@ const {width, height, ...props} = Astro.props;
 
 const viewBox = '0 0 16 16';
 const size = getSizeProps(width, height, 1);
-const content = replaceIDs(\`<path class="${testClassName}"/>\`);
+const content = \`<path class="${testClassName}"/>\`;
 ---
 
 <svg xmlns="http://www.w3.org/2000/svg" {...size} viewBox={viewBox} {...props} set:html={content}></svg>
 `
 		);
-		expect(result.assets).toHaveLength(4);
+		expect(result.assets).toHaveLength(3);
 		expect(result.assets[0].filename).toBe(`css/${testClassName}.css`);
 		expect(result.assets[1].filename).toBe('helpers/size.js');
-		expect(result.assets[2].filename).toBe('helpers/ids.js');
-		expect(result.assets[3].filename).toBe('line-icon.d.ts');
+		expect(result.assets[2].filename).toBe('line-icon.d.ts');
 		expect(result.style).toBeUndefined();
 
 		// Check types
-		expect(result.assets[3].content)
+		expect(result.assets[2].content)
 			.toBe(`/// <reference types="astro/astro-jsx" />
 
 interface IconProps {
@@ -237,7 +233,7 @@ export default Component;
 		const name = 'line-icon';
 		const data = convertIconifyIconToFactoryContent(
 			{
-				body: '<path d="M0 0l16 16" fill="currentColor" />',
+				body: '<path d="M0 0l16 16" fill="currentColor" id="foo" />',
 			},
 			prefix,
 			name,
@@ -286,7 +282,7 @@ const {width, height, ...props} = Astro.props;
 
 const viewBox = '0 0 16 16';
 const size = getSizeProps(width, height, 1);
-const content = replaceIDs(\`<path class="${testClassName}"/>\`);
+const content = replaceIDs(\`<path id="foo" class="${testClassName}"/>\`);
 ---
 
 <svg xmlns="http://www.w3.org/2000/svg" {...size} viewBox={viewBox} {...props} set:html={content}></svg>
@@ -343,7 +339,6 @@ export default Component;
 		expect(result.content).toBe(
 			`---
 import { getSizeProps } from '../helpers/size.js';
-import { replaceIDs } from '../helpers/ids.js';
 
 /** @type {{width?: string; height?: string; square?: boolean;}} */
 const {width, height, square, ...props} = Astro.props;
@@ -353,20 +348,19 @@ const squareViewBox = '-2 0 24 24';
 const viewBoxComputed = square ? squareViewBox : baseViewBox;
 const ratio = square ? 1 : 0.84;
 const size = getSizeProps(width, height, ratio);
-const content = replaceIDs(\`<path d="M0 0l20 24" stroke="currentColor" fill="none" />\`);
+const content = \`<path d="M0 0l20 24" stroke="currentColor" fill="none" />\`;
 ---
 
 <svg xmlns="http://www.w3.org/2000/svg" {...size} viewBox={viewBoxComputed} {...props} set:html={content}></svg>
 `
 		);
-		expect(result.assets).toHaveLength(3);
+		expect(result.assets).toHaveLength(2);
 		expect(result.assets[0].filename).toBe('helpers/size.js');
-		expect(result.assets[1].filename).toBe('helpers/ids.js');
-		expect(result.assets[2].filename).toBe('i/icon.d.ts');
+		expect(result.assets[1].filename).toBe('i/icon.d.ts');
 		expect(result.style).toBeUndefined();
 
 		// Check types
-		expect(result.assets[2].content)
+		expect(result.assets[1].content)
 			.toBe(`/// <reference types="astro/astro-jsx" />
 
 interface IconProps {
@@ -394,7 +388,7 @@ export default Component;
 					height: 24,
 				},
 				content:
-					'<path d="M0 0l24 24" stroke="currentColor" fill="none" />',
+					'<path d="M0 0l24 24" stroke="currentColor" fill="none" id="foo" />',
 			},
 		};
 		const result = createAstroComponent(data, {
@@ -414,7 +408,7 @@ import { replaceIDs } from '../helpers/ids.js';
 const {square, ...props} = Astro.props;
 
 const viewBox = '0 0 24 24';
-const content = replaceIDs(\`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`);
+const content = replaceIDs(\`<path d="M0 0l24 24" stroke="currentColor" fill="none" id="foo" />\`);
 ---
 
 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox={viewBox} {...props} set:html={content}></svg>
@@ -465,27 +459,25 @@ export default Component;
 		expect(result.content).toBe(
 			`---
 import { getSizeProps } from '../helpers/size.js';
-import { replaceIDs } from '../helpers/ids.js';
 
 /** @type {{width?: string; height?: string; square?: boolean;}} */
 const {width, height, square, ...props} = Astro.props;
 
 const viewBox = '0 0 24 24';
 const size = getSizeProps(width, height, 1);
-const content = replaceIDs(\`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`);
+const content = \`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`;
 ---
 
 <svg xmlns="http://www.w3.org/2000/svg" {...size} viewBox={viewBox} {...props} set:html={content}></svg>
 `
 		);
-		expect(result.assets).toHaveLength(3);
+		expect(result.assets).toHaveLength(2);
 		expect(result.assets[0].filename).toBe('helpers/size.js');
-		expect(result.assets[1].filename).toBe('helpers/ids.js');
-		expect(result.assets[2].filename).toBe('i/icon.d.ts');
+		expect(result.assets[1].filename).toBe('i/icon.d.ts');
 		expect(result.style).toBeUndefined();
 
 		// Check types
-		expect(result.assets[2].content)
+		expect(result.assets[1].content)
 			.toBe(`/// <reference types="astro/astro-jsx" />
 
 interface IconProps {
@@ -544,22 +536,20 @@ export default Component;
 		// console.log(result.content);
 		expect(result.content).toBe(
 			`---
-import { replaceIDs } from './helpers/ids.js';
 import './icon.css';
 
 const props = Astro.props;
 
 const viewBox = '0 0 16 16';
-const content = replaceIDs(\`<path class="${testClassName}"/><path class="${testClassName2}"/>\`);
+const content = \`<path class="${testClassName}"/><path class="${testClassName2}"/>\`;
 ---
 
 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox={viewBox} {...props} set:html={content}></svg>
 `
 		);
-		expect(result.assets).toHaveLength(3);
+		expect(result.assets).toHaveLength(2);
 		expect(result.assets[0].filename).toBe(`icon.css`);
-		expect(result.assets[1].filename).toBe('helpers/ids.js');
-		expect(result.assets[2].filename).toBe('line-icon.d.ts');
+		expect(result.assets[1].filename).toBe('line-icon.d.ts');
 		expect(result.style).toBeUndefined();
 	});
 
@@ -573,7 +563,7 @@ const content = replaceIDs(\`<path class="${testClassName}"/><path class="${test
 		// Convert IconifyIcon and test it
 		const data = convertIconifyIconToFactoryContent(
 			{
-				body: '<path d="M0 0l16 16" fill="currentColor" /><path d="M16 0l-16 16" fill="currentColor" />',
+				body: '<path d="M0 0l16 16" fill="currentColor" id="test1" /><path d="M16 0l-16 16" fill="currentColor" id="test2" />',
 			},
 			'test-prefix',
 			'line-icon',
@@ -612,7 +602,7 @@ import { replaceIDs } from './helpers/ids.js';
 const props = Astro.props;
 
 const viewBox = '0 0 16 16';
-const content = replaceIDs(\`<path class="${testClassName}"/><path class="${testClassName2}"/>\`);
+const content = replaceIDs(\`<path id="test1" class="${testClassName}"/><path id="test2" class="${testClassName2}"/>\`);
 ---
 
 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox={viewBox} {...props} set:html={content}></svg>

@@ -17,6 +17,7 @@ import {
 } from './helpers/props/stringify.js';
 import { stringifyStylesheet } from '../css/stylesheet.js';
 import { addReplaceIDsFunctionAsset } from './helpers/functions/ids.js';
+import { checkForUniqueIDs } from './helpers/code/ids.js';
 
 /**
  * Create raw component code
@@ -55,10 +56,13 @@ export function createRawComponent(
 	};
 
 	// Convert to string, export icon
-	const replaceIDs = addReplaceIDsFunctionAsset(imports, assets, options);
-	codeLines.push(
-		`const icon = () => ${replaceIDs}(${stringifyFactoryIconContent(iconContent)});\n`
-	);
+	let stringifiedContent = stringifyFactoryIconContent(iconContent);
+	if (checkForUniqueIDs(iconContent.content)) {
+		// Add function to replace IDs if there are any
+		const replaceIDs = addReplaceIDsFunctionAsset(imports, assets, options);
+		stringifiedContent = `${replaceIDs}(${stringifiedContent})`;
+	}
+	codeLines.push(`const icon = () => ${stringifiedContent};\n`);
 	codeLines.push('export default icon;\n');
 
 	// Add imports
@@ -68,7 +72,7 @@ export function createRawComponent(
 	}
 
 	// Add types
-	const typesContent = `declare function string(): string;\nexport default icon;\n`;
+	const typesContent = `declare function icon(): string;\nexport default icon;\n`;
 	assets.push({
 		...getGeneratedComponentTypesFilename(data, typesContent, options),
 		content: typesContent,

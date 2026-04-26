@@ -22,6 +22,7 @@ import { getViewBoxRatio } from './helpers/content/ratio.js';
 import { addCustomFunctionAsset } from './helpers/functions/custom.js';
 import { addFallbackFunctionAsset } from './helpers/functions/fallback.js';
 import { addReplaceIDsFunctionAsset } from './helpers/functions/ids.js';
+import { checkForUniqueIDs } from './helpers/code/ids.js';
 
 /**
  * Create functional Vue component code
@@ -270,8 +271,14 @@ export function createVueFunctionalComponent(
 	if (!fallback) {
 		// Replace IDs to avoid conflicts when multiple instances are used
 		// Set it as const to avoid re-processing in runtime
-		const replaceIDs = addReplaceIDsFunctionAsset(imports, assets, options);
-		stringifiedContent = '' + replaceIDs + '(' + stringifiedContent + ')';
+		if (checkForUniqueIDs(stringifiedContent)) {
+			const replaceIDs = addReplaceIDsFunctionAsset(
+				imports,
+				assets,
+				options
+			);
+			stringifiedContent = replaceIDs + '(' + stringifiedContent + ')';
+		}
 		componentCode.push(`const innerHTML = ${stringifiedContent};`);
 	}
 	props[fallback ? 'content' : 'innerHTML'] = {

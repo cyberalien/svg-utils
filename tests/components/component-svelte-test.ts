@@ -32,26 +32,24 @@ describe('Creating Svelte components', () => {
 		expect(result.content).toBe(
 			`<script>
 import { getSizeProps } from '../helpers/size.js';
-import { replaceIDs } from '../helpers/ids.js';
 
 /** @type {{width?: string; height?: string;}} */
 let {width, height, ...props} = $props();
 
 const viewBox = '0 0 24 24';
 let size = $derived(getSizeProps(width, height, 1));
-const content = replaceIDs(\`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`);
+const content = \`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`;
 </script>
 <svg xmlns="http://www.w3.org/2000/svg" {...size} viewBox={viewBox} {...props}>{@html content}</svg>
 `
 		);
-		expect(result.assets).toHaveLength(3);
+		expect(result.assets).toHaveLength(2);
 		expect(result.assets[0].filename).toBe('helpers/size.js');
-		expect(result.assets[1].filename).toBe('helpers/ids.js');
-		expect(result.assets[2].filename).toBe('i/icon.d.ts');
+		expect(result.assets[1].filename).toBe('i/icon.d.ts');
 		expect(result.style).toBeUndefined();
 
 		// Check types
-		expect(result.assets[2].content)
+		expect(result.assets[1].content)
 			.toBe(`import { SvelteComponent } from "svelte";
 import { SvelteHTMLElements } from "svelte/elements";
 
@@ -165,25 +163,23 @@ export default Component;
 		// console.log(result.content);
 		expect(result.content).toBe(
 			`<script>
-import { replaceIDs } from './helpers/ids.js';
 import './css/${testClassName}.css';
 
 let props = $props();
 
 const viewBox = '0 0 16 16';
-const content = replaceIDs(\`<path class="${testClassName}"/>\`);
+const content = \`<path class="${testClassName}"/>\`;
 </script>
 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox={viewBox} {...props}>{@html content}</svg>
 `
 		);
-		expect(result.assets).toHaveLength(3);
+		expect(result.assets).toHaveLength(2);
 		expect(result.assets[0].filename).toBe(`css/${testClassName}.css`);
-		expect(result.assets[1].filename).toBe('helpers/ids.js');
-		expect(result.assets[2].filename).toBe('line-icon.d.ts');
+		expect(result.assets[1].filename).toBe('line-icon.d.ts');
 		expect(result.style).toBeUndefined();
 
 		// Check types
-		expect(result.assets[2].content)
+		expect(result.assets[1].content)
 			.toBe(`import { SvelteComponent } from "svelte";
 import { SvelteHTMLElements } from "svelte/elements";
 
@@ -208,7 +204,7 @@ export default Component;
 		// Convert IconifyIcon and test it
 		const data = convertIconifyIconToFactoryContent(
 			{
-				body: '<path d="M0 0l16 16" fill="currentColor" />',
+				body: '<path id="test" d="M0 0l16 16" fill="currentColor" />',
 			},
 			'test-prefix',
 			'line-icon',
@@ -253,7 +249,7 @@ let {width, height, ...props}: Props = $props();
 
 const viewBox = '0 0 16 16';
 let size = $derived(getSizeProps(width, height, 1));
-const content = replaceIDs(\`<path class="${testClassName}"/>\`);
+const content = replaceIDs(\`<path id="test" class="${testClassName}"/>\`);
 </script>
 <svg xmlns="http://www.w3.org/2000/svg" {...size} viewBox={viewBox} {...props}>{@html content}</svg>
 `
@@ -327,22 +323,20 @@ export default Component;
 		expect(result.content).toBe(
 			`<script>
 import { getSizeProps } from '../../helpers/size.js';
-import { replaceIDs } from '../../helpers/ids.js';
 
 /** @type {{width?: string; height?: string;}} */
 let {width, height, ...props} = $props();
 
 const viewBox = '0 0 16 16';
 let size = $derived(getSizeProps(width, height, 1));
-const content = replaceIDs(\`<path class="${testClassName}"/>\`);
+const content = \`<path class="${testClassName}"/>\`;
 </script>
 <svg xmlns="http://www.w3.org/2000/svg" {...size} viewBox={viewBox} {...props}>{@html content}</svg>
 `
 		);
-		expect(result.assets).toHaveLength(3);
+		expect(result.assets).toHaveLength(2);
 		expect(result.assets[0].filename).toBe('helpers/size.js');
-		expect(result.assets[1].filename).toBe('helpers/ids.js');
-		expect(result.assets[2].filename).toBe(
+		expect(result.assets[1].filename).toBe(
 			`${prefix}/${name.slice(0, 1)}/${name}.d.ts`
 		);
 
@@ -354,7 +348,7 @@ const content = replaceIDs(\`<path class="${testClassName}"/>\`);
 		);
 
 		// Check types
-		expect(result.assets[2].content)
+		expect(result.assets[1].content)
 			.toBe(`import { SvelteComponent } from "svelte";
 import { SvelteHTMLElements } from "svelte/elements";
 
@@ -395,7 +389,6 @@ export default Component;
 		expect(result.content).toBe(
 			`<script>
 import { getSizeProps } from '../helpers/size.js';
-import { replaceIDs } from '../helpers/ids.js';
 
 /** @type {{width?: string; height?: string; square?: boolean;}} */
 let {width, height, square, ...props} = $props();
@@ -405,19 +398,18 @@ const squareViewBox = '-2 0 24 24';
 let viewBoxComputed = $derived(square ? squareViewBox : baseViewBox);
 let ratio = $derived(square ? 1 : 0.84);
 let size = $derived(getSizeProps(width, height, ratio));
-const content = replaceIDs(\`<path d="M0 0l20 24" stroke="currentColor" fill="none" />\`);
+const content = \`<path d="M0 0l20 24" stroke="currentColor" fill="none" />\`;
 </script>
 <svg xmlns="http://www.w3.org/2000/svg" {...size} viewBox={viewBoxComputed} {...props}>{@html content}</svg>
 `
 		);
-		expect(result.assets).toHaveLength(3);
+		expect(result.assets).toHaveLength(2);
 		expect(result.assets[0].filename).toBe('helpers/size.js');
-		expect(result.assets[1].filename).toBe('helpers/ids.js');
-		expect(result.assets[2].filename).toBe('i/icon.d.ts');
+		expect(result.assets[1].filename).toBe('i/icon.d.ts');
 		expect(result.style).toBeUndefined();
 
 		// Check types
-		expect(result.assets[2].content)
+		expect(result.assets[1].content)
 			.toBe(`import { SvelteComponent } from "svelte";
 import { SvelteHTMLElements } from "svelte/elements";
 
@@ -506,7 +498,7 @@ export default Component;
 					height: 24,
 				},
 				content:
-					'<path d="M0 0l24 24" stroke="currentColor" fill="none" />',
+					'<path d="M0 0l24 24" stroke="currentColor" fill="none" id="foo" />',
 			},
 		};
 		const result = createSvelteComponent(data, {
@@ -526,7 +518,7 @@ import { replaceIDs } from '../helpers/ids.js';
 let {square, ...props} = $props();
 
 const viewBox = '0 0 24 24';
-const content = replaceIDs(\`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`);
+const content = replaceIDs(\`<path d="M0 0l24 24" stroke="currentColor" fill="none" id="foo" />\`);
 </script>
 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox={viewBox} {...props}>{@html content}</svg>
 `
@@ -577,26 +569,24 @@ export default Component;
 		expect(result.content).toBe(
 			`<script>
 import { getSizeProps } from '../helpers/size.js';
-import { replaceIDs } from '../helpers/ids.js';
 
 /** @type {{width?: string; height?: string; square?: boolean;}} */
 let {width, height, square, ...props} = $props();
 
 const viewBox = '0 0 24 24';
 let size = $derived(getSizeProps(width, height, 1));
-const content = replaceIDs(\`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`);
+const content = \`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`;
 </script>
 <svg xmlns="http://www.w3.org/2000/svg" {...size} viewBox={viewBox} {...props}>{@html content}</svg>
 `
 		);
-		expect(result.assets).toHaveLength(3);
+		expect(result.assets).toHaveLength(2);
 		expect(result.assets[0].filename).toBe('helpers/size.js');
-		expect(result.assets[1].filename).toBe('helpers/ids.js');
-		expect(result.assets[2].filename).toBe('i/icon.d.ts');
+		expect(result.assets[1].filename).toBe('i/icon.d.ts');
 		expect(result.style).toBeUndefined();
 
 		// Check types
-		expect(result.assets[2].content)
+		expect(result.assets[1].content)
 			.toBe(`import { SvelteComponent } from "svelte";
 import { SvelteHTMLElements } from "svelte/elements";
 
@@ -623,7 +613,7 @@ export default Component;
 		// Convert IconifyIcon and test it
 		const data = convertIconifyIconToFactoryContent(
 			{
-				body: '<path d="M0 0l16 16" fill="currentColor" /><path d="M16 0l-16 16" fill="currentColor" />',
+				body: '<path id="test" d="M0 0l16 16" fill="currentColor" /><path d="M16 0l-16 16" fill="currentColor" />',
 			},
 			'test-prefix',
 			'line-icon',
@@ -662,7 +652,7 @@ import './icon.css';
 let props = $props();
 
 const viewBox = '0 0 16 16';
-const content = replaceIDs(\`<path class="${testClassName}"/><path class="${testClassName2}"/>\`);
+const content = replaceIDs(\`<path id="test" class="${testClassName}"/><path class="${testClassName2}"/>\`);
 </script>
 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox={viewBox} {...props}>{@html content}</svg>
 `
@@ -715,12 +705,10 @@ const content = replaceIDs(\`<path class="${testClassName}"/><path class="${test
 		// console.log(result.content);
 		expect(result.content).toBe(
 			`<script>
-import { replaceIDs } from './helpers/ids.js';
-
 let props = $props();
 
 const viewBox = '0 0 16 16';
-const content = replaceIDs(\`<path class="${testClassName}"/><path class="${testClassName2}"/>\`);
+const content = \`<path class="${testClassName}"/><path class="${testClassName2}"/>\`;
 </script>
 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox={viewBox} {...props}>{@html content}</svg>
 <style>
@@ -737,9 +725,8 @@ const content = replaceIDs(\`<path class="${testClassName}"/><path class="${test
 </style>
 `
 		);
-		expect(result.assets).toHaveLength(2);
-		expect(result.assets[0].filename).toBe('helpers/ids.js');
-		expect(result.assets[1].filename).toBe('line-icon.d.ts');
+		expect(result.assets).toHaveLength(1);
+		expect(result.assets[0].filename).toBe('line-icon.d.ts');
 		expect(result.style).toBeUndefined();
 		expect(result.style).toBeUndefined();
 	});

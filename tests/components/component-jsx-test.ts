@@ -32,15 +32,14 @@ describe('Creating React/Preact components', () => {
 		expect(result.content).toBe(
 			`import { createElement, useMemo } from 'react';
 import { getSizeProps } from '../helpers/size.js';
-import { replaceIDs } from '../helpers/ids.js';
 import { cleanupHTML } from '../helpers/innerhtml.js';
 
 const viewBox = '0 0 24 24';
+const content = {__html: cleanupHTML(\`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`)};
 
 /** @param {{width?: string; height?: string;}} */
 function Component({width, height, ...props}) {
 	const size = useMemo(() => getSizeProps(width, height, 1), [width, height]);
-	const content = useMemo(() => ({__html: cleanupHTML(replaceIDs(\`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`))}), []);
 	return createElement('svg', {
 		"xmlns": "http://www.w3.org/2000/svg",
 		...props,
@@ -53,15 +52,14 @@ function Component({width, height, ...props}) {
 export default Component;
 `
 		);
-		expect(result.assets).toHaveLength(4);
+		expect(result.assets).toHaveLength(3);
 		expect(result.assets[0].filename).toBe('helpers/size.js');
-		expect(result.assets[1].filename).toBe('helpers/ids.js');
-		expect(result.assets[2].filename).toBe('helpers/innerhtml.js');
-		expect(result.assets[3].filename).toBe('i/icon.d.ts');
+		expect(result.assets[1].filename).toBe('helpers/innerhtml.js');
+		expect(result.assets[2].filename).toBe('i/icon.d.ts');
 		expect(result.style).toBeUndefined();
 
 		// Check types
-		expect(result.assets[3].content)
+		expect(result.assets[2].content)
 			.toBe(`import type { ForwardRefExoticComponent, SVGProps } from 'react';
 
 interface IconProps {
@@ -88,7 +86,7 @@ export default Component;
 		// Convert IconifyIcon and test it
 		const data = convertIconifyIconToFactoryContent(
 			{
-				body: '<path d="M0 0l16 16" fill="currentColor" />',
+				body: '<path id="foo" d="M0 0l16 16" fill="currentColor" />',
 			},
 			'test-prefix',
 			'line-icon',
@@ -128,7 +126,7 @@ import './css/${testClassName}.css';
 const viewBox = '0 0 16 16';
 
 function Component(props) {
-	const content = useMemo(() => ({__html: cleanupHTML(replaceIDs(\`<path class="${testClassName}"/>\`))}), []);
+	const content = useMemo(() => ({__html: cleanupHTML(replaceIDs(\`<path id="foo" class="${testClassName}"/>\`))}), []);
 	return createElement('svg', {
 		"xmlns": "http://www.w3.org/2000/svg",
 		...props,
@@ -210,11 +208,11 @@ export default Component;
 		expect(result.content).toBe(
 			`import { createElement, useMemo } from 'react';
 import { getSizeProps } from './helpers/size.js';
-import { replaceIDs } from './helpers/ids.js';
 import { cleanupHTML } from './helpers/innerhtml.js';
 import './css/${testClassName}.css';
 
 const viewBox = '0 0 16 16';
+const content = {__html: cleanupHTML(\`<path class="${testClassName}"/>\`)};
 
 interface Props {
 \twidth?: string;
@@ -223,7 +221,6 @@ interface Props {
 
 function Component({width, height, ...props}: Props) {
 	const size = useMemo(() => getSizeProps(width, height, 1), [width, height]);
-	const content = useMemo(() => ({__html: cleanupHTML(replaceIDs(\`<path class="${testClassName}"/>\`))}), []);
 	return createElement('svg', {
 		"xmlns": "http://www.w3.org/2000/svg",
 		...props,
@@ -236,16 +233,15 @@ function Component({width, height, ...props}: Props) {
 export default Component;
 `
 		);
-		expect(result.assets).toHaveLength(5);
+		expect(result.assets).toHaveLength(4);
 		expect(result.assets[0].filename).toBe(`css/${testClassName}.css`);
 		expect(result.assets[1].filename).toBe('helpers/size.js');
-		expect(result.assets[2].filename).toBe('helpers/ids.js');
-		expect(result.assets[3].filename).toBe('helpers/innerhtml.js');
-		expect(result.assets[4].filename).toBe('line-icon.d.ts');
+		expect(result.assets[2].filename).toBe('helpers/innerhtml.js');
+		expect(result.assets[3].filename).toBe('line-icon.d.ts');
 		expect(result.style).toBeUndefined();
 
 		// Check types
-		expect(result.assets[4].content)
+		expect(result.assets[3].content)
 			.toBe(`import type { ForwardRefExoticComponent, SVGProps } from 'react';
 
 interface IconProps {
@@ -305,15 +301,14 @@ export default Component;
 		expect(result.content).toBe(
 			`import { createElement, useMemo } from 'react';
 import { getSizeProps } from './helpers/size.js';
-import { replaceIDs } from './helpers/ids.js';
 import { cleanupHTML } from './helpers/innerhtml.js';
 
 const viewBox = '0 0 16 16';
+const content = {__html: cleanupHTML(\`<path class="${testClassName}"/>\`)};
 
 /** @param {{width?: string; height?: string;}} */
 function Component({width, height, ...props}) {
 	const size = useMemo(() => getSizeProps(width, height, 1), [width, height]);
-	const content = useMemo(() => ({__html: cleanupHTML(replaceIDs(\`<path class="${testClassName}"/>\`))}), []);
 	return createElement('svg', {
 		"xmlns": "http://www.w3.org/2000/svg",
 		...props,
@@ -326,11 +321,10 @@ function Component({width, height, ...props}) {
 export default Component;
 `
 		);
-		expect(result.assets).toHaveLength(4);
+		expect(result.assets).toHaveLength(3);
 		expect(result.assets[0].filename).toBe('helpers/size.js');
-		expect(result.assets[1].filename).toBe('helpers/ids.js');
-		expect(result.assets[2].filename).toBe('helpers/innerhtml.js');
-		expect(result.assets[3].filename).toBe('line-icon.d.ts');
+		expect(result.assets[1].filename).toBe('helpers/innerhtml.js');
+		expect(result.assets[2].filename).toBe('line-icon.d.ts');
 
 		// Check CSS
 		expect(
@@ -340,7 +334,7 @@ export default Component;
 		);
 
 		// Check types
-		expect(result.assets[3].content)
+		expect(result.assets[2].content)
 			.toBe(`import type { ForwardRefExoticComponent, SVGProps } from 'react';
 
 interface IconProps {
@@ -367,7 +361,7 @@ export default Component;
 		// Convert IconifyIcon and test it
 		const data = convertIconifyIconToFactoryContent(
 			{
-				body: '<path d="M0 0l16 16" fill="currentColor" />',
+				body: '<path d="M0 0l16 16" fill="currentColor" id="test-id" />',
 			},
 			'test-prefix',
 			'line-icon',
@@ -408,7 +402,7 @@ const viewBox = '0 0 16 16';
 /** @param {{width?: string; height?: string;}} */
 function Component({width, height, ...props}) {
 	const size = useMemo(() => getSizeProps(width, height, 1), [width, height]);
-	const content = useMemo(() => ({__html: cleanupHTML(replaceIDs(\`<style>.${testClassName} {\n  d: path("M0 0l16 16");\n  fill: currentColor;\n}\n</style><path class="${testClassName}"/>\`))}), []);
+	const content = useMemo(() => ({__html: cleanupHTML(replaceIDs(\`<style>.${testClassName} {\n  d: path("M0 0l16 16");\n  fill: currentColor;\n}\n</style><path id="test-id" class="${testClassName}"/>\`))}), []);
 	return createElement('svg', {
 		"xmlns": "http://www.w3.org/2000/svg",
 		...props,
@@ -474,18 +468,17 @@ export default Component;
 		expect(result.content).toBe(
 			`import { createElement, useMemo } from 'react';
 import { getSizeProps } from '../helpers/size.js';
-import { replaceIDs } from '../helpers/ids.js';
 import { cleanupHTML } from '../helpers/innerhtml.js';
 
 const baseViewBox = '0 0 20 24';
 const squareViewBox = '-2 0 24 24';
+const content = {__html: cleanupHTML(\`<path d="M0 0l20 24" stroke="currentColor" fill="none" />\`)};
 
 /** @param {{width?: string; height?: string; square?: boolean;}} */
 function Component({width, height, square, ...props}) {
 	const viewBox = useMemo(() => square ? squareViewBox : baseViewBox, [square]);
 	const ratio = useMemo(() => square ? 1 : 0.84, [square]);
 	const size = useMemo(() => getSizeProps(width, height, ratio), [width, height, ratio]);
-	const content = useMemo(() => ({__html: cleanupHTML(replaceIDs(\`<path d="M0 0l20 24" stroke="currentColor" fill="none" />\`))}), []);
 	return createElement('svg', {
 		"xmlns": "http://www.w3.org/2000/svg",
 		...props,
@@ -498,15 +491,14 @@ function Component({width, height, square, ...props}) {
 export default Component;
 `
 		);
-		expect(result.assets).toHaveLength(4);
+		expect(result.assets).toHaveLength(3);
 		expect(result.assets[0].filename).toBe('helpers/size.js');
-		expect(result.assets[1].filename).toBe('helpers/ids.js');
-		expect(result.assets[2].filename).toBe('helpers/innerhtml.js');
-		expect(result.assets[3].filename).toBe('i/icon.d.ts');
+		expect(result.assets[1].filename).toBe('helpers/innerhtml.js');
+		expect(result.assets[2].filename).toBe('i/icon.d.ts');
 		expect(result.style).toBeUndefined();
 
 		// Check types
-		expect(result.assets[3].content)
+		expect(result.assets[2].content)
 			.toBe(`import type { ForwardRefExoticComponent, SVGProps } from 'react';
 
 interface IconProps {
@@ -550,15 +542,14 @@ export default Component;
 		});
 		// console.log(result.content);
 		expect(result.content).toBe(
-			`import { h, useMemo } from 'preact';
-import { replaceIDs } from '../helpers/ids.js';
+			`import { h } from 'preact';
 import { cleanupHTML } from '../helpers/innerhtml.js';
 
 const viewBox = '0 0 24 24';
+const content = {__html: cleanupHTML(\`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`)};
 
 /** @param {{square?: boolean;}} */
 function Component({square, ...props}) {
-	const content = useMemo(() => ({__html: cleanupHTML(replaceIDs(\`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`))}), []);
 	return h('svg', {
 		"xmlns": "http://www.w3.org/2000/svg",
 		...props,
@@ -572,12 +563,12 @@ function Component({square, ...props}) {
 export default Component;
 `
 		);
-		expect(result.assets).toHaveLength(3);
-		expect(result.assets[2].filename).toBe('i/icon.d.ts');
+		expect(result.assets).toHaveLength(2);
+		expect(result.assets[1].filename).toBe('i/icon.d.ts');
 		expect(result.style).toBeUndefined();
 
 		// Check types
-		expect(result.assets[2].content)
+		expect(result.assets[1].content)
 			.toBe(`import type { JSX } from 'preact';
 
 interface IconProps {
@@ -603,7 +594,7 @@ export default Component;
 					height: 24,
 				},
 				content:
-					'<path d="M0 0l24 24" stroke="currentColor" fill="none" />',
+					'<path id="test" d="M0 0l24 24" stroke="currentColor" fill="none" />',
 				// Ignored because package is missing in options
 				defaultFallback: 'test:icon',
 			},
@@ -627,7 +618,7 @@ const viewBox = '0 0 24 24';
 /** @param {{width?: string; height?: string; square?: boolean;}} */
 function Component({width, height, square, ...props}) {
 	const size = useMemo(() => getSizeProps(width, height, 1), [width, height]);
-	const content = useMemo(() => ({__html: cleanupHTML(replaceIDs(\`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`))}), []);
+	const content = useMemo(() => ({__html: cleanupHTML(replaceIDs(\`<path id="test" d="M0 0l24 24" stroke="currentColor" fill="none" />\`))}), []);
 	return createElement('svg', {
 		"xmlns": "http://www.w3.org/2000/svg",
 		...props,
@@ -822,7 +813,7 @@ export default Component;
 		// Check template
 		// console.log(result.content);
 		expect(result.content).toContain(
-			'const content = useMemo(() => ({__html: cleanupHTML(replaceIDs(`<path class="fabh7v mfq4_u ona74n"/><path class="ek9rqv mfxbmu ona74n"/>`))}), []);'
+			'const content = {__html: cleanupHTML(`<path class="fabh7v mfq4_u ona74n"/><path class="ek9rqv mfxbmu ona74n"/>`)};'
 		);
 		expect(result.content).toContain('dangerouslySetInnerHTML: content');
 

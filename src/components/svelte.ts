@@ -27,6 +27,7 @@ import { addCustomFunctionAsset } from './helpers/functions/custom.js';
 import { addFallbackFunctionAsset } from './helpers/functions/fallback.js';
 import { addReplaceIDsFunctionAsset } from './helpers/functions/ids.js';
 import { cleanupJSXRenamedProps } from './helpers/props/cleanup.js';
+import { checkForUniqueIDs } from './helpers/code/ids.js';
 
 interface SvelteOptions extends ComponentFactoryOptions {
 	// Use TypeScript
@@ -275,8 +276,14 @@ export function createSvelteComponent(
 	let stringifiedContent = stringifyFactoryIconContent(icon);
 	if (!fallback) {
 		// Replace IDs to avoid conflicts when multiple instances are used
-		const replaceIDs = addReplaceIDsFunctionAsset(imports, assets, options);
-		stringifiedContent = '' + replaceIDs + '(' + stringifiedContent + ')';
+		if (checkForUniqueIDs(stringifiedContent)) {
+			const replaceIDs = addReplaceIDsFunctionAsset(
+				imports,
+				assets,
+				options
+			);
+			stringifiedContent = replaceIDs + '(' + stringifiedContent + ')';
+		}
 	}
 	componentCode.push(`const content = ${stringifiedContent};`);
 	const innerHTML = fallback ? '' : '{@html content}';
