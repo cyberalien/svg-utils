@@ -62,6 +62,103 @@ describe('Converting generating CSS', () => {
 }
 `
 		);
+
+		// Nested CSS
+		addGeneratedSelector(css, ['.foo', '.bar'], {
+			color: 'yellow',
+		});
+		expect(stringifyStylesheet(css)).toBe(
+			`.bar {
+  color: blue;
+}
+
+.foo {
+  color: green;
+}
+
+.foo {
+  .bar {
+    color: yellow;
+  }
+}
+`
+		);
+		expect(stringifyStylesheet(css, true)).toBe(
+			`.bar {
+  color: blue;
+}
+
+.foo {
+  color: green;
+}
+
+.foo .bar {
+  color: yellow;
+}
+`
+		);
+
+		// Add media query
+		addGeneratedSelector(css, ['.foo', '@media (max-width: 600px)'], {
+			color: '#123456',
+		});
+		addGeneratedSelector(
+			css,
+			['.foo', '.bar', '@media (max-width: 600px)'],
+			{
+				color: '#234567',
+			}
+		);
+		expect(stringifyStylesheet(css)).toBe(
+			`.bar {
+  color: blue;
+}
+
+.foo {
+  color: green;
+}
+
+.foo {
+  .bar {
+    color: yellow;
+  }
+
+  .bar {
+    @media (max-width: 600px) {
+      color: #234567;
+    }
+  }
+
+  @media (max-width: 600px) {
+    color: #123456;
+  }
+}
+`
+		);
+		expect(stringifyStylesheet(css, true)).toBe(
+			`.bar {
+  color: blue;
+}
+
+.foo {
+  color: green;
+}
+
+.foo .bar {
+  color: yellow;
+}
+
+@media (max-width: 600px) {
+  .foo {
+    color: #123456;
+  }
+
+  .foo .bar {
+    color: #234567;
+  }
+}
+`
+		);
 	});
 
 	it('Animations', () => {

@@ -25,6 +25,7 @@ import { getViewBoxRatio } from './helpers/content/ratio.js';
 import { stringifyStylesheet } from '../css/stylesheet.js';
 import { addCustomFunctionAsset } from './helpers/functions/custom.js';
 import { addFallbackFunctionAsset } from './helpers/functions/fallback.js';
+import { addReplaceIDsFunctionAsset } from './helpers/functions/ids.js';
 
 interface SvelteOptions extends ComponentFactoryOptions {
 	// Use TypeScript
@@ -100,7 +101,7 @@ export function createSvelteComponent(
 							value: state,
 							template: '',
 						};
-						computedStates.push(`'${state}': ${state}`);
+						computedStates.push(`'${state}': ${state}Prop`);
 					}
 				} else {
 					// Advanced state
@@ -120,7 +121,7 @@ export function createSvelteComponent(
 
 						// Add to computed state
 						computedStates.push(
-							`'${stateName}': namedStateValue(${stateName}, '${defaultStateValue}')`
+							`'${stateName}': namedStateValue(${stateName}Prop, '${defaultStateValue}')`
 						);
 						if (!addedStateFunc) {
 							addedStateFunc = true;
@@ -145,7 +146,7 @@ export function createSvelteComponent(
 					value: state,
 					template: '',
 				};
-				computedStates.push(`'${state}': ${state}`);
+				computedStates.push(`'${state}': ${state}Prop`);
 			}
 
 			// Add computed states
@@ -191,7 +192,7 @@ export function createSvelteComponent(
 		componentCode.push(
 			`const baseViewBox = ${getViewBox(viewBox)};`,
 			`const squareViewBox = ${getViewBox(makeSquareViewBox(viewBox))};`,
-			`let ${viewBoxPropValue} = $derived(square ? squareViewBox : baseViewBox);`
+			`let ${viewBoxPropValue} = $derived(squareProp ? squareViewBox : baseViewBox);`
 		);
 	} else {
 		// Hardcoded viewBox
@@ -203,7 +204,9 @@ export function createSvelteComponent(
 	// Compute width/height ratio
 	const ratioValue = getViewBoxRatio(viewBox);
 	if (hasComputedRatio) {
-		componentCode.push(`let ratio = $derived(square ? 1 : ${ratioValue});`);
+		componentCode.push(
+			`let ratio = $derived(squareProp ? 1 : ${ratioValue});`
+		);
 	}
 
 	// Set size
@@ -222,18 +225,18 @@ export function createSvelteComponent(
 			props.width = {
 				type: 'string',
 				value: 'width',
-				template: 'width={width}',
+				template: 'width={widthProp}',
 			};
 			props.height = {
 				type: 'string',
 				value: 'height',
-				template: 'height={height}',
+				template: 'height={heightProp}',
 			};
 		} else {
 			// Add computed size and getSizeProps() function
 			const getSizeProps = addSizeFunctionAsset(imports, assets, options);
 			componentCode.push(
-				`let size = $derived(${getSizeProps}(width, height, ${
+				`let size = $derived(${getSizeProps}(widthProp, heightProp, ${
 					hasComputedRatio ? 'ratio' : ratioValue
 				}));`
 			);
@@ -268,7 +271,13 @@ export function createSvelteComponent(
 	};
 
 	// Add content
-	componentCode.push(`const content = ${stringifyFactoryIconContent(icon)};`);
+	let stringifiedContent = stringifyFactoryIconContent(icon);
+	if (!fallback) {
+		// Replace IDs to avoid conflicts when multiple instances are used
+		const replaceIDs = addReplaceIDsFunctionAsset(imports, assets, options);
+		stringifiedContent = '' + replaceIDs + '(' + stringifiedContent + ')';
+	}
+	componentCode.push(`const content = ${stringifiedContent};`);
 	const innerHTML = fallback ? '' : '{@html content}';
 	props.content = {
 		value: 'content',
@@ -281,7 +290,7 @@ export function createSvelteComponent(
 	const usedProps = getUsedFactoryProps(props);
 
 	const propsDestricturing = usedProps.length
-		? `{${[...usedProps, '...props'].join(', ')}}`
+		? `{${[...usedProps.map((prop) => `${prop}: ${prop}Prop`), '...props'].join(', ')}}`
 		: 'props';
 	componentCode.unshift(
 		`let ${propsDestricturing}${useTS ? ': Props' : ''} = $props();\n`

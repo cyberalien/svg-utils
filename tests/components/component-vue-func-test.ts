@@ -31,16 +31,18 @@ describe('Creating Vue functional components', () => {
 		expect(result.content).toBe(
 			`import { computed, defineComponent, h } from 'vue';
 import { getSizeProps } from '../helpers/size.js';
+import { replaceIDs } from '../helpers/ids.js';
 
 const Component = defineComponent(
 	(props) => {
 		const viewBox = '0 0 24 24';
 		const size = computed(() => getSizeProps(props.width, props.height, 1));
+		const innerHTML = replaceIDs(\`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`);
 		return () => h('svg', { 
 			"xmlns": "http://www.w3.org/2000/svg",
 			...size.value,
 			viewBox,
-			"innerHTML": \`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`,
+			"innerHTML": innerHTML,
 		});
 	},
 	{
@@ -51,13 +53,14 @@ const Component = defineComponent(
 export default Component;
 `
 		);
-		expect(result.assets).toHaveLength(2);
+		expect(result.assets).toHaveLength(3);
 		expect(result.assets[0].filename).toBe('helpers/size.js');
-		expect(result.assets[1].filename).toBe('i/icon.d.ts');
+		expect(result.assets[1].filename).toBe('helpers/ids.js');
+		expect(result.assets[2].filename).toBe('i/icon.d.ts');
 		expect(result.style).toBeUndefined();
 
 		// Check types
-		expect(result.assets[1].content)
+		expect(result.assets[2].content)
 			.toBe(`import { DefineSetupFnComponent, PublicProps } from 'vue';
 
 interface IconProps {
@@ -114,17 +117,19 @@ export default Component;
 		// console.log(result.content);
 		expect(result.content).toBe(
 			`import { defineComponent, h } from 'vue';
+import { replaceIDs } from './helpers/ids.js';
 import './css/${testClassName}.css';
 
 const Component = defineComponent(
 	() => {
 		const viewBox = '0 0 16 16';
+		const innerHTML = replaceIDs(\`<path class="${testClassName}"/>\`);
 		return () => h('svg', { 
 			"xmlns": "http://www.w3.org/2000/svg",
 			"width": "1em",
 			"height": "1em",
 			viewBox,
-			"innerHTML": \`<path class="${testClassName}"/>\`,
+			"innerHTML": innerHTML,
 		});
 	},
 	{
@@ -135,13 +140,14 @@ const Component = defineComponent(
 export default Component;
 `
 		);
-		expect(result.assets).toHaveLength(2);
+		expect(result.assets).toHaveLength(3);
 		expect(result.assets[0].filename).toBe(`css/${testClassName}.css`);
-		expect(result.assets[1].filename).toBe('line-icon.d.ts');
+		expect(result.assets[1].filename).toBe('helpers/ids.js');
+		expect(result.assets[2].filename).toBe('line-icon.d.ts');
 		expect(result.style).toBeUndefined();
 
 		// Check types
-		expect(result.assets[1].content)
+		expect(result.assets[2].content)
 			.toBe(`import { DefineSetupFnComponent, PublicProps } from 'vue';
 
 interface IconProps {
@@ -197,17 +203,19 @@ export default Component;
 		expect(result.content).toBe(
 			`import { computed, defineComponent, h } from 'vue';
 import { getSizeProps } from './helpers/size.js';
+import { replaceIDs } from './helpers/ids.js';
 import './css/${testClassName}.css';
 
 const Component = defineComponent(
 	(props) => {
 		const viewBox = '0 0 16 16';
 		const size = computed(() => getSizeProps(props.width, props.height, 1));
+		const innerHTML = replaceIDs(\`<path class="${testClassName}"/>\`);
 		return () => h('svg', { 
 			"xmlns": "http://www.w3.org/2000/svg",
 			...size.value,
 			viewBox,
-			"innerHTML": \`<path class="${testClassName}"/>\`,
+			"innerHTML": innerHTML,
 		});
 	},
 	{
@@ -218,14 +226,15 @@ const Component = defineComponent(
 export default Component;
 `
 		);
-		expect(result.assets).toHaveLength(3);
+		expect(result.assets).toHaveLength(4);
 		expect(result.assets[0].filename).toBe(`css/${testClassName}.css`);
 		expect(result.assets[1].filename).toBe('helpers/size.js');
-		expect(result.assets[2].filename).toBe('line-icon.d.ts');
+		expect(result.assets[2].filename).toBe('helpers/ids.js');
+		expect(result.assets[3].filename).toBe('line-icon.d.ts');
 		expect(result.style).toBeUndefined();
 
 		// Check types
-		expect(result.assets[2].content)
+		expect(result.assets[3].content)
 			.toBe(`import { DefineSetupFnComponent, PublicProps } from 'vue';
 
 interface IconProps {
@@ -282,16 +291,18 @@ export default Component;
 		expect(result.content).toBe(
 			`import { computed, defineComponent, h } from 'vue';
 import { getSizeProps } from './helpers/size.js';
+import { replaceIDs } from './helpers/ids.js';
 
 const Component = defineComponent(
 	(props) => {
 		const viewBox = '0 0 16 16';
 		const size = computed(() => getSizeProps(props.width, props.height, 1));
+		const innerHTML = replaceIDs(\`<path class="${testClassName}"/>\`);
 		return () => h('svg', { 
 			"xmlns": "http://www.w3.org/2000/svg",
 			...size.value,
 			viewBox,
-			"innerHTML": \`<path class="${testClassName}"/>\`,
+			"innerHTML": innerHTML,
 		});
 	},
 	{
@@ -302,9 +313,10 @@ const Component = defineComponent(
 export default Component;
 `
 		);
-		expect(result.assets).toHaveLength(2);
+		expect(result.assets).toHaveLength(3);
 		expect(result.assets[0].filename).toBe('helpers/size.js');
-		expect(result.assets[1].filename).toBe('line-icon.d.ts');
+		expect(result.assets[1].filename).toBe('helpers/ids.js');
+		expect(result.assets[2].filename).toBe('line-icon.d.ts');
 
 		// Check CSS
 		expect(result.style ? stringifyStylesheet(result.style) : '').toBe(
@@ -312,7 +324,7 @@ export default Component;
 		);
 
 		// Check types
-		expect(result.assets[1].content)
+		expect(result.assets[2].content)
 			.toBe(`import { DefineSetupFnComponent, PublicProps } from 'vue';
 
 interface IconProps {
@@ -369,16 +381,18 @@ export default Component;
 		expect(result.content).toBe(
 			`import { computed, defineComponent, h } from 'vue';
 import { getSizeProps } from './helpers/size.js';
+import { replaceIDs } from './helpers/ids.js';
 
 const Component = defineComponent(
 	(props) => {
 		const viewBox = '0 0 16 16';
 		const size = computed(() => getSizeProps(props.width, props.height, 1));
+		const innerHTML = replaceIDs(\`<style>.${testClassName} {\n  d: path("M0 0l16 16");\n  fill: currentColor;\n}\n</style><path class="${testClassName}"/>\`);
 		return () => h('svg', { 
 			"xmlns": "http://www.w3.org/2000/svg",
 			...size.value,
 			viewBox,
-			"innerHTML": \`<style>.${testClassName} {\n  d: path("M0 0l16 16");\n  fill: currentColor;\n}\n</style><path class="${testClassName}"/>\`,
+			"innerHTML": innerHTML,
 		});
 	},
 	{
@@ -389,15 +403,16 @@ const Component = defineComponent(
 export default Component;
 `
 		);
-		expect(result.assets).toHaveLength(2);
+		expect(result.assets).toHaveLength(3);
 		expect(result.assets[0].filename).toBe('helpers/size.js');
-		expect(result.assets[1].filename).toBe('line-icon.d.ts');
+		expect(result.assets[1].filename).toBe('helpers/ids.js');
+		expect(result.assets[2].filename).toBe('line-icon.d.ts');
 
 		// Check CSS
 		expect(result.style).toBeUndefined();
 
 		// Check types
-		expect(result.assets[1].content)
+		expect(result.assets[2].content)
 			.toBe(`import { DefineSetupFnComponent, PublicProps } from 'vue';
 
 interface IconProps {
@@ -437,6 +452,7 @@ export default Component;
 		expect(result.content).toBe(
 			`import { computed, defineComponent, h } from 'vue';
 import { getSizeProps } from '../helpers/size.js';
+import { replaceIDs } from '../helpers/ids.js';
 
 const Component = defineComponent(
 	(props) => {
@@ -445,11 +461,12 @@ const Component = defineComponent(
 		const viewBox = computed(() => props.square ? squareViewBox : baseViewBox);
 		const ratio = computed(() => props.square ? 1 : 0.84);
 		const size = computed(() => getSizeProps(props.width, props.height, ratio.value));
+		const innerHTML = replaceIDs(\`<path d="M0 0l20 24" stroke="currentColor" fill="none" />\`);
 		return () => h('svg', { 
 			"xmlns": "http://www.w3.org/2000/svg",
 			...size.value,
 			viewBox: viewBox.value,
-			"innerHTML": \`<path d="M0 0l20 24" stroke="currentColor" fill="none" />\`,
+			"innerHTML": innerHTML,
 		});
 	},
 	{
@@ -460,13 +477,14 @@ const Component = defineComponent(
 export default Component;
 `
 		);
-		expect(result.assets).toHaveLength(2);
+		expect(result.assets).toHaveLength(3);
 		expect(result.assets[0].filename).toBe('helpers/size.js');
-		expect(result.assets[1].filename).toBe('i/icon.d.ts');
+		expect(result.assets[1].filename).toBe('helpers/ids.js');
+		expect(result.assets[2].filename).toBe('i/icon.d.ts');
 		expect(result.style).toBeUndefined();
 
 		// Check types
-		expect(result.assets[1].content)
+		expect(result.assets[2].content)
 			.toBe(`import { DefineSetupFnComponent, PublicProps } from 'vue';
 
 interface IconProps {
@@ -508,16 +526,18 @@ export default Component;
 		// console.log(result.content);
 		expect(result.content).toBe(
 			`import { defineComponent, h } from 'vue';
+import { replaceIDs } from '../helpers/ids.js';
 
 const Component = defineComponent(
 	(props) => {
 		const viewBox = '0 0 24 24';
+		const innerHTML = replaceIDs(\`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`);
 		return () => h('svg', { 
 			"xmlns": "http://www.w3.org/2000/svg",
 			"width": "1em",
 			"height": "1em",
 			viewBox,
-			"innerHTML": \`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`,
+			"innerHTML": innerHTML,
 		});
 	},
 	{
@@ -528,12 +548,13 @@ const Component = defineComponent(
 export default Component;
 `
 		);
-		expect(result.assets).toHaveLength(1);
-		expect(result.assets[0].filename).toBe('i/icon.d.ts');
+		expect(result.assets).toHaveLength(2);
+		expect(result.assets[0].filename).toBe('helpers/ids.js');
+		expect(result.assets[1].filename).toBe('i/icon.d.ts');
 		expect(result.style).toBeUndefined();
 
 		// Check types
-		expect(result.assets[0].content)
+		expect(result.assets[1].content)
 			.toBe(`import { DefineSetupFnComponent, PublicProps } from 'vue';
 
 interface IconProps {
@@ -572,16 +593,18 @@ export default Component;
 		expect(result.content).toBe(
 			`import { computed, defineComponent, h } from 'vue';
 import { getSizeProps } from '../helpers/size.js';
+import { replaceIDs } from '../helpers/ids.js';
 
 const Component = defineComponent(
 	(props) => {
 		const viewBox = '0 0 24 24';
 		const size = computed(() => getSizeProps(props.width, props.height, 1));
+		const innerHTML = replaceIDs(\`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`);
 		return () => h('svg', { 
 			"xmlns": "http://www.w3.org/2000/svg",
 			...size.value,
 			viewBox,
-			"innerHTML": \`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`,
+			"innerHTML": innerHTML,
 		});
 	},
 	{
@@ -592,13 +615,14 @@ const Component = defineComponent(
 export default Component;
 `
 		);
-		expect(result.assets).toHaveLength(2);
+		expect(result.assets).toHaveLength(3);
 		expect(result.assets[0].filename).toBe('helpers/size.js');
-		expect(result.assets[1].filename).toBe('i/icon.d.ts');
+		expect(result.assets[1].filename).toBe('helpers/ids.js');
+		expect(result.assets[2].filename).toBe('i/icon.d.ts');
 		expect(result.style).toBeUndefined();
 
 		// Check types
-		expect(result.assets[1].content)
+		expect(result.assets[2].content)
 			.toBe(`import { DefineSetupFnComponent, PublicProps } from 'vue';
 
 interface IconProps {

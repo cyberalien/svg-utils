@@ -16,6 +16,7 @@ import {
 	stringifyFactoryProps,
 } from './helpers/props/stringify.js';
 import { stringifyStylesheet } from '../css/stylesheet.js';
+import { addReplaceIDsFunctionAsset } from './helpers/functions/ids.js';
 
 /**
  * Create raw component code
@@ -54,8 +55,9 @@ export function createRawComponent(
 	};
 
 	// Convert to string, export icon
+	const replaceIDs = addReplaceIDsFunctionAsset(imports, assets, options);
 	codeLines.push(
-		`const icon = ${stringifyFactoryIconContent(iconContent)};\n`
+		`const icon = () => ${replaceIDs}(${stringifyFactoryIconContent(iconContent)});\n`
 	);
 	codeLines.push('export default icon;\n');
 
@@ -66,7 +68,7 @@ export function createRawComponent(
 	}
 
 	// Add types
-	const typesContent = `const icon: string;\nexport default icon;\n`;
+	const typesContent = `declare function string(): string;\nexport default icon;\n`;
 	assets.push({
 		...getGeneratedComponentTypesFilename(data, typesContent, options),
 		content: typesContent,

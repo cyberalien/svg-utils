@@ -24,6 +24,7 @@ import { getViewBoxRatio } from './helpers/content/ratio.js';
 import { addSolidComponentTypes } from './helpers/ts/solid.js';
 import { addCustomFunctionAsset } from './helpers/functions/custom.js';
 import { addFallbackFunctionAsset } from './helpers/functions/fallback.js';
+import { addReplaceIDsFunctionAsset } from './helpers/functions/ids.js';
 
 interface Options extends ComponentFactoryOptions {
 	// Use TypeScript
@@ -257,6 +258,21 @@ export function createSolidComponent(
 		}
 	}
 
+	// Generate innerHTML before useMemo is added
+	const stringifiedContent = stringifyFactoryIconContent(
+		icon,
+		isEmbeddedCSS ? style : undefined
+	);
+	if (!fallback) {
+		// Replace IDs to avoid conflicts when multiple instances are used
+		const replaceIDs = addReplaceIDsFunctionAsset(imports, assets, options);
+		componentInternalCode.push(
+			`const content = createMemo(() => ${replaceIDs}(${stringifiedContent}));`
+		);
+	} else {
+		componentExternalCode.push(`const content = ${stringifiedContent};`);
+	}
+
 	// Add createMemo import if needed
 	if (componentInternalCode.some((line) => line.includes('createMemo'))) {
 		solidNamedImports.add('createMemo');
@@ -276,14 +292,11 @@ export function createSolidComponent(
 	};
 
 	// Add content
-	componentExternalCode.push(
-		`const content = ${stringifyFactoryIconContent(icon, isEmbeddedCSS ? style : undefined)};`
-	);
 	props.content = {
 		value: 'content',
 		template: fallback
 			? `content={content} fallback={${computedFallback ? 'fallback()' : `"${fallback}"`}}`
-			: 'innerHTML={content}',
+			: 'innerHTML={content()}',
 	};
 
 	// Split props

@@ -1,3 +1,4 @@
+import { mergeLegacyCSS } from './legacy.js';
 import { mergeCSSRules } from './rules.js';
 import { stringifyCSSKeyframes, stringifyCSSSelector } from './stringify.js';
 import type {
@@ -96,9 +97,14 @@ function stringifySelectors(data: CSSGeneratedSelectors, depth = 0): string {
  * Stringify generated stylesheet to CSS string
  */
 export function stringifyStylesheet(
-	stylesheet: CSSGeneratedStylesheet
+	stylesheet: CSSGeneratedStylesheet,
+	legacyCSS = false
 ): string {
 	const lines: string[] = [];
+
+	if (legacyCSS) {
+		stylesheet = mergeLegacyCSS(stylesheet);
+	}
 
 	const selectors = stringifySelectors(stylesheet.selectors);
 	if (selectors.length) {

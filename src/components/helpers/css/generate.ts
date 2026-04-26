@@ -15,7 +15,12 @@ import { renderStatefulSVGCSSIconStyle } from '../../../svg-css/icon/css.js';
 
 interface Options extends Pick<
 	ComponentFactoryOptions,
-	'cssMode' | 'cssPath' | 'doubleDirsForCSS' | 'mergeCSS' | 'staticState'
+	| 'cssMode'
+	| 'cssPath'
+	| 'doubleDirsForCSS'
+	| 'mergeCSS'
+	| 'legacyCSS'
+	| 'staticState'
 > {
 	// Style in component mode: merge CSS, do not add assets, merge content
 	componentType?: 'svelte';
@@ -100,7 +105,7 @@ export function generateCSSFilesForComponent(
 	if (!mergeCSS) {
 		for (const className in stylesheets) {
 			const stylesheet = stylesheets[className];
-			const content = stringifyStylesheet(stylesheet);
+			const content = stringifyStylesheet(stylesheet, options.legacyCSS);
 
 			if (content) {
 				// Generate asset
@@ -115,7 +120,10 @@ export function generateCSSFilesForComponent(
 			}
 		}
 	} else if (typeof mergeCSS == 'object') {
-		const content = stringifyStylesheet(commonStylesheet!);
+		const content = stringifyStylesheet(
+			commonStylesheet!,
+			options.legacyCSS
+		);
 
 		if (content) {
 			assets.push({

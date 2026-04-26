@@ -21,6 +21,7 @@ import { minifyViewBox } from '../svg/viewbox/minify.js';
 import { getViewBoxRatio } from './helpers/content/ratio.js';
 import { addCustomFunctionAsset } from './helpers/functions/custom.js';
 import { addFallbackFunctionAsset } from './helpers/functions/fallback.js';
+import { addReplaceIDsFunctionAsset } from './helpers/functions/ids.js';
 
 /**
  * Create functional Vue component code
@@ -262,11 +263,19 @@ export function createVueFunctionalComponent(
 	};
 
 	// Add content
+	let stringifiedContent = stringifyFactoryIconContent(
+		icon,
+		isEmbeddedCSS ? style : undefined
+	);
+	if (!fallback) {
+		// Replace IDs to avoid conflicts when multiple instances are used
+		// Set it as const to avoid re-processing in runtime
+		const replaceIDs = addReplaceIDsFunctionAsset(imports, assets, options);
+		stringifiedContent = '' + replaceIDs + '(' + stringifiedContent + ')';
+		componentCode.push(`const innerHTML = ${stringifiedContent};`);
+	}
 	props[fallback ? 'content' : 'innerHTML'] = {
-		value: stringifyFactoryIconContent(
-			icon,
-			isEmbeddedCSS ? style : undefined
-		),
+		value: fallback ? stringifiedContent : 'innerHTML',
 	};
 	if (fallback) {
 		props.fallback = computedFallback

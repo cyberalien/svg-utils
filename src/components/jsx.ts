@@ -26,6 +26,7 @@ import type { JSXMode } from './types/jsx.js';
 import { addCustomFunctionAsset } from './helpers/functions/custom.js';
 import { addFallbackFunctionAsset } from './helpers/functions/fallback.js';
 import { addInnerHTMLFunctionAsset } from './helpers/functions/innerhtml.js';
+import { addReplaceIDsFunctionAsset } from './helpers/functions/ids.js';
 
 interface Options extends ComponentFactoryOptions {
 	// JSX mode
@@ -128,7 +129,7 @@ export function createJSXComponent(
 							value: state,
 							template: '',
 						};
-						computedStates.push(`'${state}': ${state}`);
+						computedStates.push(`'${state}': ${state}Prop`);
 						computedStateNames.push(state);
 					}
 				} else {
@@ -149,7 +150,7 @@ export function createJSXComponent(
 
 						// Add to computed state
 						computedStates.push(
-							`'${stateName}': namedStateValue(${stateName}, '${defaultStateValue}')`
+							`'${stateName}': namedStateValue(${stateName}Prop, '${defaultStateValue}')`
 						);
 						computedStateNames.push(stateName);
 						if (!addedStateFunc) {
@@ -175,14 +176,14 @@ export function createJSXComponent(
 					value: state,
 					template: '',
 				};
-				computedStates.push(`'${state}': ${state}`);
+				computedStates.push(`'${state}': ${state}Prop`);
 				computedStateNames.push(state);
 			}
 
 			// Add computed states
 			if (computedStates.length) {
 				componentInternalCode.push(
-					`const states = useMemo(() => ({ ${computedStates.join(', ')} }), [${computedStateNames.join(', ')}]);`
+					`const states = useMemo(() => ({ ${computedStates.join(', ')} }), [${computedStateNames.map((state) => `${state}Prop`).join(', ')}]);`
 				);
 
 				// Compute stateful fallback
@@ -223,7 +224,7 @@ export function createJSXComponent(
 			`const squareViewBox = ${getViewBox(makeSquareViewBox(viewBox))};`
 		);
 		componentInternalCode.push(
-			`const viewBox = useMemo(() => square ? squareViewBox : baseViewBox, [square]);`
+			`const viewBox = useMemo(() => squareProp ? squareViewBox : baseViewBox, [squareProp]);`
 		);
 	} else {
 		// Hardcoded viewBox
@@ -234,7 +235,7 @@ export function createJSXComponent(
 	const ratioValue = getViewBoxRatio(viewBox);
 	if (hasComputedRatio) {
 		componentInternalCode.push(
-			`const ratio = useMemo(() => square ? 1 : ${ratioValue}, [square]);`
+			`const ratio = useMemo(() => squareProp ? 1 : ${ratioValue}, [squareProp]);`
 		);
 	}
 
@@ -254,20 +255,20 @@ export function createJSXComponent(
 			props.width = {
 				type: 'string',
 				value: 'width',
-				template: 'width,',
+				template: 'width: widthProp,',
 			};
 			props.height = {
 				type: 'string',
 				value: 'height',
-				template: 'height,',
+				template: 'height: heightProp,',
 			};
 		} else {
 			// Add computed size and getSizeProps() function
 			const getSizeProps = addSizeFunctionAsset(imports, assets, options);
 			componentInternalCode.push(
-				`const size = useMemo(() => ${getSizeProps}(width, height, ${
+				`const size = useMemo(() => ${getSizeProps}(widthProp, heightProp, ${
 					hasComputedRatio ? 'ratio' : ratioValue
-				}), [width, height${hasComputedRatio ? ', ratio' : ''}]);`
+				}), [widthProp, heightProp${hasComputedRatio ? ', ratio' : ''}]);`
 			);
 
 			// Add width and height props
@@ -284,6 +285,25 @@ export function createJSXComponent(
 				template: '',
 			};
 		}
+	}
+
+	// Prepare content before useMemo check
+	let contentTemplate: undefined | string;
+	let stringifiedContent = stringifyFactoryIconContent(
+		data.icon,
+		isEmbeddedCSS ? style : undefined
+	);
+	if (!hasFallback) {
+		// Replace IDs to avoid conflicts when multiple instances are used
+		const replaceIDs = addReplaceIDsFunctionAsset(imports, assets, options);
+		stringifiedContent = '' + replaceIDs + '(' + stringifiedContent + ')';
+	}
+	if (!hasFallback) {
+		const funcName = addInnerHTMLFunctionAsset(imports, assets, options);
+		componentInternalCode.push(
+			`const content = useMemo(() => ({__html: ${funcName}(${stringifiedContent})}), []);`
+		);
+		contentTemplate = `dangerouslySetInnerHTML: content,`;
 	}
 
 	// Add useMemo import if needed
@@ -305,20 +325,8 @@ export function createJSXComponent(
 	};
 
 	// Add content
-	let contentTemplate: undefined | string;
-	const contentValue = stringifyFactoryIconContent(
-		data.icon,
-		isEmbeddedCSS ? style : undefined
-	);
-	if (!hasFallback) {
-		const funcName = addInnerHTMLFunctionAsset(imports, assets, options);
-		componentExternalCode.push(
-			`const content = {__html: ${funcName}(${contentValue})};`
-		);
-		contentTemplate = `dangerouslySetInnerHTML: content,`;
-	}
 	props.content = {
-		value: contentValue,
+		value: stringifiedContent,
 		template: contentTemplate,
 	};
 	if (hasFallback && defaultFallback) {
@@ -347,13 +355,13 @@ export function createJSXComponent(
 	const typesCode = useTS
 		? `interface Props {\n${propTypes}\n};\n\n`
 		: propTypes
-			? `/** @type {{${propTypes.replace(/\s*\n\s*/g, ' ').trim()}}} */\n`
+			? `/** @param {{${propTypes.replace(/\s*\n\s*/g, ' ').trim()}}} */\n`
 			: '';
 
 	// Generate component function
 	const usedProps = getUsedFactoryProps(props);
 	const propsDestricturing = usedProps.length
-		? `{${[...usedProps, '...props'].join(', ')}}`
+		? `{${[...usedProps.map((prop) => `${prop}: ${prop}Prop`), '...props'].join(', ')}}`
 		: 'props';
 	const componentFunction = `${typesCode}function Component(${propsDestricturing}${useTS ? `: Props` : ''}) {
 \t${componentInternalCode.join('\n\t')}

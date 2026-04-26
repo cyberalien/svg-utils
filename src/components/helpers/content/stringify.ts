@@ -7,11 +7,14 @@ import type { ComponentFactorySource } from '../../types/source.js';
  */
 export function stringifyFactoryIconContent(
 	icon: Omit<ComponentFactorySource, 'viewBox' | 'fallback' | 'states'>,
-	embedCSS?: CSSGeneratedStylesheet
+	embedCSS?: CSSGeneratedStylesheet,
+	addQuotes = true
 ): string {
 	const style = embedCSS ? stringifyStylesheet(embedCSS) : '';
 	const fullContent = style
 		? `<style>${style}</style>${icon.content}`
 		: icon.content;
-	return '`' + fullContent.replace(/`/g, '\\`') + '`';
+	return addQuotes
+		? '`' + fullContent.replace(/`/g, '\\`') + '`'
+		: fullContent;
 }

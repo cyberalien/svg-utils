@@ -32,28 +32,30 @@ describe('Creating Solid components', () => {
 		expect(result.content).toBe(
 			`import { createMemo, splitProps } from 'solid-js';
 import { getSizeProps } from '../helpers/size.js';
+import { replaceIDs } from '../helpers/ids.js';
 
 const viewBox = '0 0 24 24';
-const content = \`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`;
 
 /** @param props {{width?: string; height?: string;}} */
 function Component(props) {
 	const [local, others] = splitProps(props, ["width","height"]);
 
 	const size = createMemo(() => getSizeProps(local.width, local.height, 1));
-	return (<svg xmlns="http://www.w3.org/2000/svg" {...size()} viewBox={viewBox} innerHTML={content} {...others} />);
+	const content = createMemo(() => replaceIDs(\`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`));
+	return (<svg xmlns="http://www.w3.org/2000/svg" {...size()} viewBox={viewBox} innerHTML={content()} {...others} />);
 }
 
 export default Component;
 `
 		);
-		expect(result.assets).toHaveLength(2);
+		expect(result.assets).toHaveLength(3);
 		expect(result.assets[0].filename).toBe('helpers/size.js');
-		expect(result.assets[1].filename).toBe('i/icon.d.ts');
+		expect(result.assets[1].filename).toBe('helpers/ids.js');
+		expect(result.assets[2].filename).toBe('i/icon.d.ts');
 		expect(result.style).toBeUndefined();
 
 		// Check types
-		expect(result.assets[1].content).toBe(`import { JSX } from 'solid-js';
+		expect(result.assets[2].content).toBe(`import { JSX } from 'solid-js';
 
 interface IconProps {
 	width?: string;
@@ -170,25 +172,28 @@ export default Component;
 
 		// console.log(result.content);
 		expect(result.content).toBe(
-			`import './css/${testClassName}.css';
+			`import { createMemo } from 'solid-js';
+import { replaceIDs } from './helpers/ids.js';
+import './css/${testClassName}.css';
 
 const viewBox = '0 0 16 16';
-const content = \`<path class="${testClassName}"/>\`;
 
 function Component(props) {
-\treturn (<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox={viewBox} innerHTML={content} {...props} />);
+\tconst content = createMemo(() => replaceIDs(\`<path class="${testClassName}"/>\`));
+\treturn (<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox={viewBox} innerHTML={content()} {...props} />);
 }
 
 export default Component;
 `
 		);
-		expect(result.assets).toHaveLength(2);
+		expect(result.assets).toHaveLength(3);
 		expect(result.assets[0].filename).toBe(`css/${testClassName}.css`);
-		expect(result.assets[1].filename).toBe('line-icon.d.ts');
+		expect(result.assets[1].filename).toBe('helpers/ids.js');
+		expect(result.assets[2].filename).toBe('line-icon.d.ts');
 		expect(result.style).toBeUndefined();
 
 		// Check types
-		expect(result.assets[1].content).toBe(`import { JSX } from 'solid-js';
+		expect(result.assets[2].content).toBe(`import { JSX } from 'solid-js';
 
 interface IconProps {
 
@@ -246,10 +251,10 @@ export default Component;
 		expect(result.content).toBe(
 			`import { createMemo, splitProps } from 'solid-js';
 import { getSizeProps } from './helpers/size.js';
+import { replaceIDs } from './helpers/ids.js';
 import './css/${testClassName}.css';
 
 const viewBox = '0 0 16 16';
-const content = \`<path class="${testClassName}"/>\`;
 
 interface Props {
 \twidth?: string;
@@ -260,20 +265,22 @@ function Component(props: Props) {
 \tconst [local, others] = splitProps(props, ["width","height"]);
 
 \tconst size = createMemo(() => getSizeProps(local.width, local.height, 1));
-\treturn (<svg xmlns="http://www.w3.org/2000/svg" {...size()} viewBox={viewBox} innerHTML={content} {...others} />);
+\tconst content = createMemo(() => replaceIDs(\`<path class="${testClassName}"/>\`));
+\treturn (<svg xmlns="http://www.w3.org/2000/svg" {...size()} viewBox={viewBox} innerHTML={content()} {...others} />);
 }
 
 export default Component;
 `
 		);
-		expect(result.assets).toHaveLength(3);
+		expect(result.assets).toHaveLength(4);
 		expect(result.assets[0].filename).toBe(`css/${testClassName}.css`);
 		expect(result.assets[1].filename).toBe('helpers/size.js');
-		expect(result.assets[2].filename).toBe('line-icon.d.ts');
+		expect(result.assets[2].filename).toBe('helpers/ids.js');
+		expect(result.assets[3].filename).toBe('line-icon.d.ts');
 		expect(result.style).toBeUndefined();
 
 		// Check types
-		expect(result.assets[2].content).toBe(`import { JSX } from 'solid-js';
+		expect(result.assets[3].content).toBe(`import { JSX } from 'solid-js';
 
 interface IconProps {
 	width?: string;
@@ -334,24 +341,26 @@ export default Component;
 		expect(result.content).toBe(
 			`import { createMemo, splitProps } from 'solid-js';
 import { getSizeProps } from '../../helpers/size.js';
+import { replaceIDs } from '../../helpers/ids.js';
 
 const viewBox = '0 0 16 16';
-const content = \`<path class="${testClassName}"/>\`;
 
 /** @param props {{width?: string; height?: string;}} */
 function Component(props) {
 \tconst [local, others] = splitProps(props, ["width","height"]);
 
 \tconst size = createMemo(() => getSizeProps(local.width, local.height, 1));
-\treturn (<svg xmlns="http://www.w3.org/2000/svg" {...size()} viewBox={viewBox} innerHTML={content} {...others} />);
+\tconst content = createMemo(() => replaceIDs(\`<path class="${testClassName}"/>\`));
+\treturn (<svg xmlns="http://www.w3.org/2000/svg" {...size()} viewBox={viewBox} innerHTML={content()} {...others} />);
 }
 
 export default Component;
 `
 		);
-		expect(result.assets).toHaveLength(2);
+		expect(result.assets).toHaveLength(3);
 		expect(result.assets[0].filename).toBe('helpers/size.js');
-		expect(result.assets[1].filename).toBe(
+		expect(result.assets[1].filename).toBe('helpers/ids.js');
+		expect(result.assets[2].filename).toBe(
 			`${prefix}/${name.slice(0, 1)}/${name}.d.ts`
 		);
 
@@ -363,7 +372,7 @@ export default Component;
 		);
 
 		// Check types
-		expect(result.assets[1].content).toBe(`import { JSX } from 'solid-js';
+		expect(result.assets[2].content).toBe(`import { JSX } from 'solid-js';
 
 interface IconProps {
 	width?: string;
@@ -404,10 +413,10 @@ export default Component;
 		expect(result.content).toBe(
 			`import { createMemo, splitProps } from 'solid-js';
 import { getSizeProps } from '../helpers/size.js';
+import { replaceIDs } from '../helpers/ids.js';
 
 const baseViewBox = '0 0 20 24';
 const squareViewBox = '-2 0 24 24';
-const content = \`<path d="M0 0l20 24" stroke="currentColor" fill="none" />\`;
 
 /** @param props {{width?: string; height?: string; square?: boolean;}} */
 function Component(props) {
@@ -416,19 +425,21 @@ function Component(props) {
 \tconst viewBox = createMemo(() => local.square ? squareViewBox : baseViewBox);
 \tconst ratio = createMemo(() => local.square ? 1 : 0.84);
 \tconst size = createMemo(() => getSizeProps(local.width, local.height, ratio()));
-\treturn (<svg xmlns="http://www.w3.org/2000/svg" {...size()} viewBox={viewBox()} innerHTML={content} {...others} />);
+\tconst content = createMemo(() => replaceIDs(\`<path d="M0 0l20 24" stroke="currentColor" fill="none" />\`));
+\treturn (<svg xmlns="http://www.w3.org/2000/svg" {...size()} viewBox={viewBox()} innerHTML={content()} {...others} />);
 }
 
 export default Component;
 `
 		);
-		expect(result.assets).toHaveLength(2);
+		expect(result.assets).toHaveLength(3);
 		expect(result.assets[0].filename).toBe('helpers/size.js');
-		expect(result.assets[1].filename).toBe('i/icon.d.ts');
+		expect(result.assets[1].filename).toBe('helpers/ids.js');
+		expect(result.assets[2].filename).toBe('i/icon.d.ts');
 		expect(result.style).toBeUndefined();
 
 		// Check types
-		expect(result.assets[1].content).toBe(`import { JSX } from 'solid-js';
+		expect(result.assets[2].content).toBe(`import { JSX } from 'solid-js';
 
 interface IconProps {
 	width?: string;
@@ -534,27 +545,29 @@ export default Component;
 		});
 		// console.log(result.content);
 		expect(result.content).toBe(
-			`import { splitProps } from 'solid-js';
+			`import { createMemo, splitProps } from 'solid-js';
+import { replaceIDs } from '../helpers/ids.js';
 
 const viewBox = '0 0 24 24';
-const content = \`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`;
 
 /** @param props {{square?: boolean;}} */
 function Component(props) {
 \tconst [local, others] = splitProps(props, ["square"]);
 
-\treturn (<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox={viewBox} innerHTML={content} {...others} />);
+\tconst content = createMemo(() => replaceIDs(\`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`));
+\treturn (<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox={viewBox} innerHTML={content()} {...others} />);
 }
 
 export default Component;
 `
 		);
-		expect(result.assets).toHaveLength(1);
-		expect(result.assets[0].filename).toBe('i/icon.d.ts');
+		expect(result.assets).toHaveLength(2);
+		expect(result.assets[0].filename).toBe('helpers/ids.js');
+		expect(result.assets[1].filename).toBe('i/icon.d.ts');
 		expect(result.style).toBeUndefined();
 
 		// Check types
-		expect(result.assets[0].content).toBe(`import { JSX } from 'solid-js';
+		expect(result.assets[1].content).toBe(`import { JSX } from 'solid-js';
 
 interface IconProps {
 	square?: boolean;
@@ -594,28 +607,30 @@ export default Component;
 		expect(result.content).toBe(
 			`import { createMemo, splitProps } from 'solid-js';
 import { getSizeProps } from '../helpers/size.js';
+import { replaceIDs } from '../helpers/ids.js';
 
 const viewBox = '0 0 24 24';
-const content = \`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`;
 
 /** @param props {{width?: string; height?: string; square?: boolean;}} */
 function Component(props) {
 \tconst [local, others] = splitProps(props, ["width","height","square"]);
 
 \tconst size = createMemo(() => getSizeProps(local.width, local.height, 1));
-\treturn (<svg xmlns="http://www.w3.org/2000/svg" {...size()} viewBox={viewBox} innerHTML={content} {...others} />);
+\tconst content = createMemo(() => replaceIDs(\`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`));
+\treturn (<svg xmlns="http://www.w3.org/2000/svg" {...size()} viewBox={viewBox} innerHTML={content()} {...others} />);
 }
 
 export default Component;
 `
 		);
-		expect(result.assets).toHaveLength(2);
+		expect(result.assets).toHaveLength(3);
 		expect(result.assets[0].filename).toBe('helpers/size.js');
-		expect(result.assets[1].filename).toBe('i/icon.d.ts');
+		expect(result.assets[1].filename).toBe('helpers/ids.js');
+		expect(result.assets[2].filename).toBe('i/icon.d.ts');
 		expect(result.style).toBeUndefined();
 
 		// Check types
-		expect(result.assets[1].content).toBe(`import { JSX } from 'solid-js';
+		expect(result.assets[2].content).toBe(`import { JSX } from 'solid-js';
 
 interface IconProps {
 	width?: string;
@@ -674,21 +689,24 @@ export default Component;
 
 		// console.log(result.content);
 		expect(result.content).toBe(
-			`import './icon.css';
+			`import { createMemo } from 'solid-js';
+import { replaceIDs } from './helpers/ids.js';
+import './icon.css';
 
 const viewBox = '0 0 16 16';
-const content = \`<path class="${testClassName}"/><path class="${testClassName2}"/>\`;
 
 function Component(props) {
-\treturn (<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox={viewBox} innerHTML={content} {...props} />);
+	const content = createMemo(() => replaceIDs(\`<path class="${testClassName}"/><path class="${testClassName2}"/>\`));
+\treturn (<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox={viewBox} innerHTML={content()} {...props} />);
 }
 
 export default Component;
 `
 		);
-		expect(result.assets).toHaveLength(2);
+		expect(result.assets).toHaveLength(3);
 		expect(result.assets[0].filename).toBe(`icon.css`);
-		expect(result.assets[1].filename).toBe('line-icon.d.ts');
+		expect(result.assets[1].filename).toBe('helpers/ids.js');
+		expect(result.assets[2].filename).toBe('line-icon.d.ts');
 	});
 
 	it('CSS in component', () => {
@@ -732,8 +750,13 @@ export default Component;
 
 		// console.log(result.content);
 		expect(result.content).toBe(
-			`const viewBox = '0 0 16 16';
-const content = \`<style>.${testClassName2} {
+			`import { createMemo } from 'solid-js';
+import { replaceIDs } from './helpers/ids.js';
+
+const viewBox = '0 0 16 16';
+
+function Component(props) {
+	const content = createMemo(() => replaceIDs(\`<style>.${testClassName2} {
   d: path("M16 0l-16 16");
   fill: currentColor;
 }
@@ -742,17 +765,16 @@ const content = \`<style>.${testClassName2} {
   d: path("M0 0l16 16");
   fill: currentColor;
 }
-</style><path class="${testClassName}"/><path class="${testClassName2}"/>\`;
-
-function Component(props) {
-\treturn (<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox={viewBox} innerHTML={content} {...props} />);
+</style><path class="${testClassName}"/><path class="${testClassName2}"/>\`));
+\treturn (<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox={viewBox} innerHTML={content()} {...props} />);
 }
 
 export default Component;
 `
 		);
-		expect(result.assets).toHaveLength(1);
-		expect(result.assets[0].filename).toBe('line-icon.d.ts');
+		expect(result.assets).toHaveLength(2);
+		expect(result.assets[0].filename).toBe('helpers/ids.js');
+		expect(result.assets[1].filename).toBe('line-icon.d.ts');
 		expect(result.style).toBeUndefined();
 		expect(result.style).toBeUndefined();
 	});

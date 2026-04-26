@@ -60,6 +60,9 @@ export interface ComponentFactoryRenderingOptions extends ComponentFactoryStatef
 	// CSS export mode
 	cssMode: CSSExportMode;
 
+	// Legacy CSS mode: do not use nested selectors
+	legacyCSS?: boolean;
+
 	// Merge all CSS into single file, value is filename
 	// Should not be used with cssMode='file'
 	mergeCSS?: GeneratedAssetPath;

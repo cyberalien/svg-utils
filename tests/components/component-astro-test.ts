@@ -1,5 +1,5 @@
 import { convertIconifyIconToFactoryContent } from '../../src/components/prepare/iconify.js';
-import { createVueComponent } from '../../src/components/vue.js';
+import { createAstroComponent } from '../../src/components/astro.js';
 import { componentFactoryFileSystemOptions } from '../../src/components/prepare/options.js';
 import type { FactoryIconData } from '../../src/components/types/data.js';
 import { getGeneratedAssetFilename } from '../../src/components/helpers/filenames/asset.js';
@@ -8,7 +8,7 @@ import { createUniqueHashContext } from '../../src/helpers/hash/context.js';
 import { stringifyStylesheet } from '../../src/css/stylesheet.js';
 import { prepareComponentFactoryStatefulIcon } from '../../src/components/prepare/states.js';
 
-describe('Creating Vue components', () => {
+describe('Creating Astro components', () => {
 	it('Simple icon', () => {
 		const context = createUniqueHashContext();
 		const options = componentFactoryFileSystemOptions({});
@@ -24,25 +24,26 @@ describe('Creating Vue components', () => {
 					'<path d="M0 0l24 24" stroke="currentColor" fill="none" />',
 			},
 		};
-		const result = createVueComponent(data, {
+		const result = createAstroComponent(data, {
 			context,
 			...options,
 			cssMode: 'import',
 		});
 		// console.log(result.content);
 		expect(result.content).toBe(
-			`<script setup>
-import { computed } from 'vue';
+			`---
 import { getSizeProps } from '../helpers/size.js';
 import { replaceIDs } from '../helpers/ids.js';
 
-const props = defineProps(["width","height"]);
+/** @type {{width?: string; height?: string;}} */
+const {width: widthProp, height: heightProp, ...props} = Astro.props;
 
 const viewBox = '0 0 24 24';
-const size = computed(() => getSizeProps(props.width, props.height, 1));
+const size = getSizeProps(widthProp, heightProp, 1);
 const content = replaceIDs(\`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`);
-</script>
-<template><svg xmlns="http://www.w3.org/2000/svg" v-bind="size" :viewBox="viewBox" v-html="content" /></template>
+---
+
+<svg xmlns="http://www.w3.org/2000/svg" {...size} viewBox={viewBox} {...props} set:html={content}></svg>
 `
 		);
 		expect(result.assets).toHaveLength(3);
@@ -53,14 +54,14 @@ const content = replaceIDs(\`<path d="M0 0l24 24" stroke="currentColor" fill="no
 
 		// Check types
 		expect(result.assets[2].content)
-			.toBe(`import { DefineSetupFnComponent, PublicProps } from 'vue';
+			.toBe(`/// <reference types="astro/astro-jsx" />
 
 interface IconProps {
 	width?: string;
 	height?: string;
 }
 
-declare const Component: DefineSetupFnComponent<IconProps, {}, {}, IconProps & {}, PublicProps>;
+declare const Component: (props: astroHTML.JSX.SVGAttributes & IconProps) => astroHTML.JSX.Element
 
 export { type IconProps };
 export default Component;
@@ -99,7 +100,7 @@ export default Component;
 		const testClassName = classNames[0];
 
 		// Generate component
-		const result = createVueComponent(data, {
+		const result = createAstroComponent(data, {
 			context,
 			...options,
 			cssMode: 'import',
@@ -108,14 +109,17 @@ export default Component;
 
 		// console.log(result.content);
 		expect(result.content).toBe(
-			`<script setup>
+			`---
 import { replaceIDs } from './helpers/ids.js';
 import './css/${testClassName}.css';
 
+const props = Astro.props;
+
 const viewBox = '0 0 16 16';
 const content = replaceIDs(\`<path class="${testClassName}"/>\`);
-</script>
-<template><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" :viewBox="viewBox" v-html="content" /></template>
+---
+
+<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox={viewBox} {...props} set:html={content}></svg>
 `
 		);
 		expect(result.assets).toHaveLength(3);
@@ -126,13 +130,13 @@ const content = replaceIDs(\`<path class="${testClassName}"/>\`);
 
 		// Check types
 		expect(result.assets[2].content)
-			.toBe(`import { DefineSetupFnComponent, PublicProps } from 'vue';
+			.toBe(`/// <reference types="astro/astro-jsx" />
 
 interface IconProps {
 
 }
 
-declare const Component: DefineSetupFnComponent<IconProps, {}, {}, IconProps & {}, PublicProps>;
+declare const Component: (props: astroHTML.JSX.SVGAttributes & IconProps) => astroHTML.JSX.Element
 
 export { type IconProps };
 export default Component;
@@ -174,31 +178,28 @@ export default Component;
 		const testClassName = classNames[0];
 
 		// Generate component
-		const result = createVueComponent(data, {
+		const result = createAstroComponent(data, {
 			context,
 			...options,
 			cssMode: 'import',
-			ts: true,
 		});
 
 		// console.log(result.content);
 		expect(result.content).toBe(
-			`<script setup lang="ts">
-import { computed } from 'vue';
+			`---
 import { getSizeProps } from './helpers/size.js';
 import { replaceIDs } from './helpers/ids.js';
 import './css/${testClassName}.css';
 
-const props = defineProps<{
-\twidth?: string;
-\theight?: string;
-}>();
+/** @type {{width?: string; height?: string;}} */
+const {width: widthProp, height: heightProp, ...props} = Astro.props;
 
 const viewBox = '0 0 16 16';
-const size = computed(() => getSizeProps(props.width, props.height, 1));
+const size = getSizeProps(widthProp, heightProp, 1);
 const content = replaceIDs(\`<path class="${testClassName}"/>\`);
-</script>
-<template><svg xmlns="http://www.w3.org/2000/svg" v-bind="size" :viewBox="viewBox" v-html="content" /></template>
+---
+
+<svg xmlns="http://www.w3.org/2000/svg" {...size} viewBox={viewBox} {...props} set:html={content}></svg>
 `
 		);
 		expect(result.assets).toHaveLength(4);
@@ -210,14 +211,14 @@ const content = replaceIDs(\`<path class="${testClassName}"/>\`);
 
 		// Check types
 		expect(result.assets[3].content)
-			.toBe(`import { DefineSetupFnComponent, PublicProps } from 'vue';
+			.toBe(`/// <reference types="astro/astro-jsx" />
 
 interface IconProps {
 	width?: string;
 	height?: string;
 }
 
-declare const Component: DefineSetupFnComponent<IconProps, {}, {}, IconProps & {}, PublicProps>;
+declare const Component: (props: astroHTML.JSX.SVGAttributes & IconProps) => astroHTML.JSX.Element
 
 export { type IconProps };
 export default Component;
@@ -263,7 +264,7 @@ export default Component;
 			'.css',
 			options
 		);
-		const result = createVueComponent(data, {
+		const result = createAstroComponent(data, {
 			context,
 			...options,
 			cssMode: 'prop',
@@ -276,18 +277,19 @@ export default Component;
 
 		// console.log(result.content);
 		expect(result.content).toBe(
-			`<script setup>
-import { computed } from 'vue';
+			`---
 import { getSizeProps } from './helpers/size.js';
 import { replaceIDs } from './helpers/ids.js';
 
-const props = defineProps(["width","height"]);
+/** @type {{width?: string; height?: string;}} */
+const {width: widthProp, height: heightProp, ...props} = Astro.props;
 
 const viewBox = '0 0 16 16';
-const size = computed(() => getSizeProps(props.width, props.height, 1));
+const size = getSizeProps(widthProp, heightProp, 1);
 const content = replaceIDs(\`<path class="${testClassName}"/>\`);
-</script>
-<template><svg xmlns="http://www.w3.org/2000/svg" v-bind="size" :viewBox="viewBox" v-html="content" /></template>
+---
+
+<svg xmlns="http://www.w3.org/2000/svg" {...size} viewBox={viewBox} {...props} set:html={content}></svg>
 `
 		);
 		expect(result.assets).toHaveLength(3);
@@ -302,14 +304,14 @@ const content = replaceIDs(\`<path class="${testClassName}"/>\`);
 
 		// Check types
 		expect(result.assets[2].content)
-			.toBe(`import { DefineSetupFnComponent, PublicProps } from 'vue';
+			.toBe(`/// <reference types="astro/astro-jsx" />
 
 interface IconProps {
 	width?: string;
 	height?: string;
 }
 
-declare const Component: DefineSetupFnComponent<IconProps, {}, {}, IconProps & {}, PublicProps>;
+declare const Component: (props: astroHTML.JSX.SVGAttributes & IconProps) => astroHTML.JSX.Element
 
 export { type IconProps };
 export default Component;
@@ -331,7 +333,7 @@ export default Component;
 					'<path d="M0 0l20 24" stroke="currentColor" fill="none" />',
 			},
 		};
-		const result = createVueComponent(data, {
+		const result = createAstroComponent(data, {
 			context,
 			...options,
 			cssMode: 'import',
@@ -339,21 +341,22 @@ export default Component;
 		});
 		// console.log(result.content);
 		expect(result.content).toBe(
-			`<script setup>
-import { computed } from 'vue';
+			`---
 import { getSizeProps } from '../helpers/size.js';
 import { replaceIDs } from '../helpers/ids.js';
 
-const props = defineProps(["width","height","square"]);
+/** @type {{width?: string; height?: string; square?: boolean;}} */
+const {width: widthProp, height: heightProp, square: squareProp, ...props} = Astro.props;
 
 const baseViewBox = '0 0 20 24';
 const squareViewBox = '-2 0 24 24';
-const viewBox = computed(() => props.square ? squareViewBox : baseViewBox);
-const ratio = computed(() => props.square ? 1 : 0.84);
-const size = computed(() => getSizeProps(props.width, props.height, ratio.value));
+const viewBoxComputed = squareProp ? squareViewBox : baseViewBox;
+const ratio = squareProp ? 1 : 0.84;
+const size = getSizeProps(widthProp, heightProp, ratio);
 const content = replaceIDs(\`<path d="M0 0l20 24" stroke="currentColor" fill="none" />\`);
-</script>
-<template><svg xmlns="http://www.w3.org/2000/svg" v-bind="size" :viewBox="viewBox" v-html="content" /></template>
+---
+
+<svg xmlns="http://www.w3.org/2000/svg" {...size} viewBox={viewBoxComputed} {...props} set:html={content}></svg>
 `
 		);
 		expect(result.assets).toHaveLength(3);
@@ -364,7 +367,7 @@ const content = replaceIDs(\`<path d="M0 0l20 24" stroke="currentColor" fill="no
 
 		// Check types
 		expect(result.assets[2].content)
-			.toBe(`import { DefineSetupFnComponent, PublicProps } from 'vue';
+			.toBe(`/// <reference types="astro/astro-jsx" />
 
 interface IconProps {
 	width?: string;
@@ -372,7 +375,7 @@ interface IconProps {
 	square?: boolean;
 }
 
-declare const Component: DefineSetupFnComponent<IconProps, {}, {}, IconProps & {}, PublicProps>;
+declare const Component: (props: astroHTML.JSX.SVGAttributes & IconProps) => astroHTML.JSX.Element
 
 export { type IconProps };
 export default Component;
@@ -394,7 +397,7 @@ export default Component;
 					'<path d="M0 0l24 24" stroke="currentColor" fill="none" />',
 			},
 		};
-		const result = createVueComponent(data, {
+		const result = createAstroComponent(data, {
 			context,
 			...options,
 			cssMode: 'import',
@@ -404,15 +407,17 @@ export default Component;
 		});
 		// console.log(result.content);
 		expect(result.content).toBe(
-			`<script setup>
+			`---
 import { replaceIDs } from '../helpers/ids.js';
 
-const props = defineProps(["square"]);
+/** @type {{square?: boolean;}} */
+const {square: squareProp, ...props} = Astro.props;
 
 const viewBox = '0 0 24 24';
 const content = replaceIDs(\`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`);
-</script>
-<template><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" :viewBox="viewBox" v-html="content" /></template>
+---
+
+<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox={viewBox} {...props} set:html={content}></svg>
 `
 		);
 		expect(result.assets).toHaveLength(2);
@@ -422,13 +427,13 @@ const content = replaceIDs(\`<path d="M0 0l24 24" stroke="currentColor" fill="no
 
 		// Check types
 		expect(result.assets[1].content)
-			.toBe(`import { DefineSetupFnComponent, PublicProps } from 'vue';
+			.toBe(`/// <reference types="astro/astro-jsx" />
 
 interface IconProps {
 	square?: boolean;
 }
 
-declare const Component: DefineSetupFnComponent<IconProps, {}, {}, IconProps & {}, PublicProps>;
+declare const Component: (props: astroHTML.JSX.SVGAttributes & IconProps) => astroHTML.JSX.Element
 
 export { type IconProps };
 export default Component;
@@ -450,7 +455,7 @@ export default Component;
 					'<path d="M0 0l24 24" stroke="currentColor" fill="none" />',
 			},
 		};
-		const result = createVueComponent(data, {
+		const result = createAstroComponent(data, {
 			context,
 			...options,
 			cssMode: 'import',
@@ -458,18 +463,19 @@ export default Component;
 		});
 		// console.log(result.content);
 		expect(result.content).toBe(
-			`<script setup>
-import { computed } from 'vue';
+			`---
 import { getSizeProps } from '../helpers/size.js';
 import { replaceIDs } from '../helpers/ids.js';
 
-const props = defineProps(["width","height","square"]);
+/** @type {{width?: string; height?: string; square?: boolean;}} */
+const {width: widthProp, height: heightProp, square: squareProp, ...props} = Astro.props;
 
 const viewBox = '0 0 24 24';
-const size = computed(() => getSizeProps(props.width, props.height, 1));
+const size = getSizeProps(widthProp, heightProp, 1);
 const content = replaceIDs(\`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`);
-</script>
-<template><svg xmlns="http://www.w3.org/2000/svg" v-bind="size" :viewBox="viewBox" v-html="content" /></template>
+---
+
+<svg xmlns="http://www.w3.org/2000/svg" {...size} viewBox={viewBox} {...props} set:html={content}></svg>
 `
 		);
 		expect(result.assets).toHaveLength(3);
@@ -480,7 +486,7 @@ const content = replaceIDs(\`<path d="M0 0l24 24" stroke="currentColor" fill="no
 
 		// Check types
 		expect(result.assets[2].content)
-			.toBe(`import { DefineSetupFnComponent, PublicProps } from 'vue';
+			.toBe(`/// <reference types="astro/astro-jsx" />
 
 interface IconProps {
 	width?: string;
@@ -488,7 +494,7 @@ interface IconProps {
 	square?: boolean;
 }
 
-declare const Component: DefineSetupFnComponent<IconProps, {}, {}, IconProps & {}, PublicProps>;
+declare const Component: (props: astroHTML.JSX.SVGAttributes & IconProps) => astroHTML.JSX.Element
 
 export { type IconProps };
 export default Component;
@@ -527,7 +533,7 @@ export default Component;
 		const [testClassName, testClassName2] = classNames;
 
 		// Generate component
-		const result = createVueComponent(data, {
+		const result = createAstroComponent(data, {
 			context,
 			...options,
 			cssMode: 'import',
@@ -537,14 +543,17 @@ export default Component;
 
 		// console.log(result.content);
 		expect(result.content).toBe(
-			`<script setup>
+			`---
 import { replaceIDs } from './helpers/ids.js';
 import './icon.css';
 
+const props = Astro.props;
+
 const viewBox = '0 0 16 16';
 const content = replaceIDs(\`<path class="${testClassName}"/><path class="${testClassName2}"/>\`);
-</script>
-<template><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" :viewBox="viewBox" v-html="content" /></template>
+---
+
+<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox={viewBox} {...props} set:html={content}></svg>
 `
 		);
 		expect(result.assets).toHaveLength(3);
@@ -587,7 +596,7 @@ const content = replaceIDs(\`<path class="${testClassName}"/><path class="${test
 		const [testClassName, testClassName2] = classNames;
 
 		// Generate component
-		const result = createVueComponent(data, {
+		const result = createAstroComponent(data, {
 			context,
 			...options,
 			cssMode: 'embed',
@@ -597,13 +606,16 @@ const content = replaceIDs(\`<path class="${testClassName}"/><path class="${test
 
 		// console.log(result.content);
 		expect(result.content).toBe(
-			`<script setup>
+			`---
 import { replaceIDs } from './helpers/ids.js';
+
+const props = Astro.props;
 
 const viewBox = '0 0 16 16';
 const content = replaceIDs(\`<path class="${testClassName}"/><path class="${testClassName2}"/>\`);
-</script>
-<template><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" :viewBox="viewBox" v-html="content" /></template>
+---
+
+<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox={viewBox} {...props} set:html={content}></svg>
 <style>
 .${testClassName2} {
   d: path("M16 0l-16 16");
@@ -704,22 +716,23 @@ const content = replaceIDs(\`<path class="${testClassName}"/><path class="${test
 		expect(data.icon.statefulData!.staticClassname).toBe('state-static');
 
 		// Generate component
-		const result = createVueComponent(data, {
+		const result = createAstroComponent(data, {
 			context,
 			...options,
 			cssMode: 'import',
-			ts: true,
 		});
 
 		// Check template
 		expect(result.content).toContain(
-			'<template><Icon :class="className" :width="width" :height="height" :viewBox="viewBox" :content="content" :fallback="fallback" /></template>'
+			`<svg xmlns="http://www.w3.org/2000/svg" class={className} {...size} viewBox={viewBox} {...props} set:html={content}></svg>`
 		);
 
-		// Make sure all stateful computed variables are present in code
-		expect(result.content).toContain('const states = computed(()');
-		expect(result.content).toContain('const fallback = computed(()');
-		expect(result.content).toContain('const className = computed(()');
+		// Make sure all stateful computed variables are present in code, except for fallback
+		expect(result.content).toContain('const states = {');
+		expect(result.content).not.toContain('const fallback = ');
+		expect(result.content).toContain(
+			'const className = Object.entries(states)'
+		);
 
 		// Check props
 		expect(result.content).toContain(

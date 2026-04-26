@@ -28,10 +28,11 @@ describe('Creating raw components', () => {
 			cssMode: 'import',
 		});
 		expect(result.content).toBe(
-			'const icon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0l24 24" stroke="currentColor" fill="none" /></svg>`;\n\nexport default icon;\n'
+			'import { replaceIDs } from \'../helpers/ids.js\';\n\nconst icon = () => replaceIDs(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0l24 24" stroke="currentColor" fill="none" /></svg>`);\n\nexport default icon;\n'
 		);
-		expect(result.assets).toHaveLength(1);
-		expect(result.assets[0].filename).toBe('i/icon.d.ts');
+		expect(result.assets).toHaveLength(2);
+		expect(result.assets[0].filename).toBe('helpers/ids.js');
+		expect(result.assets[1].filename).toBe('i/icon.d.ts');
 		expect(result.style).toBeUndefined();
 	});
 
@@ -76,14 +77,15 @@ describe('Creating raw components', () => {
 			height: '1em',
 		});
 		expect(result.content).toBe(
-			`import './css/${testClassName}.css';\n\n` +
-				'const icon = `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16"><path class="' +
+			`import { replaceIDs } from './helpers/ids.js';\nimport './css/${testClassName}.css';\n\n` +
+				'const icon = () => replaceIDs(`<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16"><path class="' +
 				testClassName +
-				'"/></svg>`;\n\nexport default icon;\n'
+				'"/></svg>`);\n\nexport default icon;\n'
 		);
-		expect(result.assets).toHaveLength(2);
+		expect(result.assets).toHaveLength(3);
 		expect(result.assets[0].filename).toBe(`css/${testClassName}.css`);
-		expect(result.assets[1].filename).toBe('line-icon.d.ts');
+		expect(result.assets[1].filename).toBe(`helpers/ids.js`);
+		expect(result.assets[2].filename).toBe('line-icon.d.ts');
 		expect(result.style).toBeUndefined();
 	});
 
@@ -128,14 +130,15 @@ describe('Creating raw components', () => {
 			height: '1em',
 		});
 		expect(result.content).toBe(
-			`import './css/${testClassName}.css';\n\n` +
-				'const icon = `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16"><path class="' +
+			`import { replaceIDs } from './helpers/ids.js';\nimport './css/${testClassName}.css';\n\n` +
+				'const icon = () => replaceIDs(`<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16"><path class="' +
 				testClassName +
-				'"/></svg>`;\n\nexport default icon;\n'
+				'"/></svg>`);\n\nexport default icon;\n'
 		);
-		expect(result.assets).toHaveLength(2);
+		expect(result.assets).toHaveLength(3);
 		expect(result.assets[0].filename).toBe(`css/${testClassName}.css`);
-		expect(result.assets[1].filename).toBe('line-icon.d.ts');
+		expect(result.assets[1].filename).toBe(`helpers/ids.js`);
+		expect(result.assets[2].filename).toBe('line-icon.d.ts');
 		expect(result.style).toBeUndefined();
 	});
 
@@ -179,12 +182,13 @@ describe('Creating raw components', () => {
 			cssMode: 'prop',
 		});
 		expect(result.content).toBe(
-			'const icon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path class="' +
+			'import { replaceIDs } from \'./helpers/ids.js\';\n\nconst icon = () => replaceIDs(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path class="' +
 				testClassName +
-				'"/></svg>`;\n\nexport default icon;\n'
+				'"/></svg>`);\n\nexport default icon;\n'
 		);
-		expect(result.assets).toHaveLength(1);
-		expect(result.assets[0].filename).toBe('line-icon.d.ts');
+		expect(result.assets).toHaveLength(2);
+		expect(result.assets[0].filename).toBe('helpers/ids.js');
+		expect(result.assets[1].filename).toBe('line-icon.d.ts');
 		expect(
 			result.style ? stringifyStylesheet(result.style) : undefined
 		).toBe(
@@ -232,14 +236,15 @@ describe('Creating raw components', () => {
 			cssMode: 'embed',
 		});
 		expect(result.content).toBe(
-			'const icon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><style>.' +
+			'import { replaceIDs } from \'./helpers/ids.js\';\n\nconst icon = () => replaceIDs(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><style>.' +
 				testClassName +
 				' {\n  d: path("M0 0l16 16");\n  fill: currentColor;\n}\n</style><path class="' +
 				testClassName +
-				'"/></svg>`;\n\nexport default icon;\n'
+				'"/></svg>`);\n\nexport default icon;\n'
 		);
-		expect(result.assets).toHaveLength(1);
-		expect(result.assets[0].filename).toBe('line-icon.d.ts');
+		expect(result.assets).toHaveLength(2);
+		expect(result.assets[0].filename).toBe('helpers/ids.js');
+		expect(result.assets[1].filename).toBe('line-icon.d.ts');
 		expect(result.style).toBeUndefined();
 	});
 
@@ -328,7 +333,7 @@ describe('Creating raw components', () => {
 		// console.log(result.content);
 		// Should not contain any stateful data: requires manually toggling class names SVG
 		expect(result.content).toContain(
-			'const icon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 24"><path class="fabh7v mfq4_u ona74n"/><path class="ek9rqv mfxbmu ona74n"/></svg>`;'
+			'const icon = () => replaceIDs(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 24"><path class="fabh7v mfq4_u ona74n"/><path class="ek9rqv mfxbmu ona74n"/></svg>`);'
 		);
 	});
 });

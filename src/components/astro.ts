@@ -19,48 +19,26 @@ import {
 	getUsedFactoryProps,
 	stringifyFactoryPropTypes,
 } from './helpers/props/ts.js';
-import { addVueComponentTypes } from './helpers/ts/vue.js';
-import { minifyViewBox } from '../svg/viewbox/minify.js';
 import { getViewBoxRatio } from './helpers/content/ratio.js';
 import { stringifyStylesheet } from '../css/stylesheet.js';
-import { addFallbackFunctionAsset } from './helpers/functions/fallback.js';
 import { addCustomFunctionAsset } from './helpers/functions/custom.js';
+import { addAstroComponentTypes } from './helpers/ts/astro.js';
 import { addReplaceIDsFunctionAsset } from './helpers/functions/ids.js';
 
-interface VueOptions extends ComponentFactoryOptions {
-	// Use TypeScript
-	ts?: boolean;
-}
-
 /**
- * Create Vue component code
+ * Create Astro component code
  */
-export function createVueComponent(
+export function createAstroComponent(
 	data: FactoryIconData,
-	options: VueOptions
+	options: ComponentFactoryOptions
 ): FactoryGeneratedComponent {
 	const icon = data.icon;
 	const viewBox = icon.viewBox;
-	const fallback = icon.defaultFallback;
 	const statefulData = icon.statefulData;
-
-	// Check options
-	const useTS = options.ts ?? false;
 
 	// Init data
 	const assets: GeneratedAssetFile[] = [];
 	const imports = createFactoryImports();
-	const dependencies = new Set<string>();
-
-	// Check if fallback is used
-	if (fallback) {
-		imports.named['@iconify/css-vue'] = new Set(['Icon']);
-		dependencies.add('@iconify/css-vue');
-	}
-
-	// Add Vue imports
-	const vueNamedImports = new Set<string>();
-	imports.named['vue'] = vueNamedImports;
 
 	// Add CSS
 	const styleContent = generateCSSFilesForComponent(
@@ -75,8 +53,6 @@ export function createVueComponent(
 
 	const hasComputedViewbox =
 		options.square && !hasFixedSize && viewBox.width !== viewBox.height;
-	const isStringViewBox = !fallback;
-	const hasComputedRatio = hasComputedViewbox && isStringViewBox;
 
 	if (!hasComputedViewbox && (options.width || options.height)) {
 		// If viewBox is hardcoded and one of width/height is set, size is fixed
@@ -85,13 +61,11 @@ export function createVueComponent(
 
 	// Get props
 	const componentCode: string[] = [];
-	const props: FactoryComponentProps = {};
-	if (!fallback) {
-		props.xmlns = 'http://www.w3.org/2000/svg';
-	}
+	const props: FactoryComponentProps = {
+		xmlns: 'http://www.w3.org/2000/svg',
+	};
 
 	// Set stateful props
-	let computedFallback = false;
 	if (statefulData) {
 		const { supportedStates, allStates, staticClassname } = statefulData;
 		if (supportedStates.size || staticClassname) {
@@ -107,7 +81,7 @@ export function createVueComponent(
 							value: state,
 							template: '',
 						};
-						computedStates.push(`'${state}': props['${state}']`);
+						computedStates.push(`'${state}': ${state}Prop`);
 					}
 				} else {
 					// Advanced state
@@ -127,7 +101,7 @@ export function createVueComponent(
 
 						// Add to computed state
 						computedStates.push(
-							`'${stateName}': namedStateValue(props['${stateName}'], '${defaultStateValue}')`
+							`'${stateName}': namedStateValue(${stateName}Prop, '${defaultStateValue}')`
 						);
 						if (!addedStateFunc) {
 							addedStateFunc = true;
@@ -136,8 +110,8 @@ export function createVueComponent(
 							addCustomFunctionAsset(imports, assets, options, {
 								functionName: 'namedStateValue',
 								content: `export function namedStateValue(value, defaultValue) {
-	return value && value !== defaultValue ? value : undefined;
-}`,
+		return value && value !== defaultValue ? value : undefined;
+	}`,
 							});
 						}
 					}
@@ -152,64 +126,49 @@ export function createVueComponent(
 					value: state,
 					template: '',
 				};
-				computedStates.push(`'${state}': props['${state}']`);
+				computedStates.push(`'${state}': ${state}Prop`);
 			}
 
 			// Add computed states
 			if (computedStates.length) {
 				componentCode.push(
-					`const states = computed(() => ({ ${computedStates.join(', ')} }));`
+					`const states = { ${computedStates.join(', ')} };`
 				);
-
-				// Compute stateful fallback
-				if (fallback && statefulData.fallback) {
-					computedFallback = true;
-					const func = addFallbackFunctionAsset(
-						imports,
-						assets,
-						options,
-						statefulData.defaultStateValues
-					);
-					componentCode.push(
-						`const fallback = computed(() => ${func}(${JSON.stringify(statefulData.fallback)},states.value));`
-					);
-				}
 
 				// Compute class name
 				componentCode.push(
-					`const className = computed(() => Object.entries(states.value).map(([key, value]) => value ? \`state-\${value === true ? key : value}\` : '').join(' ').trim() || undefined);`
+					`const className = Object.entries(states).map(([key, value]) => value ? \`state-\${value === true ? key : value}\` : '').join(' ').trim();`
 				);
-				props.className = {
+				props.class = {
 					value: 'className',
-					template: ':class="className"',
+					template: 'class={className}',
 				};
 			}
 		}
 	}
 
 	// Compute viewBox
+	const viewBoxPropValue = `viewBox${hasComputedViewbox ? 'Computed' : ''}`;
 	const getViewBox = (viewBox: IconViewBox) =>
-		isStringViewBox
-			? `'${stringifyIconViewBox(viewBox)}'`
-			: JSON.stringify(minifyViewBox(viewBox));
+		`'${stringifyIconViewBox(viewBox)}'`;
 	if (hasComputedViewbox) {
 		// Computed viewBox, based on square prop
 		componentCode.push(
 			`const baseViewBox = ${getViewBox(viewBox)};`,
 			`const squareViewBox = ${getViewBox(makeSquareViewBox(viewBox))};`,
-			`const viewBox = computed(() => props.square ? squareViewBox : baseViewBox);`
+			`const ${viewBoxPropValue} = squareProp ? squareViewBox : baseViewBox;`
 		);
 	} else {
 		// Hardcoded viewBox
-		componentCode.push(`const viewBox = ${getViewBox(viewBox)};`);
+		componentCode.push(
+			`const ${viewBoxPropValue} = ${getViewBox(viewBox)};`
+		);
 	}
 
 	// Compute width/height ratio
 	const ratioValue = getViewBoxRatio(viewBox);
-	if (hasComputedRatio) {
-		componentCode.push(
-			`const ratio = computed(() => props.square ? 1 : ${ratioValue});`
-		);
+	if (hasComputedViewbox) {
+		componentCode.push(`const ratio = squareProp ? 1 : ${ratioValue};`);
 	}
 
 	// Set size
@@ -222,47 +181,27 @@ export function createVueComponent(
 		props.width = sizeProps.width;
 		props.height = sizeProps.height;
 	} else {
-		// Computed size props
-		if (fallback) {
-			// Computed size in fallback component
-			props.width = {
-				type: 'string',
-				value: 'width',
-				template: ':width="width"',
-			};
-			props.height = {
-				type: 'string',
-				value: 'height',
-				template: ':height="height"',
-			};
-		} else {
-			// Add computed size and getSizeProps() function
-			const getSizeProps = addSizeFunctionAsset(imports, assets, options);
-			componentCode.push(
-				`const size = computed(() => ${getSizeProps}(props.width, props.height, ${
-					hasComputedRatio ? 'ratio.value' : ratioValue
-				}));`
-			);
+		// Add computed size and getSizeProps() function
+		const getSizeProps = addSizeFunctionAsset(imports, assets, options);
+		componentCode.push(
+			`const size = ${getSizeProps}(widthProp, heightProp, ${
+				hasComputedViewbox ? 'ratio' : ratioValue
+			});`
+		);
 
-			// Add width and height props
-			props.width = {
-				type: 'string',
-				value: 'width',
-				// Spread computed size.value
-				template: 'v-bind="size"',
-			};
-			props.height = {
-				type: 'string',
-				value: 'height',
-				// Included in computed size.value
-				template: '',
-			};
-		}
-	}
-
-	// Add computed import if needed
-	if (componentCode.some((line) => line.includes('computed('))) {
-		vueNamedImports.add('computed');
+		// Add width and height props
+		props.width = {
+			type: 'string',
+			value: 'width',
+			// Spread computed size
+			template: '{...size}',
+		};
+		props.height = {
+			type: 'string',
+			value: 'height',
+			// Included in computed size
+			template: '',
+		};
 	}
 
 	// Add square prop after size props
@@ -275,43 +214,36 @@ export function createVueComponent(
 	// Add viewBox prop
 	props.viewBox = {
 		value: 'viewBox',
-		template: ':viewBox="viewBox"',
+		template: `viewBox={${viewBoxPropValue}}`,
 	};
 
 	// Add content
-	let stringifiedContent = stringifyFactoryIconContent(icon);
-	if (!fallback) {
-		// Replace IDs to avoid conflicts when multiple instances are used
-		const replaceIDs = addReplaceIDsFunctionAsset(imports, assets, options);
-		stringifiedContent = '' + replaceIDs + '(' + stringifiedContent + ')';
-	}
-	componentCode.push(`const content = ${stringifiedContent};`);
-	props.content = {
-		value: 'content',
-		template: fallback
-			? `:content="content" ${computedFallback ? ':fallback="fallback"' : `fallback="${fallback}"`}`
-			: 'v-html="content"',
-	};
+	const replaceIDs = addReplaceIDsFunctionAsset(imports, assets, options);
+	componentCode.push(
+		`const content = ${replaceIDs}(${stringifyFactoryIconContent(icon)});`
+	);
 
 	// Add props
 	const usedProps = getUsedFactoryProps(props);
-	if (usedProps.length) {
-		const tsCode = useTS
-			? `<{\n${stringifyFactoryPropTypes(props)}\n}>`
-			: '';
+
+	const propsDestricturing = usedProps.length
+		? `{${[...usedProps.map((prop) => `${prop}: ${prop}Prop`), '...props'].join(', ')}}`
+		: 'props';
+	componentCode.unshift(`const ${propsDestricturing} = Astro.props;\n`);
+
+	// Add types before props
+	const propTypes = stringifyFactoryPropTypes(props);
+	if (propTypes.trim()) {
 		componentCode.unshift(
-			`const props = defineProps${tsCode}(${
-				tsCode ? '' : JSON.stringify(usedProps)
-			});\n`
+			`/** @type {{${propTypes.replace(/\s*\n\s*/g, ' ').trim()}}} */`
 		);
 	}
 
 	// Create template
-	const tag = fallback ? 'Icon' : 'svg';
-	const template = `<template><${tag} ${stringifyFactoryProps(
+	const template = `<svg ${stringifyFactoryProps(
 		props,
-		':{prop}="{value}"'
-	)} /></template>`;
+		'{prop}={{value}}'
+	)} {...props} set:html={content}></svg>`;
 
 	// Generate content
 	const scriptContent = (
@@ -320,23 +252,21 @@ export function createVueComponent(
 		componentCode.join('\n')
 	).trim();
 
-	let content = scriptContent
-		? `<script setup${useTS ? ' lang="ts"' : ''}>
+	let content = `---
 ${scriptContent}
-</script>
+---
+
 ${template}
-`
-		: template;
+`;
 
 	// Add styles
 	const style = options.cssMode === 'prop' ? styleContent : undefined;
-
 	if (styleContent && !style) {
 		content += `<style>\n${stringifyStylesheet(styleContent)}\n</style>\n`;
 	}
 
 	// Add types file
-	const types = addVueComponentTypes(data, options, assets, props);
+	const types = addAstroComponentTypes(data, options, assets, props);
 
 	// Return data
 	return {
@@ -344,6 +274,5 @@ ${template}
 		content,
 		style,
 		types,
-		dependencies: dependencies.size ? dependencies : undefined,
 	};
 }

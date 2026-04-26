@@ -15,6 +15,11 @@ import {
 	createUniqueHashContext,
 	type SVGCSSStatefulIcon,
 } from '../../src/index.js';
+import { createAstroComponent } from '../../src/components/astro.js';
+import type {
+	FactoryComponent,
+	FactoryGeneratedComponent,
+} from '../../src/components/types/component.js';
 
 // align-box-horizontal
 const icon1: SVGCSSStatefulIcon = {
@@ -276,35 +281,155 @@ const icon3: SVGCSSStatefulIcon = {
 	},
 };
 
-describe.skip('Testing stateful component', () => {
+describe('Testing generating stateful components', () => {
 	const context = createUniqueHashContext();
 	const options = componentFactoryFileSystemOptions({
 		doubleDirsForCSS: false,
 		doubleDirsForComponents: false,
 	});
-	const ts = false;
-	const extension = '.svelte'; // ts ? '.ts' : '.js';
-	const iconSuffix = ts ? '-ts' : '';
 
-	function createExport(data: FactoryIconData) {
-		/*
-		return createJSXComponent(data, {
-			context,
-			...options,
-			jsx: 'react',
-			fallbackPackage: data.name.startsWith('icon2')
-				? undefined
-				: '@iconify/css-react',
-			cssMode: data.name.startsWith('icon2') ? 'embed' : 'import',
-		});
-		*/
-		return createSvelteComponent(data, {
-			context,
-			...options,
-			cssMode: data.name.startsWith('icon2') ? 'embed' : 'import',
-			ts,
-		});
+	type GeneratorFunction = (
+		data: FactoryIconData
+	) => FactoryGeneratedComponent;
+	interface GeneratorItem {
+		generator: GeneratorFunction;
+		ext: string;
+		suffix: string;
 	}
+
+	// Generators for all supported frameworks
+	const generators: Record<string, GeneratorItem[]> = {
+		rect: [
+			{
+				ext: '.js',
+				suffix: '',
+				generator: (data) =>
+					createJSXComponent(data, {
+						context,
+						...options,
+						jsx: 'react',
+						fallbackPackage: data.name.startsWith('icon2')
+							? undefined
+							: '@iconify/css-react',
+						cssMode: data.name.startsWith('icon2')
+							? 'embed'
+							: 'import',
+						ts: false,
+					}),
+			},
+			{
+				ext: '.ts',
+				suffix: '-ts',
+				generator: (data) =>
+					createJSXComponent(data, {
+						context,
+						...options,
+						jsx: 'react',
+						fallbackPackage: data.name.startsWith('icon2')
+							? undefined
+							: '@iconify/css-react',
+						cssMode: data.name.startsWith('icon2')
+							? 'embed'
+							: 'import',
+						ts: true,
+					}),
+			},
+		],
+		solid: [
+			{
+				ext: '.jsx',
+				suffix: '',
+				generator: (data) =>
+					createSolidComponent(data, {
+						context,
+						...options,
+						cssMode: data.name.startsWith('icon2')
+							? 'embed'
+							: 'import',
+						ts: false,
+					}),
+			},
+			{
+				ext: '.tsx',
+				suffix: '-ts',
+				generator: (data) =>
+					createSolidComponent(data, {
+						context,
+						...options,
+						cssMode: data.name.startsWith('icon2')
+							? 'embed'
+							: 'import',
+						ts: true,
+					}),
+			},
+		],
+		svelte: [
+			{
+				ext: '.svelte',
+				suffix: '',
+				generator: (data) =>
+					createSvelteComponent(data, {
+						context,
+						...options,
+						cssMode: data.name.startsWith('icon2')
+							? 'embed'
+							: 'import',
+						ts: false,
+					}),
+			},
+			{
+				ext: '.svelte',
+				suffix: '-ts',
+				generator: (data) =>
+					createSvelteComponent(data, {
+						context,
+						...options,
+						cssMode: data.name.startsWith('icon2')
+							? 'embed'
+							: 'import',
+						ts: true,
+					}),
+			},
+		],
+		vue: [
+			{
+				ext: '.vue',
+				suffix: '',
+				generator: (data) =>
+					createVueComponent(data, {
+						context,
+						...options,
+						cssMode: data.name.startsWith('icon2')
+							? 'embed'
+							: 'import',
+						ts: false,
+					}),
+			},
+			{
+				ext: '.vue',
+				suffix: '-ts',
+				generator: (data) =>
+					createVueComponent(data, {
+						context,
+						...options,
+						cssMode: data.name.startsWith('icon2')
+							? 'embed'
+							: 'import',
+						ts: true,
+					}),
+			},
+			{
+				ext: '.js',
+				suffix: '-func',
+				generator: (data) =>
+					createVueFunctionalComponent(data, {
+						context,
+						...options,
+						cssMode: 'import',
+					}),
+			},
+		],
+	};
 
 	it('Icon with external CSS', async () => {
 		// Convert SVGCSSStatefulIcon
@@ -312,52 +437,56 @@ describe.skip('Testing stateful component', () => {
 		const convertedIcon2 = prepareComponentFactoryStatefulIcon(icon2)!;
 		const convertedIcon3 = prepareComponentFactoryStatefulIcon(icon3)!;
 		expect(convertedIcon1 && convertedIcon2 && convertedIcon3).toBeTruthy();
-		const data1: FactoryIconData = {
-			prefix: 'test',
-			name: 'icon1' + iconSuffix,
-			icon: convertedIcon1,
-		};
-		const data2: FactoryIconData = {
-			prefix: 'test',
-			name: 'icon2' + iconSuffix,
-			icon: convertedIcon2,
-		};
-		const data3: FactoryIconData = {
-			prefix: 'test',
-			name: 'icon3' + iconSuffix,
-			icon: convertedIcon3,
-		};
 
-		// Generate component
-		const result1 = createExport(data1);
-		const result2 = createExport(data2);
-		const result3 = createExport(data3);
+		// Generate components
+		for (const mode in generators) {
+			const genFunctions = generators[mode];
 
-		// Debug output
-		/*
-		console.log(result1.content);
-		for (const asset of result1.assets) {
-			console.log('---');
-			console.log(asset.filename);
-			console.log(asset.content);
-			console.log('---');
+			const files: FactoryComponent[] = [];
+			for (const gen of genFunctions) {
+				const data1: FactoryIconData = {
+					prefix: 'test',
+					name: 'icon1' + gen.suffix,
+					icon: convertedIcon1,
+				};
+				const data2: FactoryIconData = {
+					prefix: 'test',
+					name: 'icon2' + gen.suffix,
+					icon: convertedIcon2,
+				};
+				const data3: FactoryIconData = {
+					prefix: 'test',
+					name: 'icon3' + gen.suffix,
+					icon: convertedIcon3,
+				};
+				const data4: FactoryIconData = {
+					prefix: 'test',
+					name: 'icon4' + gen.suffix,
+					icon: convertedIcon3,
+				};
+				delete data4.icon.defaultFallback;
+				const items = [data1, data2, data3, data4];
+
+				for (const item of items) {
+					const component = gen.generator(item);
+					const file = convertGeneratedComponentToFile(
+						item,
+						component,
+						{
+							...options,
+							extension: gen.ext,
+						}
+					);
+					files.push(file);
+				}
+			}
+			const allFiles = mergeExportedComponentFiles(files);
+			await saveExportedFilesToFS(
+				allFiles,
+				`./temp/stateful-test-${mode}`
+			);
+
+			// Nothing to test, just generate and save files, test actual content in svg-css demo in Iconify repo
 		}
-        */
-
-		// Write output to file system, actual test is done in framework specific demo
-		const file1 = convertGeneratedComponentToFile(data1, result1, {
-			...options,
-			extension,
-		});
-		const file2 = convertGeneratedComponentToFile(data2, result2, {
-			...options,
-			extension,
-		});
-		const file3 = convertGeneratedComponentToFile(data3, result3, {
-			...options,
-			extension,
-		});
-		const allFiles = mergeExportedComponentFiles([file1, file2, file3]);
-		await saveExportedFilesToFS(allFiles, './temp/stateful-test');
 	});
 });
