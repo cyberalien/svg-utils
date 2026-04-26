@@ -24,6 +24,7 @@ import { stringifyStylesheet } from '../css/stylesheet.js';
 import { addCustomFunctionAsset } from './helpers/functions/custom.js';
 import { addAstroComponentTypes } from './helpers/ts/astro.js';
 import { addReplaceIDsFunctionAsset } from './helpers/functions/ids.js';
+import { cleanupJSXRenamedProps } from './helpers/props/cleanup.js';
 
 /**
  * Create Astro component code
@@ -271,7 +272,7 @@ ${template}
 	// Return data
 	return {
 		assets,
-		content,
+		content: cleanupJSXRenamedProps(content),
 		style,
 		types,
 	};

@@ -35,10 +35,10 @@ import { getSizeProps } from '../helpers/size.js';
 import { replaceIDs } from '../helpers/ids.js';
 
 /** @type {{width?: string; height?: string;}} */
-let {width: widthProp, height: heightProp, ...props} = $props();
+let {width, height, ...props} = $props();
 
 const viewBox = '0 0 24 24';
-let size = $derived(getSizeProps(widthProp, heightProp, 1));
+let size = $derived(getSizeProps(width, height, 1));
 const content = replaceIDs(\`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`);
 </script>
 <svg xmlns="http://www.w3.org/2000/svg" {...size} viewBox={viewBox} {...props}>{@html content}</svg>
@@ -94,12 +94,12 @@ export default Component;
 import Icon from '@iconify/css-svelte';
 
 /** @type {{width?: string; height?: string;}} */
-let {width: widthProp, height: heightProp, ...props} = $props();
+let {width, height, ...props} = $props();
 
 const viewBox = {"width":24,"height":24};
 const content = \`<path d="M0 0l24 24" stroke="currentColor" fill="none"/>\`;
 </script>
-<Icon width={widthProp} height={heightProp} viewBox={viewBox} content={content} fallback="test:icon" {...props}></Icon>
+<Icon width={width} height={height} viewBox={viewBox} content={content} fallback="test:icon" {...props}></Icon>
 `
 		);
 		expect(result.assets).toHaveLength(1);
@@ -249,10 +249,10 @@ interface Props {
 \theight?: string;
 };
 
-let {width: widthProp, height: heightProp, ...props}: Props = $props();
+let {width, height, ...props}: Props = $props();
 
 const viewBox = '0 0 16 16';
-let size = $derived(getSizeProps(widthProp, heightProp, 1));
+let size = $derived(getSizeProps(width, height, 1));
 const content = replaceIDs(\`<path class="${testClassName}"/>\`);
 </script>
 <svg xmlns="http://www.w3.org/2000/svg" {...size} viewBox={viewBox} {...props}>{@html content}</svg>
@@ -330,10 +330,10 @@ import { getSizeProps } from '../../helpers/size.js';
 import { replaceIDs } from '../../helpers/ids.js';
 
 /** @type {{width?: string; height?: string;}} */
-let {width: widthProp, height: heightProp, ...props} = $props();
+let {width, height, ...props} = $props();
 
 const viewBox = '0 0 16 16';
-let size = $derived(getSizeProps(widthProp, heightProp, 1));
+let size = $derived(getSizeProps(width, height, 1));
 const content = replaceIDs(\`<path class="${testClassName}"/>\`);
 </script>
 <svg xmlns="http://www.w3.org/2000/svg" {...size} viewBox={viewBox} {...props}>{@html content}</svg>
@@ -398,13 +398,13 @@ import { getSizeProps } from '../helpers/size.js';
 import { replaceIDs } from '../helpers/ids.js';
 
 /** @type {{width?: string; height?: string; square?: boolean;}} */
-let {width: widthProp, height: heightProp, square: squareProp, ...props} = $props();
+let {width, height, square, ...props} = $props();
 
 const baseViewBox = '0 0 20 24';
 const squareViewBox = '-2 0 24 24';
-let viewBoxComputed = $derived(squareProp ? squareViewBox : baseViewBox);
-let ratio = $derived(squareProp ? 1 : 0.84);
-let size = $derived(getSizeProps(widthProp, heightProp, ratio));
+let viewBoxComputed = $derived(square ? squareViewBox : baseViewBox);
+let ratio = $derived(square ? 1 : 0.84);
+let size = $derived(getSizeProps(width, height, ratio));
 const content = replaceIDs(\`<path d="M0 0l20 24" stroke="currentColor" fill="none" />\`);
 </script>
 <svg xmlns="http://www.w3.org/2000/svg" {...size} viewBox={viewBoxComputed} {...props}>{@html content}</svg>
@@ -462,14 +462,14 @@ export default Component;
 import Icon from '@iconify/css-svelte';
 
 /** @type {{width?: string; height?: string; square?: boolean;}} */
-let {width: widthProp, height: heightProp, square: squareProp, ...props} = $props();
+let {width, height, square, ...props} = $props();
 
 const baseViewBox = {"width":20,"height":24};
 const squareViewBox = {"width":24,"height":24,"left":-2};
-let viewBoxComputed = $derived(squareProp ? squareViewBox : baseViewBox);
+let viewBoxComputed = $derived(square ? squareViewBox : baseViewBox);
 const content = \`<path d="M0 0l20 24" stroke="currentColor" fill="none" />\`;
 </script>
-<Icon width={widthProp} height={heightProp} viewBox={viewBoxComputed} content={content} fallback="test:icon" {...props}></Icon>
+<Icon width={width} height={height} viewBox={viewBoxComputed} content={content} fallback="test:icon" {...props}></Icon>
 `
 		);
 		expect(result.assets).toHaveLength(1);
@@ -523,7 +523,7 @@ export default Component;
 import { replaceIDs } from '../helpers/ids.js';
 
 /** @type {{square?: boolean;}} */
-let {square: squareProp, ...props} = $props();
+let {square, ...props} = $props();
 
 const viewBox = '0 0 24 24';
 const content = replaceIDs(\`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`);
@@ -580,10 +580,10 @@ import { getSizeProps } from '../helpers/size.js';
 import { replaceIDs } from '../helpers/ids.js';
 
 /** @type {{width?: string; height?: string; square?: boolean;}} */
-let {width: widthProp, height: heightProp, square: squareProp, ...props} = $props();
+let {width, height, square, ...props} = $props();
 
 const viewBox = '0 0 24 24';
-let size = $derived(getSizeProps(widthProp, heightProp, 1));
+let size = $derived(getSizeProps(width, height, 1));
 const content = replaceIDs(\`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`);
 </script>
 <svg xmlns="http://www.w3.org/2000/svg" {...size} viewBox={viewBox} {...props}>{@html content}</svg>
@@ -833,7 +833,7 @@ const content = replaceIDs(\`<path class="${testClassName}"/><path class="${test
 
 		// Check template
 		expect(result.content).toContain(
-			'<Icon class={className} width={widthProp} height={heightProp} viewBox={viewBox} content={content} fallback={fallback} {...props}></Icon>'
+			'<Icon class={className} width={width} height={height} viewBox={viewBox} content={content} fallback={fallback} {...props}></Icon>'
 		);
 
 		// Make sure static property is included in types

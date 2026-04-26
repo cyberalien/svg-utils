@@ -26,6 +26,7 @@ import { stringifyStylesheet } from '../css/stylesheet.js';
 import { addCustomFunctionAsset } from './helpers/functions/custom.js';
 import { addFallbackFunctionAsset } from './helpers/functions/fallback.js';
 import { addReplaceIDsFunctionAsset } from './helpers/functions/ids.js';
+import { cleanupJSXRenamedProps } from './helpers/props/cleanup.js';
 
 interface SvelteOptions extends ComponentFactoryOptions {
 	// Use TypeScript
@@ -338,7 +339,7 @@ ${template}
 	// Return data
 	return {
 		assets,
-		content,
+		content: cleanupJSXRenamedProps(content),
 		style,
 		types,
 		dependencies: dependencies.size ? dependencies : undefined,

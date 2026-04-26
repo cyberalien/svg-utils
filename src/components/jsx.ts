@@ -27,6 +27,7 @@ import { addCustomFunctionAsset } from './helpers/functions/custom.js';
 import { addFallbackFunctionAsset } from './helpers/functions/fallback.js';
 import { addInnerHTMLFunctionAsset } from './helpers/functions/innerhtml.js';
 import { addReplaceIDsFunctionAsset } from './helpers/functions/ids.js';
+import { cleanupJSXRenamedProps } from './helpers/props/cleanup.js';
 
 interface Options extends ComponentFactoryOptions {
 	// JSX mode
@@ -369,9 +370,11 @@ export function createJSXComponent(
 `;
 
 	// Generate content
-	const content = `${stringifyFactoryImports(
-		imports
-	)}\n${beforeFunction}${componentFunction}\nexport default Component;\n`.trimStart();
+	const content = cleanupJSXRenamedProps(
+		`${stringifyFactoryImports(
+			imports
+		)}\n${beforeFunction}${componentFunction}\nexport default Component;\n`
+	).trimStart();
 
 	// Add types file
 	const types = addJSXComponentTypes(data, options, assets, props);

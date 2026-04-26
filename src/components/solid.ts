@@ -25,6 +25,7 @@ import { addSolidComponentTypes } from './helpers/ts/solid.js';
 import { addCustomFunctionAsset } from './helpers/functions/custom.js';
 import { addFallbackFunctionAsset } from './helpers/functions/fallback.js';
 import { addReplaceIDsFunctionAsset } from './helpers/functions/ids.js';
+import { cleanupJSXRenamedProps } from './helpers/props/cleanup.js';
 
 interface Options extends ComponentFactoryOptions {
 	// Use TypeScript
@@ -336,9 +337,11 @@ export function createSolidComponent(
 `;
 
 	// Generate content
-	const content = `${stringifyFactoryImports(
-		imports
-	)}\n${beforeFunction}${componentFunction}\nexport default Component;\n`.trimStart();
+	const content = cleanupJSXRenamedProps(
+		`${stringifyFactoryImports(
+			imports
+		)}\n${beforeFunction}${componentFunction}\nexport default Component;\n`
+	).trimStart();
 
 	// Add types file
 	const types = addSolidComponentTypes(data, options, assets, props);

@@ -36,10 +36,10 @@ import { getSizeProps } from '../helpers/size.js';
 import { replaceIDs } from '../helpers/ids.js';
 
 /** @type {{width?: string; height?: string;}} */
-const {width: widthProp, height: heightProp, ...props} = Astro.props;
+const {width, height, ...props} = Astro.props;
 
 const viewBox = '0 0 24 24';
-const size = getSizeProps(widthProp, heightProp, 1);
+const size = getSizeProps(width, height, 1);
 const content = replaceIDs(\`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`);
 ---
 
@@ -192,10 +192,10 @@ import { replaceIDs } from './helpers/ids.js';
 import './css/${testClassName}.css';
 
 /** @type {{width?: string; height?: string;}} */
-const {width: widthProp, height: heightProp, ...props} = Astro.props;
+const {width, height, ...props} = Astro.props;
 
 const viewBox = '0 0 16 16';
-const size = getSizeProps(widthProp, heightProp, 1);
+const size = getSizeProps(width, height, 1);
 const content = replaceIDs(\`<path class="${testClassName}"/>\`);
 ---
 
@@ -282,10 +282,10 @@ import { getSizeProps } from './helpers/size.js';
 import { replaceIDs } from './helpers/ids.js';
 
 /** @type {{width?: string; height?: string;}} */
-const {width: widthProp, height: heightProp, ...props} = Astro.props;
+const {width, height, ...props} = Astro.props;
 
 const viewBox = '0 0 16 16';
-const size = getSizeProps(widthProp, heightProp, 1);
+const size = getSizeProps(width, height, 1);
 const content = replaceIDs(\`<path class="${testClassName}"/>\`);
 ---
 
@@ -346,13 +346,13 @@ import { getSizeProps } from '../helpers/size.js';
 import { replaceIDs } from '../helpers/ids.js';
 
 /** @type {{width?: string; height?: string; square?: boolean;}} */
-const {width: widthProp, height: heightProp, square: squareProp, ...props} = Astro.props;
+const {width, height, square, ...props} = Astro.props;
 
 const baseViewBox = '0 0 20 24';
 const squareViewBox = '-2 0 24 24';
-const viewBoxComputed = squareProp ? squareViewBox : baseViewBox;
-const ratio = squareProp ? 1 : 0.84;
-const size = getSizeProps(widthProp, heightProp, ratio);
+const viewBoxComputed = square ? squareViewBox : baseViewBox;
+const ratio = square ? 1 : 0.84;
+const size = getSizeProps(width, height, ratio);
 const content = replaceIDs(\`<path d="M0 0l20 24" stroke="currentColor" fill="none" />\`);
 ---
 
@@ -411,7 +411,7 @@ export default Component;
 import { replaceIDs } from '../helpers/ids.js';
 
 /** @type {{square?: boolean;}} */
-const {square: squareProp, ...props} = Astro.props;
+const {square, ...props} = Astro.props;
 
 const viewBox = '0 0 24 24';
 const content = replaceIDs(\`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`);
@@ -468,10 +468,10 @@ import { getSizeProps } from '../helpers/size.js';
 import { replaceIDs } from '../helpers/ids.js';
 
 /** @type {{width?: string; height?: string; square?: boolean;}} */
-const {width: widthProp, height: heightProp, square: squareProp, ...props} = Astro.props;
+const {width, height, square, ...props} = Astro.props;
 
 const viewBox = '0 0 24 24';
-const size = getSizeProps(widthProp, heightProp, 1);
+const size = getSizeProps(width, height, 1);
 const content = replaceIDs(\`<path d="M0 0l24 24" stroke="currentColor" fill="none" />\`);
 ---
 

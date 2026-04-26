@@ -299,7 +299,7 @@ describe('Testing generating stateful components', () => {
 
 	// Generators for all supported frameworks
 	const generators: Record<string, GeneratorItem[]> = {
-		rect: [
+		react: [
 			{
 				ext: '.js',
 				suffix: '',
