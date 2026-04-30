@@ -27,6 +27,16 @@ describe('Converting SVG tag props to CSS', () => {
 			'1em',
 		]);
 
+		// Dots
+		expect(convertSVGPropertyToCSS('rect', 'x', '.5')).toEqual([
+			'x',
+			'0.5px',
+		]);
+		expect(convertSVGPropertyToCSS('rect', 'x', '-.3')).toEqual([
+			'x',
+			'-0.3px',
+		]);
+
 		// Using variables
 		expect(
 			convertSVGPropertyToCSS('rect', 'stroke-width', 10, {
@@ -38,6 +48,18 @@ describe('Converting SVG tag props to CSS', () => {
 				vars: defaultSVGCSSPropertyVars,
 			})
 		).toEqual(['stroke-width', 'none']);
+
+		// Dots with variables
+		expect(
+			convertSVGPropertyToCSS('rect', 'stroke-width', 0.5, {
+				vars: defaultSVGCSSPropertyVars,
+			})
+		).toEqual(['stroke-width', 'var(--svg-stroke-width--0-5px, 0.5px)']);
+		expect(
+			convertSVGPropertyToCSS('rect', 'stroke-width', -0.5, {
+				vars: defaultSVGCSSPropertyVars,
+			})
+		).toEqual(['stroke-width', 'var(--svg-stroke-width---0-5px, -0.5px)']);
 	});
 
 	it('Stroke and fill', () => {
@@ -57,13 +79,23 @@ describe('Converting SVG tag props to CSS', () => {
 			'fill-opacity',
 			'0',
 		]);
+		expect(convertSVGPropertyToCSS('g', 'stroke-linecap', 'round')).toEqual(
+			['stroke-linecap', 'round']
+		);
+
+		// Dots
 		expect(convertSVGPropertyToCSS('g', 'opacity', 0.5)).toEqual([
 			'opacity',
 			'0.5',
 		]);
-		expect(convertSVGPropertyToCSS('g', 'stroke-linecap', 'round')).toEqual(
-			['stroke-linecap', 'round']
-		);
+		expect(convertSVGPropertyToCSS('g', 'opacity', '.5')).toEqual([
+			'opacity',
+			'0.5',
+		]);
+		expect(convertSVGPropertyToCSS('g', 'opacity', '-.3')).toEqual([
+			'opacity',
+			'-0.3',
+		]);
 
 		// Using variables
 		expect(

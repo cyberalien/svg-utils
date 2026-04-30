@@ -30,6 +30,19 @@ function wrapInVariable(
 }
 
 /**
+ * Add 0 to values starting with dot
+ */
+function addZero(value: string): string {
+	if (value.startsWith('.')) {
+		return `0${value}`;
+	}
+	if (value.startsWith('-.')) {
+		return value.replace('-.', '-0.');
+	}
+	return value;
+}
+
+/**
  * Convert property to CSS
  */
 export function convertSVGPropertyToCSS(
@@ -47,10 +60,11 @@ export function convertSVGPropertyToCSS(
 
 		case 'px': {
 			// Convert value to string
-			let fullValue =
+			let fullValue = addZero(
 				typeof value === 'string' && !value.match(/^[0-9.-]+$/)
 					? value
-					: `${value}px`;
+					: `${value}px`
+			);
 
 			// Add CSS variable if needed
 			fullValue = wrapInVariable(fullValue, options.vars?.[prop]);
@@ -65,7 +79,7 @@ export function convertSVGPropertyToCSS(
 			}
 
 			// Convert value to string
-			let fullValue = `${value}`;
+			let fullValue = addZero(`${value}`);
 
 			// Add CSS variable if needed
 			fullValue = wrapInVariable(fullValue, options.vars?.[prop]);
