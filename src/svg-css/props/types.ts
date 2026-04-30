@@ -5,7 +5,7 @@ import type { CSSRules } from '../../css/types.js';
  */
 export type ConvertSVGPropertyVariableCallback = (
 	lowerCaseValue: string
-) => string;
+) => string | undefined;
 
 /**
  * Options for converting SVG properties to CSS

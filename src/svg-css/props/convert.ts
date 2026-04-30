@@ -9,6 +9,7 @@ const skipValues = new Set([
 	'inherit',
 	'initial',
 	'unset',
+	'currentcolor',
 ]);
 
 /**
@@ -16,7 +17,7 @@ const skipValues = new Set([
  */
 function wrapInVariable(
 	value: string,
-	callback?: string | ((length: string) => string)
+	callback?: string | ((length: string) => string | undefined)
 ): string {
 	if (
 		!skipValues.has(value.toLowerCase()) &&

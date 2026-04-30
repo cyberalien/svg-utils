@@ -2,17 +2,15 @@ import type { ConvertSVGPropertyVariableCallback } from './types.js';
 
 // Callback for color
 const colorVar: ConvertSVGPropertyVariableCallback = (color) =>
-	`--svg-color${
-		color === 'currentcolor'
-			? ''
-			: `--${color
-					// Replace with dashes
-					.replace(/[^a-z0-9]/g, '-')
-					// Remove dashes at the beginning and end
-					.replace(/^-+|-+$/g, '')
-					// Replace multiple dashes with a single dash
-					.replace(/-+/g, '-')}`
-	}`;
+	color === 'currentcolor'
+		? undefined
+		: `--svg-color--${color
+				// Replace with dashes
+				.replace(/[^a-z0-9]/g, '-')
+				// Remove dashes at the beginning and end
+				.replace(/^-+|-+$/g, '')
+				// Replace multiple dashes with a single dash
+				.replace(/-+/g, '-')}`;
 
 /**
  * Default CSS variable callbacks for SVG properties

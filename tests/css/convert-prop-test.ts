@@ -67,10 +67,17 @@ describe('Converting SVG tag props to CSS', () => {
 
 		// Using variables
 		expect(
+			convertSVGPropertyToCSS('g', 'fill', 'red', {
+				vars: defaultSVGCSSPropertyVars,
+			})
+		).toEqual(['fill', 'var(--svg-color--red, red)']);
+
+		// Keywords to skip
+		expect(
 			convertSVGPropertyToCSS('g', 'fill', 'currentColor', {
 				vars: defaultSVGCSSPropertyVars,
 			})
-		).toEqual(['fill', 'var(--svg-color, currentColor)']);
+		).toEqual(['fill', 'currentColor']);
 		expect(
 			convertSVGPropertyToCSS('g', 'fill', 'none', {
 				vars: defaultSVGCSSPropertyVars,

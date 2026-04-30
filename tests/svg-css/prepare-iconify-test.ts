@@ -99,7 +99,7 @@ describe('Preparing Iconify icon data', () => {
 		const context = createUniqueHashContext();
 		const data = convertIconifyIconToFactoryContent(
 			{
-				body: '<path d="M0 0l16 16" fill="currentColor" />',
+				body: '<path d="M0 0l16 16" fill="#123456" />',
 			},
 			'test-prefix',
 			'line-icon',
@@ -109,7 +109,7 @@ describe('Preparing Iconify icon data', () => {
 				// Also test color variable in legacy mode
 				vars: {
 					fill: (color) =>
-						`--icon-color${color === 'currentcolor' ? '' : `--${color.replace(/[^a-z0-9]/g, '')}`}`,
+						`--icon-color--${color.replace(/[^a-z0-9]/g, '')}`,
 				},
 			}
 		);
@@ -126,7 +126,7 @@ describe('Preparing Iconify icon data', () => {
 		const testClassName = classNames[0];
 		expect(data.icon.classes).toEqual({
 			[testClassName]: {
-				fill: 'var(--icon-color, currentColor)',
+				fill: 'var(--icon-color--123456, #123456)',
 			},
 		});
 	});
