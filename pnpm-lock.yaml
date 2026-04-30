@@ -12,6 +12,9 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
     devDependencies:
+      '@iconify-json/glyphs-poly':
+        specifier: ^1.2.0
+        version: 1.2.0
       '@iconify-json/ri':
         specifier: ^1.2.10
         version: 1.2.10
@@ -218,6 +221,9 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@iconify-json/glyphs-poly@1.2.0':
+    resolution: {integrity: sha512-jFR16jUBUf49FfZ2VEDuqY+OFcUS9LGys9MehFonNjKT4jn1XV68xqvTvuQ2uQfS6XuqyybiE8xNHACnLvMcFg==}
 
   '@iconify-json/ri@1.2.10':
     resolution: {integrity: sha512-WWMhoncVVM+Xmu9T5fgu2lhYRrKTEWhKk3Com0KiM111EeEsRLiASjpsFKnC/SrB6covhUp95r2mH8tGxhgd5Q==}
@@ -1110,6 +1116,10 @@ snapshots:
 
   '@esbuild/win32-x64@0.25.12':
     optional: true
+
+  '@iconify-json/glyphs-poly@1.2.0':
+    dependencies:
+      '@iconify/types': 2.0.0
 
   '@iconify-json/ri@1.2.10':
     dependencies:
