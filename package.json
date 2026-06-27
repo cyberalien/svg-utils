@@ -1,41 +1,41 @@
 {
-	"name": "@cyberalien/svg-utils",
-	"type": "module",
-	"description": "Common functions for working with SVG used by various packages.",
-	"author": "Vjacheslav Trushkin",
-	"version": "1.2.15",
-	"license": "MIT",
-	"packageManager": "pnpm@10.33.0",
-	"bugs": "https://github.com/cyberalien/svg-utils/issues",
-	"homepage": "https://cyberalien.dev/",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/cyberalien/svg-utils.git"
-	},
-	"scripts": {
-		"lint": "oxlint --fix src/**/*.ts && tsc --noemit",
-		"prebuild": "pnpm run lint",
-		"build": "tsdown",
-		"test": "vitest"
-	},
-	"sideEffects": false,
-	"main": "lib/index.js",
-	"module": "lib/index.js",
-	"types": "lib/index.d.ts",
-	"files": [
-		"lib",
-		"*.d.ts"
-	],
-	"dependencies": {
-		"@iconify/types": "^2.0.0"
-	},
-	"devDependencies": {
-		"@iconify-json/glyphs-poly": "^1.2.0",
-		"@iconify-json/ri": "^1.2.10",
-		"@types/node": "^25.6.0",
-		"oxlint": "^1.60.0",
-		"tsdown": "^0.21.9",
-		"typescript": "^5.9.3",
-		"vitest": "^4.1.4"
-	}
+  "name": "@cyberalien/svg-utils",
+  "version": "1.2.16",
+  "description": "Common functions for working with SVG used by various packages.",
+  "homepage": "https://cyberalien.dev/",
+  "bugs": "https://github.com/cyberalien/svg-utils/issues",
+  "license": "MIT",
+  "author": "Vjacheslav Trushkin",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cyberalien/svg-utils.git"
+  },
+  "files": [
+    "lib",
+    "*.d.ts"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "lib/index.js",
+  "module": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "lint": "oxlint --fix src/**/*.ts && tsc --noemit",
+    "prebuild": "pnpm run lint",
+    "build": "tsdown",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@iconify/types": "^2.0.0"
+  },
+  "devDependencies": {
+    "@iconify-json/glyphs-poly": "^1.2.0",
+    "@iconify-json/ri": "^1.2.10",
+    "@types/node": "^25.6.0",
+    "oxlint": "^1.60.0",
+    "tsdown": "^0.21.9",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.4"
+  },
+  "packageManager": "pnpm@10.33.0"
 }

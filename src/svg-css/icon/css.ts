@@ -1,16 +1,11 @@
-import {
-	addGeneratedSelector,
-	createEmptyStylesheet,
-} from '../../css/stylesheet.js';
-import type { CSSGeneratedStylesheet } from '../../css/types.js';
-import { prefersReduceMotion } from '../../helpers/reduce-motion.js';
-import { getSelectorsForStateValues } from '../states/selector/parse.js';
-import type { StatefulIconSelectorsContext } from '../states/selector/types.js';
-import type { SVGCSSIconRules, SVGCSSStatefulIconRules } from './types.js';
+import { addGeneratedSelector, createEmptyStylesheet } from "../../css/stylesheet.js";
+import type { CSSGeneratedStylesheet } from "../../css/types.js";
+import { prefersReduceMotion } from "../../helpers/reduce-motion.js";
+import { getSelectorsForStateValues } from "../states/selector/parse.js";
+import type { StatefulIconSelectorsContext } from "../states/selector/types.js";
+import type { SVGCSSIconRules, SVGCSSStatefulIconRules } from "./types.js";
 
-type StylesheetParam =
-	| CSSGeneratedStylesheet
-	| ((selector: string) => CSSGeneratedStylesheet);
+type StylesheetParam = CSSGeneratedStylesheet | ((selector: string) => CSSGeneratedStylesheet);
 
 /**
  * Add styles for stateful icon to stylesheet
@@ -24,15 +19,13 @@ type StylesheetParam =
 export function renderStatefulSVGCSSIconStyle(
 	icon: SVGCSSStatefulIconRules,
 	context: StatefulIconSelectorsContext | null,
-	commonStylesheet: StylesheetParam = createEmptyStylesheet
+	commonStylesheet: StylesheetParam = createEmptyStylesheet,
+	specialHandlingForFocusState = true,
 ): Record<string, CSSGeneratedStylesheet> {
-	const stylesheets = Object.create(null) as Record<
-		string,
-		CSSGeneratedStylesheet
-	>;
+	const stylesheets = Object.create(null) as Record<string, CSSGeneratedStylesheet>;
 
 	const getStylesheet = (className: string): CSSGeneratedStylesheet => {
-		if (typeof commonStylesheet === 'object') {
+		if (typeof commonStylesheet === "object") {
 			return commonStylesheet;
 		}
 		if (!stylesheets[className]) {
@@ -43,11 +36,7 @@ export function renderStatefulSVGCSSIconStyle(
 
 	// Add base classes
 	for (const className in icon.classes) {
-		addGeneratedSelector(
-			getStylesheet(className),
-			[`.${className}`],
-			icon.classes[className]
-		);
+		addGeneratedSelector(getStylesheet(className), [`.${className}`], icon.classes[className]);
 	}
 
 	// Add animations
@@ -59,14 +48,13 @@ export function renderStatefulSVGCSSIconStyle(
 		addGeneratedSelector(
 			getStylesheet(className),
 			[...tree, `.${className}`],
-			icon.animations[className]
+			icon.animations[className],
 		);
 	}
 
 	// Add keyframes
 	for (const keyframeName in icon.keyframes) {
-		getStylesheet(keyframeName).keyframes[keyframeName] =
-			icon.keyframes[keyframeName];
+		getStylesheet(keyframeName).keyframes[keyframeName] = icon.keyframes[keyframeName];
 	}
 
 	// Add stateful classes
@@ -81,19 +69,22 @@ export function renderStatefulSVGCSSIconStyle(
 				addGeneratedSelector(
 					getStylesheet(className),
 					[prefersReduceMotion, baseClassName],
-					classData.transition
+					classData.transition,
 				);
 			}
 
 			// State specific rules
 			for (const stateKey in classData.stateRules) {
 				const selectors = getSelectorsForStateValues(context, stateKey);
+				const isFocusState = stateKey.split("_").includes("focus");
 				if (selectors) {
 					for (const tree of selectors) {
+						const list = [...tree, baseClassName];
 						addGeneratedSelector(
 							stylesheet,
-							[...tree, baseClassName],
-							classData.stateRules[stateKey]
+							// Special handling for focus state: do not render without transition
+							specialHandlingForFocusState && isFocusState ? [prefersReduceMotion, ...list] : list,
+							classData.stateRules[stateKey],
 						);
 					}
 				}
@@ -105,7 +96,7 @@ export function renderStatefulSVGCSSIconStyle(
 						addGeneratedSelector(
 							stylesheet,
 							[prefersReduceMotion, ...tree, baseClassName],
-							classData.stateTransition[stateKey]
+							classData.stateTransition[stateKey],
 						);
 					}
 				}
@@ -127,7 +118,7 @@ export function renderStatefulSVGCSSIconStyle(
  */
 export function renderSVGCSSIconStyle(
 	icon: SVGCSSIconRules,
-	commonStylesheet?: StylesheetParam
+	commonStylesheet?: StylesheetParam,
 ): Record<string, CSSGeneratedStylesheet> {
 	return renderStatefulSVGCSSIconStyle(icon, null, commonStylesheet);
 }
