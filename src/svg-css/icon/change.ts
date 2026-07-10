@@ -1,4 +1,5 @@
 import { splitClassName } from '../../classname/toggle.js';
+import { changeSVGIDs } from '../../svg/ids/change.js';
 import { iterateXMLContent } from '../../xml/iterate.js';
 import { parseXMLContent } from '../../xml/parse.js';
 import { stringifyXMLContent } from '../../xml/stringify.js';
@@ -7,11 +8,15 @@ import type { SVGCSSStatefulIcon, SVGCSSIcon } from './types.js';
 /**
  * Change class names in icon
  *
- * To change IDs, use changeSVGIDs() for content
+ * Optionally change IDs in icon if idsCallback is provided
  */
 export function changeSVGCSSIconClassnames<
 	T extends SVGCSSStatefulIcon | SVGCSSIcon,
->(icon: T, callback: (value: string) => string): T {
+>(
+	icon: T,
+	callback: (value: string) => string,
+	idsCallback?: (id: string, content: string, tagName: string) => string
+): T {
 	const newClassNames = new Map<string, string>();
 
 	// Find all classes in content
@@ -38,6 +43,10 @@ export function changeSVGCSSIconClassnames<
 			node.attribs['class'] = classNames.join(' ');
 		}
 	});
+	if (idsCallback) {
+		changeSVGIDs(root, idsCallback);
+	}
+
 	const content = stringifyXMLContent(root);
 	if (!content) {
 		return icon;

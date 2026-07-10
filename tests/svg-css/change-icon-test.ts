@@ -41,10 +41,14 @@ describe('Testing changing stateful icon', () => {
 	test('Stateful icon', () => {
 		const backup = JSON.parse(JSON.stringify(scanIcon));
 		expect(
-			changeSVGCSSIconClassnames(scanIcon, (className) => `test-${className}`)
+			changeSVGCSSIconClassnames(
+				scanIcon,
+				(className) => `test-${className}`,
+				(id) => `Test${id}`
+			)
 		).toEqual({
 			content:
-				'<defs><mask id="SVGQXdDfesW"><path class="test-hz1ecu test-iy2otu test-r1menc"/><path class="test-al390y test-e_64it test-l93fye test-r1menc"/><path class="test-al390y test-jnc8yq test-q090lg test-r1menc"/></mask></defs><rect class="test-i7rily"/><path mask="url(#SVGQXdDfesW)" class="test-c7cd9u"/><path class="test-e_64it test-iy2otu test-j92okf test-l93fye test-r1menc"/><path class="test-iy2otu test-j92okf test-jnc8yq test-q090lg test-r1menc"/>',
+				'<defs><mask id="TestSVGQXdDfesW"><path class="test-hz1ecu test-iy2otu test-r1menc"/><path class="test-al390y test-e_64it test-l93fye test-r1menc"/><path class="test-al390y test-jnc8yq test-q090lg test-r1menc"/></mask></defs><rect class="test-i7rily"/><path mask="url(#TestSVGQXdDfesW)" class="test-c7cd9u"/><path class="test-e_64it test-iy2otu test-j92okf test-l93fye test-r1menc"/><path class="test-iy2otu test-j92okf test-jnc8yq test-q090lg test-r1menc"/>',
 			viewBox: {
 				left: 0,
 				top: 0,
