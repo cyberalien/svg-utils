@@ -43,6 +43,7 @@ export * from './svg-css/states/object.js';
 export * from './svg-css/states/value.js';
 export * from './svg-css/states/types.js';
 export * from './svg-css/icon/types.js';
+export * from './svg-css/icon/change.js';
 export * from './svg-css/icon-set/types.js';
 export * from './svg-css/icon-set/get.js';
 export * from './svg-css/icon-set/add.js';
