@@ -1,6 +1,6 @@
 {
 	"name": "@cyberalien/svg-utils",
-	"version": "1.2.18",
+	"version": "1.2.19",
 	"description": "Common functions for working with SVG used by various packages.",
 	"homepage": "https://cyberalien.dev/",
 	"bugs": "https://github.com/cyberalien/svg-utils/issues",

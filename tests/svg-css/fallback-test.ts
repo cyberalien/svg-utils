@@ -18,12 +18,8 @@ describe('Testing fallback template', () => {
 		]);
 
 		// Test fallback generation
-		expect(getIconFallback(tempalte1!, { action: true })).toBe(
-			'arrow-left'
-		);
-		expect(getIconFallback(tempalte1!, { action: false })).toBe(
-			'arrow-right'
-		);
+		expect(getIconFallback(tempalte1!, { action: true })).toBe('arrow-left');
+		expect(getIconFallback(tempalte1!, { action: false })).toBe('arrow-right');
 		expect(getIconFallback(tempalte1!, {})).toBe('arrow-right');
 		expect(getIconFallback(tempalte1!, { action: 'bad-value' })).toBe(
 			'arrow-left'
@@ -53,18 +49,19 @@ describe('Testing fallback template', () => {
 			'-horizontal',
 		]);
 
+		// Boolean state as value
+		expect(parseAndTestIconFallbackTemplate(`foo{static}`, ['static'])).toEqual(
+			['foo', { state: 'static', values: ['', 'static'] }]
+		);
+
 		// Bad templates
 		expect(
 			// Missing }
-			parseAndTestIconFallbackTemplate('arrow-{action?left|right', [
-				'action',
-			])
+			parseAndTestIconFallbackTemplate('arrow-{action?left|right', ['action'])
 		).toBeUndefined();
 		expect(
 			// No such state
-			parseAndTestIconFallbackTemplate('arrow-{action?left|right}', [
-				'focus',
-			])
+			parseAndTestIconFallbackTemplate('arrow-{action?left|right}', ['focus'])
 		).toBeUndefined();
 		expect(
 			// Invalid quotes placement
@@ -74,18 +71,13 @@ describe('Testing fallback template', () => {
 		).toBeUndefined();
 		expect(
 			// Invalid number of values
-			parseAndTestIconFallbackTemplate('arrow-{action}', ['action'])
-		).toBeUndefined();
-		expect(
-			// Invalid number of values
 			parseAndTestIconFallbackTemplate('arrow-{action?left}', ['action'])
 		).toBeUndefined();
 		expect(
 			// Invalid number of values
-			parseAndTestIconFallbackTemplate(
-				'arrow-{action?left|right|center}',
-				['action']
-			)
+			parseAndTestIconFallbackTemplate('arrow-{action?left|right|center}', [
+				'action',
+			])
 		).toBeUndefined();
 	});
 
@@ -127,5 +119,61 @@ describe('Testing fallback template', () => {
 		expect(
 			getIconFallback(tempalte1!, cleanupStateValues(alignStates, {}))
 		).toBe('box-horizontal-left-middle');
+	});
+
+	test('Advanced state with prefix', () => {
+		const testStates: IconStatesList = [
+			['align', ['top', 'middle', '-bottom'], 'middle'],
+			['ext', ['', 'foo', '-bar', 'baz']],
+			'static',
+		];
+
+		const tempalte1 = parseAndTestIconFallbackTemplate(
+			'box{align}{ext}{static}',
+			testStates
+		);
+		expect(tempalte1).toEqual([
+			'box',
+			{
+				state: 'align',
+			},
+			{
+				state: 'ext',
+			},
+			{
+				state: 'static',
+				values: ['', 'static'],
+			},
+		]);
+
+		// Test fallback generation
+		expect(
+			getIconFallback(tempalte1!, { align: 'left', ext: 'foo' }, {}, '-')
+		).toBe('box-left-foo');
+		expect(
+			getIconFallback(tempalte1!, { align: 'left', ext: 'foo' }, {}, '.')
+		).toBe('box.left.foo');
+
+		expect(
+			getIconFallback(tempalte1!, { align: 'right', static: true }, {}, '-')
+		).toBe('box-right-static');
+
+		// Value starts with prefix
+		expect(
+			getIconFallback(
+				tempalte1!,
+				{ align: '-bottom', ext: '-bar' },
+				{ static: true },
+				'-'
+			)
+		).toBe('box-bottom-bar-static');
+		expect(
+			getIconFallback(
+				tempalte1!,
+				{ align: '-bottom', ext: '-bar' },
+				{ static: true },
+				'.'
+			)
+		).toBe('box.-bottom.-bar.static');
 	});
 });
