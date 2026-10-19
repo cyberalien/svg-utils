@@ -18,14 +18,14 @@ describe('Creating raw components', () => {
 					width: 24,
 					height: 24,
 				},
-				content:
-					'<path d="M0 0l24 24" stroke="currentColor" fill="none" />',
+				content: '<path d="M0 0l24 24" stroke="currentColor" fill="none" />',
 			},
 		};
 		const result = createRawComponent(data, {
 			context,
 			...options,
 			cssMode: 'import',
+			functional: true,
 		});
 		expect(result.content).toBe(
 			'const icon = () => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0l24 24" stroke="currentColor" fill="none" /></svg>`;\n\nexport default icon;\n'
@@ -74,10 +74,11 @@ describe('Creating raw components', () => {
 			...options,
 			cssMode: 'import',
 			height: '1em',
+			functional: false,
 		});
 		expect(result.content).toBe(
 			`import './css/${testClassName}.css';\n\n` +
-				'const icon = () => `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16"><path class="' +
+				'const icon = `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16"><path class="' +
 				testClassName +
 				'"/></svg>`;\n\nexport default icon;\n'
 		);
@@ -126,6 +127,7 @@ describe('Creating raw components', () => {
 			...options,
 			cssMode: 'import',
 			height: '1em',
+			functional: true,
 		});
 		expect(result.content).toBe(
 			`import { replaceIDs } from './helpers/ids.js';\nimport './css/${testClassName}.css';\n\n` +
@@ -178,17 +180,16 @@ describe('Creating raw components', () => {
 			context,
 			...options,
 			cssMode: 'prop',
+			functional: false,
 		});
 		expect(result.content).toBe(
-			'const icon = () => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path class="' +
+			'const icon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path class="' +
 				testClassName +
 				'"/></svg>`;\n\nexport default icon;\n'
 		);
 		expect(result.assets).toHaveLength(1);
 		expect(result.assets[0].filename).toBe('line-icon.d.ts');
-		expect(
-			result.style ? stringifyStylesheet(result.style) : undefined
-		).toBe(
+		expect(result.style ? stringifyStylesheet(result.style) : undefined).toBe(
 			`.${testClassName} {\n  d: path("M0 0l16 16");\n  fill: currentColor;\n}\n`
 		);
 	});
@@ -231,6 +232,7 @@ describe('Creating raw components', () => {
 			context,
 			...options,
 			cssMode: 'embed',
+			functional: true,
 		});
 		expect(result.content).toBe(
 			'import { replaceIDs } from \'./helpers/ids.js\';\n\nconst icon = () => replaceIDs(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><style>.' +
@@ -265,18 +267,24 @@ describe('Creating raw components', () => {
 				'so-to-0': '100%{stroke-dashoffset:0}',
 			},
 			animations: {
-				fabh7v: 'stroke-dasharray:74;animation:0.6s linear forwards so-from-74;',
-				ek9rqv: 'stroke-dasharray:10;stroke-dashoffset:10;animation:0.2s linear 0.7s forwards so-to-0;',
+				fabh7v:
+					'stroke-dasharray:74;animation:0.6s linear forwards so-from-74;',
+				ek9rqv:
+					'stroke-dasharray:10;stroke-dashoffset:10;animation:0.2s linear 0.7s forwards so-to-0;',
 			},
 			classes: {
-				ona74n: 'stroke-linecap:round;stroke-linejoin:round;stroke-width:var(--svg-stroke-width, 1.5px);fill:none;',
-				mfq4_u: "d:path('M11 3h8c0.5 0 1 0.5 1 1v16c0 0.5 -0.5 1 -1 1h-16c-0.5 0 -1 -0.5 -1 -1v-16c0 -0.5 0.5 -1 1 -1Z');stroke:var(--svg-tertiary-color, currentColor);",
-				mfxbmu: "stroke:var(--svg-primary-color, currentColor);d:path('M6 7h4M6 10.5h8M6 14h6');",
+				ona74n:
+					'stroke-linecap:round;stroke-linejoin:round;stroke-width:var(--svg-stroke-width, 1.5px);fill:none;',
+				mfq4_u:
+					"d:path('M11 3h8c0.5 0 1 0.5 1 1v16c0 0.5 -0.5 1 -1 1h-16c-0.5 0 -1 -0.5 -1 -1v-16c0 -0.5 0.5 -1 1 -1Z');stroke:var(--svg-tertiary-color, currentColor);",
+				mfxbmu:
+					"stroke:var(--svg-primary-color, currentColor);d:path('M6 7h4M6 10.5h8M6 14h6');",
 			},
 			statefulClasses: {
 				mfq4_u: {
 					stateRules: {
-						focus: "d:path('M11 3h9c0 0 0 0 0 0v18c0 0 0 0 0 0h-18c0 0 0 0 0 0v-18c0 0 0 0 0 0Z');",
+						focus:
+							"d:path('M11 3h9c0 0 0 0 0 0v18c0 0 0 0 0 0h-18c0 0 0 0 0 0v-18c0 0 0 0 0 0Z');",
 					},
 					transition: 'transition:d 0.4s linear;',
 				},
@@ -325,6 +333,7 @@ describe('Creating raw components', () => {
 			context,
 			...options,
 			cssMode: 'import',
+			functional: true,
 		});
 
 		// console.log(result.content);

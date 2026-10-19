@@ -19,12 +19,16 @@ import { stringifyStylesheet } from '../css/stylesheet.js';
 import { addReplaceIDsFunctionAsset } from './helpers/functions/ids.js';
 import { checkForUniqueIDs } from './helpers/code/ids.js';
 
+interface Options extends ComponentFactoryOptions {
+	functional: boolean;
+}
+
 /**
  * Create raw component code
  */
 export function createRawComponent(
 	data: FactoryIconData,
-	options: ComponentFactoryOptions
+	options: Options
 ): FactoryGeneratedComponent {
 	const icon = data.icon;
 	const viewBox = icon.viewBox;
@@ -62,7 +66,11 @@ export function createRawComponent(
 		const replaceIDs = addReplaceIDsFunctionAsset(imports, assets, options);
 		stringifiedContent = `${replaceIDs}(${stringifiedContent})`;
 	}
-	codeLines.push(`const icon = () => ${stringifiedContent};\n`);
+	codeLines.push(
+		options.functional
+			? `const icon = () => ${stringifiedContent};\n`
+			: `const icon = ${stringifiedContent};\n`
+	);
 	codeLines.push('export default icon;\n');
 
 	// Add imports
@@ -72,7 +80,10 @@ export function createRawComponent(
 	}
 
 	// Add types
-	const typesContent = `declare function icon(): string;\nexport default icon;\n`;
+	const typesContent =
+		(options.functional
+			? `declare function icon(): string;`
+			: `declare const icon: string;`) + `\nexport default icon;\n`;
 	assets.push({
 		...getGeneratedComponentTypesFilename(data, typesContent, options),
 		content: typesContent,
