@@ -50,13 +50,23 @@ export function getUniqueHash(
 		cache[result] = str;
 	} else if (cache[result] !== str) {
 		// Already exists and is different
-		// In case of collision, increase limit in hashToCSSString()
-		const msg = `Hash collision detected: ${hash}`;
-		if (options.throwOnCollision) {
-			throw new Error(msg);
-		} else {
-			console.warn(msg);
+		options.onCollision?.(result, str);
+
+		// Add numbers to hash
+		let i = 1;
+		while (true) {
+			const newHash = `${result}${i}`;
+			if (cache[newHash] === str) {
+				// Already exists and is the same
+				return newHash;
+			}
+			if (!cache[newHash]) {
+				cache[newHash] = str;
+				return newHash;
+			}
+			i++;
 		}
 	}
+
 	return result;
 }

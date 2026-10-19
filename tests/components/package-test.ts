@@ -90,9 +90,7 @@ describe.skip('Creating components package with fallback', () => {
 			test(`${data.title} as ${testMode} package`, async () => {
 				const { iconSet, names, useTS, noFallback } = data;
 				if (!iconSet) {
-					throw new Error(
-						`Icon set not loaded for prefix: ${prefix}`
-					);
+					throw new Error(`Icon set not loaded for prefix: ${prefix}`);
 				}
 
 				const dir = baseDir
@@ -114,9 +112,7 @@ describe.skip('Creating components package with fallback', () => {
 
 				// Test mode specific stuff
 				let defaultProp: string | undefined;
-				let callback: (
-					data: FactoryIconData
-				) => FactoryGeneratedComponent;
+				let callback: (data: FactoryIconData) => FactoryGeneratedComponent;
 				let extension: (data: FactoryIconData) => string;
 
 				switch (testMode) {
@@ -156,8 +152,7 @@ describe.skip('Creating components package with fallback', () => {
 								fallbackPackage: '@iconify/css-react',
 								ts: useTS.has(data.name),
 							});
-						extension = (data) =>
-							useTS.has(data.name) ? '.tsx' : '.jsx';
+						extension = (data) => (useTS.has(data.name) ? '.tsx' : '.jsx');
 						break;
 
 					case 'solid':
@@ -169,8 +164,7 @@ describe.skip('Creating components package with fallback', () => {
 								height,
 								ts: useTS.has(data.name),
 							});
-						extension = (data) =>
-							useTS.has(data.name) ? '.tsx' : '.jsx';
+						extension = (data) => (useTS.has(data.name) ? '.tsx' : '.jsx');
 						break;
 
 					default:
@@ -186,7 +180,6 @@ describe.skip('Creating components package with fallback', () => {
 							name,
 							{
 								context,
-								throwOnCollision: true,
 								prefix: 'test',
 								vars: defaultSVGCSSPropertyVars,
 							}
@@ -201,14 +194,10 @@ describe.skip('Creating components package with fallback', () => {
 						const result = callback(iconData);
 
 						// Create file data
-						const file = convertGeneratedComponentToFile(
-							iconData,
-							result,
-							{
-								...options,
-								extension: extension(iconData),
-							}
-						);
+						const file = convertGeneratedComponentToFile(iconData, result, {
+							...options,
+							extension: extension(iconData),
+						});
 
 						addComponentDependencies(result, dependencies);
 						components.push(file);

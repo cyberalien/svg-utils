@@ -1,6 +1,6 @@
 {
 	"name": "@cyberalien/svg-utils",
-	"version": "1.2.19",
+	"version": "1.2.20",
 	"description": "Common functions for working with SVG used by various packages.",
 	"homepage": "https://cyberalien.dev/",
 	"bugs": "https://github.com/cyberalien/svg-utils/issues",
@@ -20,7 +20,7 @@
 	"module": "lib/index.js",
 	"types": "lib/index.d.ts",
 	"scripts": {
-		"lint": "oxlint --fix src/**/*.ts && tsc --noemit",
+		"lint": "oxlint --fix src/ && tsc --noemit",
 		"prebuild": "pnpm run lint",
 		"build": "tsdown",
 		"test": "vitest"

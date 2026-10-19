@@ -3,7 +3,8 @@
  */
 export interface HashContext {
 	// Hashes cache, per prefix
-	cache?: Record<string, string>;
+	// Key is hash, value is content
+	cache: Record<string, string>;
 }
 
 /**
@@ -27,8 +28,8 @@ export interface UniqueHashPartialOptions {
 	// Custom lengths for specific hashes
 	lengths?: Record<string, number>;
 
-	// If true, throw an error on collision
-	throwOnCollision?: boolean;
+	// Callback to use on collision
+	onCollision?: (hash: string, content: string) => void;
 }
 
 /**
